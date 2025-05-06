@@ -42,7 +42,7 @@ const SignupPage = () => {
       setError(result.error || "Signup failed");
       return;
     }
-    navigate("/login");
+    navigate("/");
   };
 
   return (

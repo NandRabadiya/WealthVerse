@@ -12,7 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 const LandingPage = () => {
-  const { user } = useAuth();
+  const { token, logout } = useAuth();
+  console.log(token);
   const navigate = useNavigate();
 
   const features = [
@@ -57,10 +58,13 @@ const LandingPage = () => {
   ];
 
   const handleCardClick = (url) => {
-    if (user) {
+    const isAuthenticated = !!token || !!localStorage.getItem("token");
+    console.log("isAuthenticated: ", isAuthenticated);
+    if (isAuthenticated) {
+      console.log("Navigating to: ", url);
       navigate(`/${url}`);
     } else {
-      navigate("/login");
+     navigate("/login");
     }
   };
 
@@ -69,18 +73,16 @@ const LandingPage = () => {
       {/* Navbar */}
       <nav className="flex justify-between items-center py-6 px-6 md:px-12 lg:px-24">
         <div className="font-bold text-2xl text-green-400">WealthVerse</div>
-        {user ? (
-          // Display Profile Icon if user is logged in
+        {token ? (
+          // Display Logout Button when user is logged in
           <Button
-            onClick={() => navigate("/profile")}
-            className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900"
+            onClick={async () => {
+              await logout();
+              navigate("/");
+            }}
+            className="bg-red-500 hover:bg-red-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
           >
-            {/* Add a Profile Icon here */}
-            <img
-              src="/path-to-your-profile-icon.png"
-              alt="Profile"
-              className="w-6 h-6 rounded-full"
-            />
+            Logout
           </Button>
         ) : (
           // Display Login Button if user is not logged in
@@ -119,7 +121,7 @@ const LandingPage = () => {
             <div
               key={feature.title}
               onClick={() => handleCardClick(feature.url)}
-              className="bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer duration-300 transform hover:-translate-y-1 hover:scale-105 transition-transform"
+              className="bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl cursor-pointer duration-300 transform hover:-translate-y-1 hover:scale-105 transition-transform"
             >
               <div className="mb-4">{feature.icon}</div>
               <h3 className="text-xl font-bold mb-2">{feature.title}</h3>

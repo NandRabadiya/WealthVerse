@@ -15,6 +15,8 @@ import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
 
 function App() {
+
+  
   return (
     <>
       <AuthProvider>

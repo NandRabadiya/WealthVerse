@@ -2,7 +2,8 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LogIn } from "lucide-react";
+import { useAuth } from "@/auth/AuthContext"; // Import the useAuth hook
+import { useNavigate } from "react-router-dom";
 
 // Define the feature links you want in the navbar
 const features = [
@@ -13,6 +14,8 @@ const features = [
 ];
 
 const FeaturesNavbar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
   return (
     <nav className="flex justify-between items-center py-6 px-6 md:px-12 lg:px-24 bg-gray-900 text-white">
       <div className="font-bold text-2xl text-green-400">WealthVerse</div>
@@ -27,8 +30,14 @@ const FeaturesNavbar = () => {
           </NavLink>
         ))}
       </div>
-      <Button className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900">
-        <LogIn className="mr-2 h-4 w-4" /> User
+      <Button
+        onClick={async () => {
+          await logout();
+          window.location.href = "/"; // Force full reload to clear context
+        }}
+        className="bg-red-500 hover:bg-red-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
+      >
+        Logout
       </Button>
     </nav>
   );
