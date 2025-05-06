@@ -3,19 +3,25 @@ package com.example.wealthverse.Service;
 import com.example.wealthverse.Model.Token;
 import com.example.wealthverse.Model.User;
 import com.example.wealthverse.Repository.TokenRepository;
+import com.example.wealthverse.Repository.UserRepository;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Service
@@ -31,6 +37,9 @@ public class JWTService {
     private long refreshTokenExpiration;
 
     private final TokenRepository tokenRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public JWTService(TokenRepository tokenRepository) {
         this.tokenRepository = tokenRepository;
@@ -133,5 +142,36 @@ public class JWTService {
         });
 
         tokenRepository.saveAll(validUserTokens);
+    }
+
+    public String getEmailFromToken(String token) {
+        if (token == null || token.isEmpty()) {
+            System.out.println("Invalid token: token is null or empty");
+            return null;
+        }
+        try {
+            token = token.startsWith("Bearer ") ? token.substring(7) : token;
+            return extractClaim(token, claims -> claims.get("email", String.class));
+
+        } catch (JwtException e) {
+            throw new RuntimeException("Invalid JWT Token", e);
+        }
+    }
+
+    public Long getUserIdFromToken(String token) {
+        try {
+            token = token.startsWith("Bearer ") ? token.substring(7) : token;
+            Long userId = extractClaim(token, claims -> claims.get("userId", Long.class));
+
+            return userId;
+
+        } catch (JwtException e) {
+            throw new RuntimeException("Invalid JWT Token", e);
+        }
+    }
+
+    private boolean isValidEmail(String email) {
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        return email != null && email.matches(emailRegex);
     }
 }
