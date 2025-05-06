@@ -39,7 +39,7 @@ public class Transaction {
     @JoinColumn(name = "category_id")
     private Category category;
 
-
+    @Column(precision = 17, scale = 5)
     private BigDecimal carbon_emitted;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
