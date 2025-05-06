@@ -94,7 +94,9 @@ public class SecurityConfig {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:*",  // Allow local development
-                "https://wealthverse.example.com"
+                "https://wealthverse.example.com",
+                "https://wealthverse.site",
+                "https://www.wealthverse.site"
         ));
         corsConfig.addAllowedHeader("*");
         corsConfig.addAllowedMethod("*");
