@@ -1,7 +1,7 @@
 // pages/features/FeaturesNavbar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/auth/AuthContext"; // Import the useAuth hook
 import { useNavigate } from "react-router-dom";
 

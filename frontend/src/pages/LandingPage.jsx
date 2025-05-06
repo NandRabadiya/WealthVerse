@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { LogIn, TrendingUp, Leaf, PiggyBank, BadgeInfo } from "lucide-react";
 import {
   Carousel,
