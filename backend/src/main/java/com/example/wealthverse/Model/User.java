@@ -1,35 +1,53 @@
 package com.example.wealthverse.Model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
+
 @Entity
-@Table(name = "users")
-@Getter
-@Setter
+@Data
+@Table(name="users")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-class User {
+public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID uid;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     private String name;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    private LocalDate dob; // Date of Birth
+    private String password;
 
-    private LocalDateTime createdDate;
+    private LocalDate dob;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdDate = LocalDateTime.now();
-    }
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Transaction> transactions;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MerchantCategoryMapping> merchantCategoryMappings;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Category> categories;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private  List<Token> tokens;
+
+    @OneToMany(mappedBy ="user" ,cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Notification> notifications = new HashSet<>();
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
 }

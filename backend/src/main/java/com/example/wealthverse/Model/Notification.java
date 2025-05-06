@@ -25,7 +25,8 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private Set<User> users = new HashSet<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 
 
     // @Size(max = 50)
@@ -37,8 +38,7 @@ public class Notification {
     @Column(name = "title")
     private String title;
 
-    @Not Null
-    @Lob
+    @NotNull
     @Column(name = "message", nullable = false)
     private String message;
 
@@ -53,14 +53,7 @@ public class Notification {
     @Column(name = "reference_type")
     private ReferenceType referenceType;
 
-    @ColumnDefault("CURRENT_TIMESTAMP")
     @Column(name = "created_at")
     private Instant createdAt;
-
-    // Utility method to handle the relationship
-    public void addUser(User user) {
-        this.users.add(user);
-        user.getNotifications().add(this); // Ensures bidirectional consistency
-    }
 
 }

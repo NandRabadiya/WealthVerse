@@ -8,36 +8,32 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "mappings")
 @NoArgsConstructor
-@Table(name = "transactions")
 @AllArgsConstructor
 @Builder
-public class Transaction {
+public class MerchantCategoryMapping {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Double amount;
-
-    private String paymentMode;     // e.g., UPI, Card, NetBanking
-
-    private String merchantId;
-
     private String merchantName;
 
-    private String description;
+    private boolean isGlobalMapping = false;
 
-    private String transactionType; // e.g., debit, credit
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "user_id", nullable = false)
+//    private User user;
+
+    @ManyToOne(optional = true)
+    private User user; // null if global
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 }
+
