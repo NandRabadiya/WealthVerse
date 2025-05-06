@@ -5,10 +5,10 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "@/components/ui/carousel";
+} from "@/components/ui/Carousel";
 import { useAuth } from "@/auth/AuthContext"; // Import the useAuth hook
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Link } from "react-router-dom";
 
 const LandingPage = () => {
