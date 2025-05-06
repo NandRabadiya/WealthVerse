@@ -1,5 +1,7 @@
 package com.example.wealthverse.Model;
 
+import com.example.wealthverse.Enums.PaymentMode;
+import com.example.wealthverse.Enums.TransactionType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import jakarta.persistence.*;
@@ -21,15 +23,13 @@ public class Transaction {
 
     private Double amount;
 
-    private String paymentMode;     // e.g., UPI, Card, NetBanking
+    private PaymentMode paymentMode;     // e.g., UPI, Card, NetBanking
 
     private String merchantId;
 
     private String merchantName;
 
-    private String description;
-
-    private String transactionType; // e.g., debit, credit
+    private TransactionType transactionType; // e.g., debit, credit
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
