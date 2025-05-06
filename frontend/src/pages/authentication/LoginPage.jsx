@@ -31,7 +31,7 @@ const LoginPage = () => {
       setError(result.error || "Invalid email or password");
       return;
     }
-    navigate("/spend-analysis");
+    navigate("/");
   };
 
   return (
