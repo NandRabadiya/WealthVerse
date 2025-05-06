@@ -1,21 +1,63 @@
 package com.example.wealthverse.Repository;
 
 import com.example.wealthverse.Model.Transaction;
-import com.example.wealthverse.Model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
 
-    List<Transaction> findByUser(User user);
+    /**
+     * Find all transactions for a given user in a specific month
+     */
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
+            "AND YEAR(t.createdAt) = :year AND MONTH(t.createdAt) = :month")
+    List<Transaction> findByUserIdAndMonth(
+            @Param("userId") Long userId,
+            @Param("year") int year,
+            @Param("month") int month);
 
-    List<Transaction> findByUserAndCreatedAtBetween(User user, LocalDateTime start, LocalDateTime end);
+    /**
+     * Find all transactions for a user in a specific month that occurred after a given timestamp
+     */
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
+            "AND YEAR(t.createdAt) = :#{#yearMonth.year} " +
+            "AND MONTH(t.createdAt) = :#{#yearMonth.monthValue} " +
+            "AND t.createdAt > :since")
+    List<Transaction> findTransactionsSince(
+            @Param("userId") Long userId,
+            @Param("yearMonth") YearMonth yearMonth,
+            @Param("since") LocalDateTime since);
 
-    List<Transaction> findByCategory_NameAndUser(String categoryName, User user);
+    /**
+     * Paginated version of findTransactionsSince to handle large volumes of data
+     */
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
+            "AND YEAR(t.createdAt) = :#{#yearMonth.year} " +
+            "AND MONTH(t.createdAt) = :#{#yearMonth.monthValue} " +
+            "AND t.createdAt > :since " +
+            "ORDER BY t.createdAt ASC")
+    Page<Transaction> findTransactionsSincePaged(
+            @Param("userId") Long userId,
+            @Param("yearMonth") YearMonth yearMonth,
+            @Param("since") LocalDateTime since,
+            Pageable pageable);
 
-    //List<Transaction> findByTransactionTypeAndUser(String transactionType, User user);
+    /**
+     * Count transactions in a specific month for a user
+     */
+    @Query("SELECT COUNT(t) FROM Transaction t WHERE t.user.id = :userId " +
+            "AND YEAR(t.createdAt) = :year AND MONTH(t.createdAt) = :month")
+    long countByUserIdAndMonth(
+            @Param("userId") Long userId,
+            @Param("year") int year,
+            @Param("month") int month);
 }

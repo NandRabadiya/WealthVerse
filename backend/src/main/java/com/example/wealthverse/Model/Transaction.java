@@ -29,11 +29,11 @@ public class Transaction {
         this.id = id;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -85,12 +85,12 @@ public class Transaction {
         this.category = category;
     }
 
-    public BigDecimal getCarbon_emitted() {
-        return carbon_emitted;
+    public BigDecimal getCarbonEmission() {
+        return carbonEmission;
     }
 
-    public void setCarbon_emitted(BigDecimal carbon_emitted) {
-        this.carbon_emitted = carbon_emitted;
+    public void setCarbonEmission(BigDecimal carbon_emitted) {
+        this.carbonEmission = carbon_emitted;
     }
 
     public LocalDateTime getCreatedAt() {
@@ -101,7 +101,8 @@ public class Transaction {
         this.createdAt = createdAt;
     }
 
-    private Double amount;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal amount;
 
     private PaymentMode paymentMode;     // e.g., UPI, Card, NetBanking
 
@@ -120,8 +121,10 @@ public class Transaction {
     private Category category;
 
     @Column(precision = 17, scale = 5)
-    private BigDecimal carbon_emitted;
+    private BigDecimal carbonEmission;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+
+
 }
