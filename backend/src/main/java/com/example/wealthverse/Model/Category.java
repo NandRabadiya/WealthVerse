@@ -27,7 +27,7 @@ public class Category {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
-
+    @Column(precision = 17, scale = 5)
     private BigDecimal emissionFactor;
 
     @ManyToOne(fetch = FetchType.LAZY)
