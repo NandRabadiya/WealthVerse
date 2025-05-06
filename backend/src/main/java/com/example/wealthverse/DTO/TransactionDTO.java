@@ -112,4 +112,7 @@ public class TransactionDTO {
     private BigDecimal carbonEmitted;
 
     private LocalDateTime createdAt;
+
+    private boolean isGlobal = false;
+
 }

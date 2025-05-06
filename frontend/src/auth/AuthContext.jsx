@@ -1,6 +1,8 @@
 // src/auth/AuthContext.jsx
 import React, { createContext, useContext, useState } from "react";
-import axios from "../api/api";
+// import api from "../api/api";
+// import axios from "axios";
+import axios from "../api/api"; // Adjust the import path as necessary
 
 const AuthContext = createContext();
 
@@ -25,10 +27,14 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
-
-  const signup = async (email, password) => {
+  const signup = async (name, email, password, dob) => {
     try {
-      await axios.post("/auth/signup", { email, password });
+      await axios.post("/auth/register", {
+        name,
+        email,
+        password,
+        dob,
+      });
       return { success: true };
     } catch (error) {
       return {
