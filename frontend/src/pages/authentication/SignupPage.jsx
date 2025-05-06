@@ -9,6 +9,8 @@ import { useState } from "react";
 
 const signupSchema = z
   .object({
+    name: z.string().min(2, "Name is required"),
+    dob: z.string().nonempty("Date of Birth is required"),
     email: z.string().email("Invalid email address").nonempty(),
     password: z.string().min(6, "Password must be at least 6 characters long"),
     confirmPassword: z
@@ -34,7 +36,8 @@ const SignupPage = () => {
   });
 
   const onSubmit = async (data) => {
-    const result = await signup(data.email, data.password);
+    console.log(data);
+    const result = await signup(data.name, data.email, data.password, data.dob);
     if (!result.success) {
       setError(result.error || "Signup failed");
       return;
@@ -47,7 +50,20 @@ const SignupPage = () => {
       <div className="max-w-md w-full p-6 bg-gray-800 rounded-xl">
         <h2 className="text-2xl text-white mb-6 text-center">Sign Up</h2>
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <Input
+            {...register("name")}
+            placeholder="Full Name"
+            error={errors.name?.message}
+            className="mb-4"
+          />
+          <Input
+            type="date"
+            {...register("dob")}
+            placeholder="Date of Birth"
+            error={errors.dob?.message}
+            className="mb-4"
+          />
           <Input
             {...register("email")}
             placeholder="Email"
