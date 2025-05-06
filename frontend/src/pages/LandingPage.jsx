@@ -6,10 +6,15 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
+import { useAuth } from "@/auth/AuthContext"; // Import the useAuth hook
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 
 const LandingPage = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const features = [
     {
       title: "Spend Analysis",
@@ -51,14 +56,41 @@ const LandingPage = () => {
     "Pay credit card bills in full to avoid high interest charges.",
   ];
 
+  const handleCardClick = (url) => {
+    if (user) {
+      navigate(`/${url}`);
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Navbar */}
       <nav className="flex justify-between items-center py-6 px-6 md:px-12 lg:px-24">
         <div className="font-bold text-2xl text-green-400">WealthVerse</div>
-        <Button className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900">
-          <LogIn className="mr-2 h-4 w-4" /> Login
-        </Button>
+        {user ? (
+          // Display Profile Icon if user is logged in
+          <Button
+            onClick={() => navigate("/profile")}
+            className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900"
+          >
+            {/* Add a Profile Icon here */}
+            <img
+              src="/path-to-your-profile-icon.png"
+              alt="Profile"
+              className="w-6 h-6 rounded-full"
+            />
+          </Button>
+        ) : (
+          // Display Login Button if user is not logged in
+          <Button
+            onClick={() => navigate("/login")}
+            className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900"
+          >
+            <LogIn className="mr-2 h-4 w-4" /> Login
+          </Button>
+        )}
       </nav>
 
       {/* Hero Section */}
@@ -84,15 +116,15 @@ const LandingPage = () => {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature) => (
-            <Link
+            <div
               key={feature.title}
-              to={`/${feature.url}`}
+              onClick={() => handleCardClick(feature.url)}
               className="bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer duration-300 transform hover:-translate-y-1 hover:scale-105 transition-transform"
             >
               <div className="mb-4">{feature.icon}</div>
               <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
               <p className="text-gray-300">{feature.description}</p>
-            </Link>
+            </div>
           ))}
         </div>
       </section>

@@ -1,42 +1,18 @@
+// pages/features/FeatureLayout.jsx
 import React from "react";
-import { NavLink } from "react-router-dom";
-import { useAuth } from "../../auth/AuthContext";
+import FeaturesNavbar from "./FeaturesNavbar"; // Import FeaturesNavbar
 
-const links = [
-  { name: "Spend Analysis", path: "/spend-analysis" },
-  { name: "Carbon FootPrint", path: "/carbon-footprint" },
-  { name: "Budget Planner", path: "/budget-planner" },
-  { name: "Cibil Scoring", path: "/cibil-scoring" },
-];
-
-export default function FeatureLayout({ children }) {
-  const { logout } = useAuth();
-
+const FeatureLayout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-      <nav className="flex justify-between items-center px-6 py-4 bg-green-700 text-white">
-        <h1 className="font-bold text-xl">WealthVerse</h1>
-        <div className="flex gap-4">
-          {links.map((link) => (
-            <NavLink
-              key={link.path}
-              to={link.path}
-              className={({ isActive }) =>
-                `hover:underline ${isActive ? "font-bold underline" : ""}`
-              }
-            >
-              {link.name}
-            </NavLink>
-          ))}
-        </div>
-        <button
-          onClick={logout}
-          className="bg-white text-green-700 px-3 py-1 rounded-full"
-        >
-          Logout
-        </button>
-      </nav>
-      <main className="text-center mt-10">{children}</main>
+    <div className="bg-gray-900 min-h-screen text-white">
+      <FeaturesNavbar /> {/* Add FeaturesNavbar here */}
+      <div className="pt-24 px-6 md:px-12 lg:px-24">
+        {" "}
+        {/* Added padding-top to avoid overlap with navbar */}
+        {children}
+      </div>
     </div>
   );
-}
+};
+
+export default FeatureLayout;

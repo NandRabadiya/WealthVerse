@@ -1,12 +1,18 @@
-import FeatureLayout from "./FeatureLayout";
+// pages/features/SpendingAnalysis.jsx
+import React from "react";
+import FeatureLayout from "./FeatureLayout"; // Import FeatureLayout (which now includes FeaturesNavbar)
 
-export default function CibilScoring() {
+const SpendingAnalysis = () => {
   return (
     <FeatureLayout>
-      <h2 className="text-3xl font-bold text-blue-900">Cibil Scoring</h2>
-      <p className="mt-2 text-green-800">
-        Welcome to the Cibil Scoring section of WealthVerse
+      <h1 className="text-4xl font-bold text-center mt-24">Cibil Scoring </h1>
+      <p className="text-lg text-center mt-8 px-6 md:px-12">
+        Track and analyze your spending patterns for better financial
+        management.
       </p>
+      {/* More content related to Spend Analysis */}
     </FeatureLayout>
   );
-}
+};
+
+export default SpendingAnalysis;
