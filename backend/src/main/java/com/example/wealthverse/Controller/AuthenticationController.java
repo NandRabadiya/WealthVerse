@@ -52,13 +52,13 @@ public class AuthenticationController {
         }
 
         // Create new user
-        User user = User.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .dob(request.getDob())
-                .createdAt(LocalDateTime.now())
-                .build();
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setDob(request.getDob());
+        user.setCreatedAt(LocalDateTime.now());
+
 
         // Save user
         user = userRepository.save(user);
@@ -131,5 +131,9 @@ public class AuthenticationController {
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new AuthenticationResponse(null, null, "Invalid refresh token"));
+    }
+
+    public TokenRepository getTokenRepository() {
+        return tokenRepository;
     }
 }
