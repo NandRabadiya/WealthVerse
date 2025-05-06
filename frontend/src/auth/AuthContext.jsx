@@ -1,12 +1,23 @@
 // src/auth/AuthContext.jsx
 import React, { createContext, useContext, useState } from "react";
 import axios from "../api/api"; // Adjust the import path as necessary
+import { useEffect } from "react";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
-  const [token, setToken] = useState(() => localStorage.getItem("token"));
+  // const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+    }
+    setLoading(false); // done restoring
+  }, []);
+  
 
   const login = async (email, password) => {
     try {
@@ -14,7 +25,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", res.data.accessToken);
       localStorage.setItem("refresh_token", res.data.refreshToken);
       setToken(res.data.accessToken);
-  
+      setLoading(false);
       return { success: true };
     } catch (error) {
       return {
@@ -31,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem("token", res.data.accessToken);
       localStorage.setItem("refresh_token", res.data.refreshToken);
       setToken(res.data.accessToken);
-      
+      setLoading(false);
       return { success: true };
     } catch (error) {
       return {
@@ -54,11 +65,12 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("refresh_token");
       setToken(null);
+      setLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, signup, logout }}>
+    <AuthContext.Provider value={{ token, login, signup, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );

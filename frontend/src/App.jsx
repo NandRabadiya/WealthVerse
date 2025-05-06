@@ -13,17 +13,9 @@ import CibilScoring from "./pages/features/CibilScoring";
 import LoginPage from "./pages/authentication/LoginPage";
 import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 function App() {
-  // const navigate = useNavigate();
-  // useEffect(() => {
-  //   const userToken = localStorage.getItem("token");
-  //   if (userToken) {
-  //     navigate("/");
-  //   }
-  // }, []);
+
   
   return (
     <>

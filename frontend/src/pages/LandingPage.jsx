@@ -58,10 +58,13 @@ const LandingPage = () => {
   ];
 
   const handleCardClick = (url) => {
-    if (token) {
+    const isAuthenticated = !!token || !!localStorage.getItem("token");
+    console.log("isAuthenticated: ", isAuthenticated);
+    if (isAuthenticated) {
+      console.log("Navigating to: ", url);
       navigate(`/${url}`);
     } else {
-      navigate("/login");
+     navigate("/login");
     }
   };
 
@@ -73,8 +76,8 @@ const LandingPage = () => {
         {token ? (
           // Display Logout Button when user is logged in
           <Button
-            onClick={() => {
-              logout();
+            onClick={async () => {
+              await logout();
               navigate("/");
             }}
             className="bg-red-500 hover:bg-red-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
@@ -118,7 +121,7 @@ const LandingPage = () => {
             <div
               key={feature.title}
               onClick={() => handleCardClick(feature.url)}
-              className="bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow cursor-pointer duration-300 transform hover:-translate-y-1 hover:scale-105 transition-transform"
+              className="bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl cursor-pointer duration-300 transform hover:-translate-y-1 hover:scale-105 transition-transform"
             >
               <div className="mb-4">{feature.icon}</div>
               <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
