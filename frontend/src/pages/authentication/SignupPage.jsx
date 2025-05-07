@@ -51,7 +51,7 @@ const SignupPage = () => {
         <h2 className="text-2xl text-white mb-6 text-center">Sign Up</h2>
         {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <Input
+          <Input
             {...register("name")}
             placeholder="Full Name"
             error={errors.name?.message}
@@ -95,6 +95,17 @@ const SignupPage = () => {
             <span className="text-gray-400">Already have an account? </span>
             <Link to="/login" className="text-green-400 hover:underline">
               Login
+            </Link>
+          </div>
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-400">
+              For quick access, you can use demo accounts on the login page
+            </p>
+            <Link
+              to="/login"
+              className="text-green-400 hover:underline block mt-1"
+            >
+              Use demo accounts
             </Link>
           </div>
         </form>

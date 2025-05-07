@@ -1,9 +1,12 @@
 package com.example.wealthverse.Service.Impl;
 
 import com.example.wealthverse.DTO.AddTransactionRequest;
+import com.example.wealthverse.DTO.CategoryApplyRequest;
 import com.example.wealthverse.DTO.TransactionDTO;
 import com.example.wealthverse.Enums.PaymentMode;
 import com.example.wealthverse.Enums.TransactionType;
+import com.example.wealthverse.Model.Category;
+import com.example.wealthverse.Repository.CategoryRepository;
 import com.example.wealthverse.Service.TransactionService;
 import com.example.wealthverse.Model.MerchantCategoryMapping;
 import com.example.wealthverse.Model.Transaction;
@@ -32,7 +35,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -45,16 +47,23 @@ public class TransactionServiceImpl implements TransactionService {
     private final JWTService jwtService;
 
     @Autowired
+    private final CategoryRepository categoryRepository;
+
+    @Autowired
     public TransactionServiceImpl(
             TransactionRepository transactionRepository,
             MerchantCategoryMappingRepository mappingRepository,
             UserRepository userRepository,
-            JWTService jwtService) {
+            JWTService jwtService,
+            CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
         this.mappingRepository = mappingRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.categoryRepository = categoryRepository;
     }
+
+
 
     @Override
     @Transactional
@@ -126,25 +135,38 @@ public class TransactionServiceImpl implements TransactionService {
             TransactionType transactionType = TransactionType.valueOf(row[4].trim().toUpperCase());
             LocalDateTime createdAt = LocalDateTime.parse(row[5].trim());
 
+            long userId=user.getId();
             // Lookup global category mapping
-            Optional<MerchantCategoryMapping> mappingOpt = mappingRepository
-                    .findByMerchantNameAndIsGlobalMappingTrue(merchantName);
+//            Optional<MerchantCategoryMapping> mappingOpt = mappingRepository
+//                    .findByMerchantNameAndIsGlobalMappingTrue(merchantName);
 
-            if (mappingOpt.isEmpty()) {
-                logger.warn("No global mapping for merchant: {} at row {}", merchantName, rowNum);
-                throw new IllegalStateException("No global mapping for merchant: " + merchantName);
+            if (row[2] == null || row[2].trim().isEmpty() ||
+                    row[3] == null || row[3].trim().isEmpty()) {
+                logger.warn("Skipping row {} - merchant ID or name is null/empty", rowNum);
+                return null;
             }
+
+            // 2. Lookup category mapping
+            MerchantCategoryMapping mappingOpt = mappingRepository
+                    .findBestMapping(merchantName.toUpperCase(), userId)
+                    .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
+
+
+//            if (mappingOpt.isEmpty()) {
+//                logger.warn("No global mapping for merchant: {} at row {}", merchantName, rowNum);
+//                throw new IllegalStateException("No global mapping for merchant: " + merchantName);
+//            }
 
             // Build transaction entity
             Transaction transaction = new Transaction();
             transaction.setAmount(amount);
             transaction.setPaymentMode(paymentMode);
             transaction.setMerchantId(merchantId);
-            transaction.setMerchantName(merchantName);
+            transaction.setMerchantName(merchantName.toUpperCase());
             transaction.setTransactionType(transactionType);
             transaction.setCreatedAt(createdAt);
             transaction.setUser(user);
-            transaction.setCategory(mappingOpt.get().getCategory());
+            transaction.setCategory(mappingOpt.getCategory());
             transaction.setCarbonEmission(BigDecimal.ZERO); // Default value, consider calculating this
 
             return transaction;
@@ -238,9 +260,83 @@ public class TransactionServiceImpl implements TransactionService {
             dto.setCategoryId(tx.getCategory().getId());
             dto.setCarbonEmitted(tx.getCarbonEmission());
             dto.setCreatedAt(tx.getCreatedAt());
-            dto.setGlobal(tx.getCategory().isGlobal());
+            dto.setGlobal(true);
             return dto;
         });
 
     }
+
+    @Transactional
+    @Override
+    public void overrideTransactionCategory(CategoryApplyRequest req, String authHeader) {
+        // Extract user
+        Long userId = jwtService.getUserIdFromToken(authHeader.replace("Bearer ", ""));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Fetch and verify transaction
+        Transaction txn = transactionRepository.findById(req.getTransactionId())
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
+        if (!txn.getUser().getId().equals(userId) ||
+                !txn.getMerchantName().equalsIgnoreCase(req.getMerchantName())) {
+            throw new IllegalArgumentException("Unauthorized or merchant mismatch");
+        }
+
+        // Find or create category
+        Category cat = categoryRepository
+                .findByNameAndUserId(req.getNewCategoryName(), userId)
+                .orElseGet(() -> {
+                    Category c = new Category();
+                    c.setName(req.getNewCategoryName());
+                    c.setUser(user);
+                    c.setGlobal(false);
+                    c.setCreatedAt(LocalDateTime.now());
+                    c.setEmissionFactor(BigDecimal.ZERO);
+                    return categoryRepository.save(c);
+                });
+
+        // Override only this transaction
+        txn.setCategory(cat);
+        transactionRepository.save(txn);
+    }
+
+    @Override
+    @Transactional
+    public void applyCategoryToAllTransactions(CategoryApplyRequest req, String authHeader) {
+        // Extract user
+        Long userId = jwtService.getUserIdFromToken(authHeader.replace("Bearer ", ""));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        // Find or create category
+        Category cat = categoryRepository
+                .findByNameAndUserId(req.getNewCategoryName(), userId)
+                .orElseGet(() -> {
+                    Category c = new Category();
+                    c.setName(req.getNewCategoryName());
+                    c.setUser(user);
+                    c.setGlobal(false);
+                    c.setCreatedAt(LocalDateTime.now());
+                    c.setEmissionFactor(BigDecimal.ZERO);
+                    return categoryRepository.save(c);
+                });
+
+        // Create a user‑specific mapping for future transactions
+        // 3. Create a user‑specific mapping for future transactions
+        MerchantCategoryMapping mapping = new MerchantCategoryMapping();
+        mapping.setMerchantName(req.getMerchantName());
+        mapping.setGlobalMapping(false);
+        mapping.setUser(user);
+        mapping.setCategory(cat);
+        mapping.setCreatedAt(LocalDateTime.now());
+        mappingRepository.save(mapping);
+
+
+        // Bulk‑update existing transactions
+        int updatedCount = transactionRepository.bulkUpdateCategory(
+                cat, userId, req.getMerchantName()
+        );
+        // (optionally log updatedCount)
+    }
+
 }

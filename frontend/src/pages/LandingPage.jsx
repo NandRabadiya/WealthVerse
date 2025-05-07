@@ -14,8 +14,19 @@ import WealthVerse from "/WealthVerse.png";
 import { User } from "lucide-react";
 import TeamPage from "./TeamPage";
 
+import { useState } from "react";
+
+const teamMembers = [
+  { name: "Venu", email: "venupatel004@gmail.com", password: "Venu@123" },
+  { name: "Nand", email: "nandrabadiya2003@gmail.com", password: "Nand@123" },
+  { name: "Shaily", email: "shaily@gmail.com", password: "Shaily@123" },
+  { name: "Kunj", email: "kunjvasoya03@gmail.com", password: "Kunj@123" },
+];
+
+
 const LandingPage = () => {
-  const { token, logout } = useAuth();
+  const { token, logout, login } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
   console.log(token);
   const navigate = useNavigate();
 
@@ -72,11 +83,22 @@ const LandingPage = () => {
   };
 
   // Dummy login function
-  const handleAvatarClick = (user) => {
-    console.log(`Logging in as ${user}`);
-    // Simulating a dummy login by storing a token
-    localStorage.setItem("token", "dummyToken");
-    navigate("/spend-analysis"); // Redirect to dashboard
+  const handleAvatarClick = async (memberIndex) => {
+    const member = teamMembers[memberIndex];
+    setIsLoading(true);
+
+    try {
+      const result = await login(member.email, member.password);
+      if (result.success) {
+        navigate("/");
+      } else {
+        console.error("Login failed:", result.error);
+      }
+    } catch (error) {
+      console.error("Error during login:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -134,17 +156,25 @@ const LandingPage = () => {
           </Button>
 
           {/* Dummy User Avatars */}
-          <div className="flex justify-center gap-8 mt-8">
-            {["User 1", "User 2", "User 3", "User 4"].map((user, index) => (
-              <div
-                key={index}
-                onClick={() => handleAvatarClick(user)}
-                className="flex justify-center items-center w-20 h-20 bg-blue-900 rounded-full cursor-pointer hover:opacity-90 transition-opacity"
-              >
-                <User className="text-white w-12 h-12" />
-              </div>
-            ))}
-          </div>
+          {!token && (
+            <div className="flex justify-center gap-8 mt-8">
+              {teamMembers.map((member, index) => (
+                <div>
+                  <div
+                    key={index}
+                    onClick={() => handleAvatarClick(index)}
+                    className={`flex justify-center items-center w-20 h-20 bg-blue-900 rounded-full cursor-pointer hover:opacity-90 transition-opacity ${
+                      isLoading ? "opacity-50" : ""
+                    }`}
+                    title={`Login as ${member.name}`}
+                  >
+                    <User className="text-white w-12 h-12" />
+                  </div>
+                  <span className="text-xs text-gray-400">{member.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

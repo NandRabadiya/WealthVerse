@@ -27,46 +27,16 @@ public class MerchantCategoryMappingController {
     private JWTService jwtService;
 
 
-//    @PostMapping("/add")
-//    public ResponseEntity<CategoryMappingResponseDTO> addCategoryAndMapping(
-//            @RequestParam String categoryName,
-//            @RequestParam String merchantName,
-//            @RequestParam boolean isGlobal,
-//            @AuthenticationPrincipal User currentUser
-//    ) {
-//        // Category creation
-//        Category category = categoryServiceImpl.addCustomCategory(categoryName, isGlobal, isGlobal ? null : currentUser);
-//
-//        // Mapping creation
-//
-//        MerchantCategoryMapping mapping = mappingService.addCustomMapping(
-//                merchantName, isGlobal, isGlobal ? null : currentUser, category
-//        );
-//
-//        // Prepare response
-//        CategoryMappingResponseDTO response = new CategoryMappingResponseDTO(
-//                category.getId(),
-//                category.getName(),
-//                category.isGlobal(),
-//                mapping.getId(),
-//                mapping.getMerchantName(),
-//                mapping.isGlobalMapping(),
-//                "Category and Mapping added successfully"
-//        );
-//
-//        return ResponseEntity.ok(response);
-//    }
-
 
     @PostMapping("/mappings/custom")
     public ResponseEntity<Void> addCustomMapping(
             @RequestParam String merchantName,
-            @RequestParam Long categoryId,
+            @RequestParam String categoryName,
             @RequestHeader("Authorization") String authHeader) {
 
         Long userId = jwtService.getUserIdFromToken(authHeader);
 
-        mappingService.addCustomMapping(merchantName, userId, categoryId);
+        mappingService.addCustomMapping(merchantName, userId, categoryName);
 
         return ResponseEntity.status(HttpStatus.CREATED).build(); // 201 Created with no body
     }

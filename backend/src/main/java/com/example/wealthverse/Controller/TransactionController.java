@@ -1,6 +1,7 @@
 package com.example.wealthverse.Controller;
 
 import com.example.wealthverse.DTO.AddTransactionRequest;
+import com.example.wealthverse.DTO.CategoryApplyRequest;
 import com.example.wealthverse.DTO.TransactionDTO;
 import com.example.wealthverse.Service.TransactionService;
 import com.example.wealthverse.Model.ApiResponse;
@@ -107,4 +108,22 @@ public class TransactionController {
         Page<TransactionDTO> dtos = transactionService.getAllTransactions(authHeader, page, size);
         return ResponseEntity.ok(dtos);
     }
+
+
+    @PostMapping("/apply-category")
+    public ResponseEntity<String> applyCategory(
+            @RequestBody CategoryApplyRequest req,
+            @RequestHeader("Authorization") String authHeader) {
+
+        if (req.isApplyToAll()) {
+            transactionService.applyCategoryToAllTransactions(req, authHeader);
+            return ResponseEntity.ok("Category applied to all transactions for merchant: "
+                    + req.getMerchantName());
+        } else {
+            transactionService.overrideTransactionCategory(req, authHeader);
+            return ResponseEntity.ok("Category overridden for transaction ID: "
+                    + req.getTransactionId());
+        }
+    }
+
 }
