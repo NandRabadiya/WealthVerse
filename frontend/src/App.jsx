@@ -7,7 +7,7 @@ import {
 } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import SpendAnalysis from "./pages/features/spendAnalysis/SpendAnalysis";
-import CarbonFootPrint from "./pages/features/CarbonFootprint";
+import CarbonFootPrint from "./pages/features/carbonFootprint/CarbonFootprint";
 import BudgetPlanner from "./pages/features/BudgetPlanner";
 import CibilScoring from "./pages/features/CibilScoring";
 import LoginPage from "./pages/authentication/LoginPage";
