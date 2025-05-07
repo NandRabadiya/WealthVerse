@@ -102,6 +102,12 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     Page<Transaction> findAllByUserId(Long userId, Pageable pageable);
 
+    @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND MONTH(t.createdAt) = :month AND YEAR(t.createdAt) = :year")
+    Page<Transaction> findAllByUserIdAndMonth(@Param("userId") Long userId,
+                                              @Param("month") int month,
+                                              @Param("year") int year,
+                                              Pageable pageable);
+
     /**
      * Count transactions in a specific month for a user
      */

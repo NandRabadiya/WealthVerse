@@ -32,6 +32,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -234,6 +235,38 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
+//    @Override
+//    @Transactional(readOnly = true)
+//    public Page<TransactionDTO> getAllTransactions(String authHeader, int page, int size) {
+//        // 1. Extract userId from JWT
+//        String token = authHeader.replace("Bearer ", "");
+//        Long userId = jwtService.getUserIdFromToken(token);
+//
+//        // 2. Build pageable: sort by createdAt desc
+//        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+//
+//        // 3. Query repository
+//        Page<Transaction> txPage = transactionRepository.findAllByUserId(userId, pageable);
+//
+//        // 4. Map to DTO
+//        return txPage.map(tx -> {
+//            TransactionDTO dto = new TransactionDTO();
+//            dto.setId(tx.getId());
+//            dto.setAmount(tx.getAmount());
+//            dto.setPaymentMode(tx.getPaymentMode());
+//            dto.setMerchantId(tx.getMerchantId());
+//            dto.setMerchantName(tx.getMerchantName());
+//            dto.setTransactionType(tx.getTransactionType());
+//            dto.setUserId(tx.getUser().getId());
+//            dto.setCategoryId(tx.getCategory().getId());
+//            dto.setCarbonEmitted(tx.getCarbonEmission());
+//            dto.setCreatedAt(tx.getCreatedAt());
+//            dto.setGlobal(true);
+//            return dto;
+//        });
+//
+//    }
+
     @Override
     @Transactional(readOnly = true)
     public Page<TransactionDTO> getAllTransactions(String authHeader, int page, int size) {
@@ -248,24 +281,50 @@ public class TransactionServiceImpl implements TransactionService {
         Page<Transaction> txPage = transactionRepository.findAllByUserId(userId, pageable);
 
         // 4. Map to DTO
-        return txPage.map(tx -> {
-            TransactionDTO dto = new TransactionDTO();
-            dto.setId(tx.getId());
-            dto.setAmount(tx.getAmount());
-            dto.setPaymentMode(tx.getPaymentMode());
-            dto.setMerchantId(tx.getMerchantId());
-            dto.setMerchantName(tx.getMerchantName());
-            dto.setTransactionType(tx.getTransactionType());
-            dto.setUserId(tx.getUser().getId());
-            dto.setCategoryId(tx.getCategory().getId());
-            dto.setCarbonEmitted(tx.getCarbonEmission());
-            dto.setCreatedAt(tx.getCreatedAt());
-            dto.setGlobal(true);
-            return dto;
-        });
-
+        return txPage.map(this::mapToDTO);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TransactionDTO> getTransactionsByMonth(String authHeader, int month, int page, int size) {
+        // 1. Extract userId from JWT
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.getUserIdFromToken(token);
+
+        // Get current year - typically we'd want transactions from the current year
+        int currentYear = Year.now().getValue();
+
+        // 2. Build pageable: sort by createdAt desc
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // 3. Query repository with month filter (month is 0-indexed in frontend, but 1-indexed in database)
+        Page<Transaction> txPage = transactionRepository.findAllByUserIdAndMonth(
+                userId,
+                month + 1, // Convert 0-indexed month to 1-indexed for database query
+                currentYear,
+                pageable
+        );
+
+        // 4. Map to DTO
+        return txPage.map(this::mapToDTO);
+    }
+
+    // Helper method to map Transaction to TransactionDTO
+    private TransactionDTO mapToDTO(Transaction tx) {
+        TransactionDTO dto = new TransactionDTO();
+        dto.setId(tx.getId());
+        dto.setAmount(tx.getAmount());
+        dto.setPaymentMode(tx.getPaymentMode());
+        dto.setMerchantId(tx.getMerchantId());
+        dto.setMerchantName(tx.getMerchantName());
+        dto.setTransactionType(tx.getTransactionType());
+        dto.setUserId(tx.getUser().getId());
+        dto.setCategoryId(tx.getCategory().getId());
+        dto.setCarbonEmitted(tx.getCarbonEmission());
+        dto.setCreatedAt(tx.getCreatedAt());
+        dto.setGlobal(true);
+        return dto;
+    }
     @Transactional
     @Override
     public void overrideTransactionCategory(CategoryApplyRequest req, String authHeader) {
