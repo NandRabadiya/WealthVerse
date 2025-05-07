@@ -10,6 +10,7 @@ import { useAuth } from "@/auth/AuthContext"; // Import the useAuth hook
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Link } from "react-router-dom";
+import WealthVerse from "/WealthVerse.png"; // Adjust the path as necessary
 
 const LandingPage = () => {
   const { token, logout } = useAuth();
@@ -64,15 +65,21 @@ const LandingPage = () => {
       console.log("Navigating to: ", url);
       navigate(`/${url}`);
     } else {
-     navigate("/login");
+      navigate("/login");
     }
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Navbar */}
-      <nav className="flex justify-between items-center py-6 px-6 md:px-12 lg:px-24">
-        <div className="font-bold text-2xl text-green-400">WealthVerse</div>
+      <nav className="flex justify-between items-center h-20 px-6 md:px-12 lg:px-24">
+        <Link to="/">
+          <img
+            src={WealthVerse}
+            alt="WealthVerse Logo"
+            className="h-40 object-contain w-auto cursor-pointer"
+          />
+        </Link>
         {token ? (
           // Display Logout Button when user is logged in
           <Button
