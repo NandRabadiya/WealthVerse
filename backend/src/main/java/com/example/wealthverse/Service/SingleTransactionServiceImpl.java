@@ -64,7 +64,7 @@ public class SingleTransactionServiceImpl implements SingleTransactionService {
                 request.getCreatedAt() : LocalDateTime.now());
         tx.setUser(user);
         tx.setCategory(mapping.getCategory());
-        tx.setCarbon_emitted(BigDecimal.ZERO);
+        tx.setCarbonEmission(BigDecimal.ZERO);
         return transactionRepository.save(tx);
     }
 }

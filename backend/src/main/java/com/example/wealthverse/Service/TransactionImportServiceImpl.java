@@ -140,7 +140,7 @@ public class TransactionImportServiceImpl implements TransactionImportService {
             transaction.setCreatedAt(createdAt);
             transaction.setUser(user);
             transaction.setCategory(mappingOpt.get().getCategory());
-            transaction.setCarbon_emitted(BigDecimal.ZERO); // Default value, consider calculating this
+            transaction.setCarbonEmission(BigDecimal.ZERO); // Default value, consider calculating this
 
             return transaction;
         } catch (NumberFormatException e) {
