@@ -1,9 +1,9 @@
 package com.example.wealthverse.Controller;
 
+import com.example.wealthverse.DTO.CategoryApplyRequest;
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.DTO.EmissionCalculationRequest;
 import com.example.wealthverse.Service.CategoryService;
-import com.example.wealthverse.Service.Impl.CategoryServiceImpl;
 import com.example.wealthverse.Service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.math.BigDecimal;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/category")
@@ -46,5 +45,8 @@ public class CategoryController {
 
         return categoryService.getAllCategoriesByUserId(userId);
     }
+
+
+
 
 }

@@ -1,10 +1,13 @@
 package com.example.wealthverse.Repository;
 
 import com.example.wealthverse.Enums.TransactionType;
+import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.Transaction;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -108,4 +111,23 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("userId") Long userId,
             @Param("year") int year,
             @Param("month") int month);
+
+
+
+
+
+    // Bulk‑update category for all of a user's transactions matching a merchant
+    @Modifying
+    @Transactional
+    @Query("""
+      UPDATE Transaction t
+      SET t.category = :category
+      WHERE t.user.id = :userId
+        AND LOWER(t.merchantName) = LOWER(:merchantName)
+    """)
+    int bulkUpdateCategory(
+            @Param("category") Category category,
+            @Param("userId") Long userId,
+            @Param("merchantName") String merchantName
+    );
 }
