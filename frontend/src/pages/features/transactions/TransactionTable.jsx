@@ -23,25 +23,47 @@ import api from "../../../api/api";
 
 // Category color mapping
 const typeColors = {
-  Food: "bg-green-500",
-  Shopping: "bg-blue-500",
-  Transportation: "bg-yellow-500",
-  Entertainment: "bg-purple-500",
-  Utilities: "bg-red-500",
-  Healthcare: "bg-pink-500",
-  Education: "bg-cyan-500",
-  Other: "bg-gray-500",
+  ELECTRICITY: "bg-blue-500",
+  FUEL: "bg-yellow-500",
+  FLIGHT: "bg-red-500",
+  PUBLIC_TRANSPORT: "bg-green-500",
+  GROCERIES: "bg-purple-500",
+  FOOD_DINNING: "bg-pink-500",
+  ONLINE_FOOD: "bg-orange-500",
+  CLOTHINNG_SHOPPING: "bg-teal-500",
+  ONLINE_SHOPPING: "bg-indigo-500",
+  SUBSCRIPTIONS: "bg-gray-500",
+  HOTEL_STAY: "bg-lime-500",
+  TRAVELING: "bg-emerald-500",
+  CREDITECART_PAYMENT: "bg-rose-500",
+  INSURANCE: "bg-amber-500",
+  CASH: "bg-slate-500",
+  NGO: "bg-cyan-500",
+  INVESTMENT: "bg-rose-500",
+  RECHARGE: "bg-emerald-500",
+  MISCELLANEOUS: "bg-gray-500",
 };
 
 const defaultCategories = [
-  "Food",
-  "Shopping",
-  "Transportation",
-  "Entertainment",
-  "Utilities",
-  "Healthcare",
-  "Education",
-  "Other",
+  "ELECTRICITY",
+  "FUEL",
+  "FLIGHT",
+  "PUBLIC_TRANSPORT",
+  "GROCERIES",
+  "FOOD_DINNING",
+  "ONLINE_FOOD",
+  "CLOTHINNG_SHOPPING",
+  "ONLINE_SHOPPING",
+  "SUBSCRIPTIONS",
+  "HOTEL_STAY",
+  "TRAVELING",
+  "CREDITECART_PAYMENT",
+  "INSURANCE",
+  "CASH",
+  "NGO",
+  "INVESTMENT",
+  "RECHARGE",
+  "MISCELLANEOUS",
 ];
 
 export function TransactionTable({ selectedMonth }) {
@@ -70,14 +92,14 @@ export function TransactionTable({ selectedMonth }) {
         params: {
           page: currentPage,
           size: itemsPerPage,
-          month: selectedMonth // Pass the selected month
-        }
+          month: selectedMonth, // Pass the selected month
+        },
       });
-      
+
       // Map backend response to our frontend model
       const { content, totalElements, totalPages } = response.data;
-      
-      const mappedTransactions = content.map(transaction => ({
+
+      const mappedTransactions = content.map((transaction) => ({
         id: transaction.id,
         date: transaction.createdAt,
         merchant_name: transaction.merchantName,
@@ -87,9 +109,9 @@ export function TransactionTable({ selectedMonth }) {
         transaction_type: transaction.transactionType,
         amount: transaction.amount,
         carbon_emission: transaction.carbonEmitted || 0,
-        isGlobal: transaction.global
+        isGlobal: transaction.global,
       }));
-      
+
       setTransactions(mappedTransactions);
       setTotalElements(totalElements);
       setTotalPages(totalPages);
@@ -168,14 +190,21 @@ export function TransactionTable({ selectedMonth }) {
                   <TableHead className="text-gray-400">Category</TableHead>
                   <TableHead className="text-gray-400">Payment Mode</TableHead>
                   <TableHead className="text-gray-400">Type</TableHead>
-                  <TableHead className="text-gray-400 text-right">Amount</TableHead>
-                  <TableHead className="text-gray-400">Carbon Emission</TableHead>
+                  <TableHead className="text-gray-400 text-right">
+                    Amount
+                  </TableHead>
+                  <TableHead className="text-gray-400">
+                    Carbon Emission
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {transactions.length > 0 ? (
                   transactions.map((transaction) => (
-                    <TableRow key={transaction.id} className="hover:bg-gray-800">
+                    <TableRow
+                      key={transaction.id}
+                      className="hover:bg-gray-800"
+                    >
                       <TableCell className="text-white">
                         {format(new Date(transaction.date), "MMM dd, yyyy")}
                       </TableCell>
@@ -213,7 +242,8 @@ export function TransactionTable({ selectedMonth }) {
                                   value="__add__"
                                   className="text-green-400"
                                 >
-                                  <Plus className="inline mr-1" /> Add new category
+                                  <Plus className="inline mr-1" /> Add new
+                                  category
                                 </SelectItem>
                                 {isAddingCategory && (
                                   <div className="p-2 space-y-2">
@@ -255,13 +285,16 @@ export function TransactionTable({ selectedMonth }) {
                             <Badge
                               variant="outline"
                               className={`${
-                                typeColors[transaction.category] || "bg-gray-500"
+                                typeColors[transaction.category] ||
+                                "bg-gray-500"
                               } text-white border-0`}
                             >
                               {transaction.category}
                             </Badge>
                             <button
-                              onClick={() => setEditingCategoryId(transaction.id)}
+                              onClick={() =>
+                                setEditingCategoryId(transaction.id)
+                              }
                               className="text-gray-400 hover:text-white"
                             >
                               <Pencil className="w-4 h-4" />
@@ -286,7 +319,10 @@ export function TransactionTable({ selectedMonth }) {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-8 text-gray-400">
+                    <TableCell
+                      colSpan={8}
+                      className="text-center py-8 text-gray-400"
+                    >
                       No transactions found for the selected period.
                     </TableCell>
                   </TableRow>
@@ -297,12 +333,32 @@ export function TransactionTable({ selectedMonth }) {
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4">
               <p className="text-sm text-gray-400">
-                {transactions.length > 0 
-                  ? `Showing ${currentPage * itemsPerPage + 1}-${Math.min((currentPage + 1) * itemsPerPage, totalElements)} of ${totalElements} transactions` 
-                  : 'No transactions'
-                }
+                {transactions.length > 0
+                  ? `Showing ${currentPage * itemsPerPage + 1}-${Math.min(
+                      (currentPage + 1) * itemsPerPage,
+                      totalElements
+                    )} of ${totalElements} transactions`
+                  : "No transactions"}
               </p>
               <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-400">Show:</span>
+                <Select
+                  value={itemsPerPage.toString()}
+                  onValueChange={(value) => {
+                    setItemsPerPage(parseInt(value));
+                    setCurrentPage(0); // Reset to first page when changing page size
+                  }}
+                >
+                  <SelectTrigger className="w-[80px] bg-gray-800 border-gray-700 text-white">
+                    <SelectValue placeholder="5" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-800 text-white">
+                    <SelectItem value="5">5</SelectItem>
+                    <SelectItem value="10">10</SelectItem>
+                    <SelectItem value="15">15</SelectItem>
+                    <SelectItem value="20">20</SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button
                   variant="outline"
                   size="icon"
