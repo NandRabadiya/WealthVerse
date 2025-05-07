@@ -132,9 +132,28 @@ const COLORS = [
 
 export function TransactionAnalysis() {
   const [transactions, setTransactions] = useState(sampleTransactions);
-  const [timeFrame, setTimeFrame] = useState("monthly");
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [viewType, setViewType] = useState("category");
   const [chartData, setChartData] = useState([]);
+
+  const getMonthFromDate = (dateString) => {
+    return new Date(dateString).getMonth(); // 0 = Jan, 1 = Feb, ...
+  };
+
+  const monthNames = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
 
   useEffect(() => {
     // In a real app, you would fetch data from your Spring Boot API
@@ -156,15 +175,18 @@ export function TransactionAnalysis() {
   }, []);
 
   useEffect(() => {
-    // Process data for charts based on viewType
+    const filtered = transactions.filter(
+      (t) => getMonthFromDate(t.date) === selectedMonth
+    );
+
     if (viewType === "category") {
-      const categoryData = processCategoryData(transactions);
+      const categoryData = processCategoryData(filtered);
       setChartData(categoryData);
     } else {
-      const merchantData = processMerchantData(transactions);
+      const merchantData = processMerchantData(filtered);
       setChartData(merchantData);
     }
-  }, [transactions, viewType]);
+  }, [transactions, viewType, selectedMonth]);
 
   // Process data for category-wise chart
   const processCategoryData = (data) => {
@@ -205,9 +227,9 @@ export function TransactionAnalysis() {
   };
 
   // Filter transactions based on viewType
-  // const getFilteredTransactions = () => {
-  //   return transactions;
-  // };
+  const getFilteredTransactions = () => {
+    return transactions;
+  };
 
   // Custom tooltip for the pie chart
   const CustomTooltip = ({ active, payload }) => {
@@ -248,29 +270,25 @@ export function TransactionAnalysis() {
         </Tabs>
 
         <div className="flex items-center space-x-2 w-full sm:w-auto">
-          <Label htmlFor="timeframe" className="text-white whitespace-nowrap">
-            Time Frame:
+          <Label htmlFor="month" className="text-white whitespace-nowrap">
+            Select Month:
           </Label>
-          <Select value={timeFrame} onValueChange={setTimeFrame}>
+          <Select
+            value={selectedMonth.toString()}
+            onValueChange={(value) => setSelectedMonth(parseInt(value))}
+          >
             <SelectTrigger
-              id="timeframe"
+              id="month"
               className="bg-gray-800 border-gray-700 text-white w-full sm:w-[150px]"
             >
-              <SelectValue placeholder="Select period" />
+              <SelectValue placeholder="Select Month" />
             </SelectTrigger>
             <SelectContent className="bg-gray-800 border-gray-700 text-white">
-              <SelectItem
-                value="monthly"
-                className="hover:bg-gray-700 focus:bg-gray-700"
-              >
-                Monthly
-              </SelectItem>
-              <SelectItem
-                value="yearly"
-                className="hover:bg-gray-700 focus:bg-gray-700"
-              >
-                Yearly
-              </SelectItem>
+              {monthNames.map((name, index) => (
+                <SelectItem key={index} value={index.toString()}>
+                  {name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
