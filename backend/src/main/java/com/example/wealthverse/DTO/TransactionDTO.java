@@ -2,6 +2,7 @@ package com.example.wealthverse.DTO;
 
 import com.example.wealthverse.Enums.PaymentMode;
 import com.example.wealthverse.Enums.TransactionType;
+import jakarta.persistence.Column;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -15,7 +16,8 @@ public class TransactionDTO {
 
     private Long id;
 
-    private Double amount;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal amount;
 
     public Long getId() {
         return id;
@@ -25,11 +27,11 @@ public class TransactionDTO {
         this.id = id;
     }
 
-    public Double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

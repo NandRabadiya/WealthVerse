@@ -3,7 +3,10 @@ package com.example.wealthverse.DTO;
 import com.example.wealthverse.Enums.PaymentMode;
 import com.example.wealthverse.Enums.TransactionType;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.persistence.Column;
 import lombok.*;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -11,13 +14,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class AddTransactionRequest {
-    private Double amount;
 
-    public Double getAmount() {
+    @Column(precision = 12, scale = 2)
+    private BigDecimal amount;
+
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
