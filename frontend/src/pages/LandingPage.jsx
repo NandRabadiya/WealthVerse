@@ -6,11 +6,12 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/Carousel";
-import { useAuth } from "@/auth/AuthContext"; // Import the useAuth hook
+import { useAuth } from "@/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Link } from "react-router-dom";
-import WealthVerse from "/WealthVerse.png"; // Adjust the path as necessary
+import WealthVerse from "/WealthVerse.png";
+import { User } from "lucide-react";
 
 const LandingPage = () => {
   const { token, logout } = useAuth();
@@ -69,10 +70,18 @@ const LandingPage = () => {
     }
   };
 
+  // Dummy login function
+  const handleAvatarClick = (user) => {
+    console.log(`Logging in as ${user}`);
+    // Simulating a dummy login by storing a token
+    localStorage.setItem("token", "dummyToken");
+    navigate("/spend-analysis"); // Redirect to dashboard
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-20 px-6 md:px-12 lg:px-24 bg-gray-900">
+      <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-20 px-6 md:px-12 lg:px-24 bg-transparent backdrop-blur-md border-gray-700">
         <Link to="/">
           <img
             src={WealthVerse}
@@ -103,7 +112,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-30 py-16 md:py-24 px-6 md:px-12 lg:px-24 bg-blue-900">
+      <section className="pt-30 py-16 md:py-24 px-6 md:px-12 lg:px-24 ">
         <div className="max-w-3xl mx-auto text-center animate-scale-in">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white">
             Banking Reimagined for the Digital Age
@@ -112,9 +121,29 @@ const LandingPage = () => {
             Experience financial management that empowers, enlightens, and
             evolves with you.
           </p>
-          <Button className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900 px-8 py-6 text-lg rounded-lg animate-float">
+          <Button
+            onClick={() => {
+              const isAuthenticated =
+                !!token || !!localStorage.getItem("token");
+              navigate(isAuthenticated ? "/spend-analysis" : "/login");
+            }}
+            className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900 px-8 py-6 text-lg rounded-lg animate-float"
+          >
             Get Started
           </Button>
+
+          {/* Dummy User Avatars */}
+          <div className="flex justify-center gap-8 mt-8">
+            {["User 1", "User 2", "User 3", "User 4"].map((user, index) => (
+              <div
+                key={index}
+                onClick={() => handleAvatarClick(user)}
+                className="flex justify-center items-center w-20 h-20 bg-blue-900 rounded-full cursor-pointer hover:opacity-90 transition-opacity"
+              >
+                <User className="text-white w-12 h-12" />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -139,21 +168,23 @@ const LandingPage = () => {
       </section>
 
       {/* Suggestions Slider */}
-      <section className="py-16 md:py-20 px-6 md:px-12 lg:px-24 bg-[#0f172a]">
-        {" "}
-        {/* dark blue background */}
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-[#8de9c2]">
+      <section className="py-16 md:py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a]">
+        {/* Dark gradient background */}
+        <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 text-[#8de9c2]">
           Financial Tips & Suggestions
         </h2>
         <div className="relative w-full">
           <Carousel className="w-full" opts={{ loop: true, align: "start" }}>
             <CarouselContent>
               {suggestions.map((suggestion, index) => (
-                <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
-                  <div className="p-1">
-                    <Card className="bg-[#1e293b] border border-[#334155] rounded-xl hover:shadow-md transition-transform duration-300 hover:scale-[1.03]">
+                <CarouselItem
+                  key={index}
+                  className="md:basis-1/2 lg:basis-1/3 p-4"
+                >
+                  <div className="p-1 transition-transform duration-500 hover:scale-105">
+                    <Card className="bg-[#1e293b] border border-[#334155] rounded-xl shadow-xl hover:shadow-2xl transform transition-all duration-300 ease-in-out hover:scale-105">
                       <CardContent className="flex items-center justify-center p-6 h-32">
-                        <p className="text-center text-[#c0fdfb] text-lg font-medium">
+                        <p className="text-center text-[#c0fdfb] text-lg font-semibold animate__animated animate__fadeIn animate__delay-1s">
                           {suggestion}
                         </p>
                       </CardContent>

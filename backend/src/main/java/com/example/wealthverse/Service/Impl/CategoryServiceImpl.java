@@ -39,6 +39,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setGlobal(false);
         category.setUser(user); // null if global
         category.setCreatedAt(LocalDateTime.now());
+        category.setEmissionFactor(BigDecimal.ZERO);
 
       try {
           categoryRepository.save(category);

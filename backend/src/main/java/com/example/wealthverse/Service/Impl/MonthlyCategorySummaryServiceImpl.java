@@ -70,37 +70,11 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
 
         Map<Long, TransactionAggregates> aggregatesByCategory = new ConcurrentHashMap<>();
 
-        int pageNumber = 0;
-        boolean hasMoreData = true;
+        // Process regular transactions (only DEBIT transactions)
+        processRegularTransactions(userId, yearMonth, oldestAggregationTime, aggregatesByCategory);
 
-        while (hasMoreData) {
-            Pageable pageable = PageRequest.of(pageNumber, BATCH_SIZE);
-
-            Page<Transaction> transactionPage = transactionRepository.findTransactionsSincePaged(
-                    userId, yearMonth, oldestAggregationTime, pageable);
-
-            List<Transaction> transactions = transactionPage.getContent();
-
-            if (transactions.isEmpty()) {
-                hasMoreData = false;
-                continue;
-            }
-
-            for (Transaction transaction : transactions) {
-                Long categoryId = transaction.getCategory().getId();
-
-                TransactionAggregates aggregates = aggregatesByCategory.computeIfAbsent(
-                        categoryId, k -> new TransactionAggregates());
-
-                aggregates.addAmount(transaction.getAmount());
-                aggregates.addEmission(transaction.getCarbonEmission());
-            }
-
-            hasMoreData = !transactionPage.isLast();
-            pageNumber++;
-
-            logger.debug("Processed batch {} with {} transactions", pageNumber, transactions.size());
-        }
+        // Process transactions with global merchant mappings for emission calculation
+        processGlobalMappedTransactions(userId, yearMonth, oldestAggregationTime, aggregatesByCategory);
 
         if (aggregatesByCategory.isEmpty()) {
             return existingSummaries;
@@ -136,6 +110,84 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
         }
 
         return summaryByCategory.values().stream().toList();
+    }
+
+    private void processRegularTransactions(
+            Long userId,
+            YearMonth yearMonth,
+            LocalDateTime oldestAggregationTime,
+            Map<Long, TransactionAggregates> aggregatesByCategory) {
+
+        int pageNumber = 0;
+        boolean hasMoreData = true;
+
+        while (hasMoreData) {
+            Pageable pageable = PageRequest.of(pageNumber, BATCH_SIZE);
+
+            Page<Transaction> transactionPage = transactionRepository.findTransactionsSincePaged(
+                    userId, yearMonth, oldestAggregationTime, pageable);
+
+            List<Transaction> transactions = transactionPage.getContent();
+
+            if (transactions.isEmpty()) {
+                hasMoreData = false;
+                continue;
+            }
+
+            for (Transaction transaction : transactions) {
+                Long categoryId = transaction.getCategory().getId();
+
+                TransactionAggregates aggregates = aggregatesByCategory.computeIfAbsent(
+                        categoryId, k -> new TransactionAggregates());
+
+                aggregates.addAmount(transaction.getAmount());
+                // Only add emission for transactions processed in the dedicated method
+            }
+
+            hasMoreData = !transactionPage.isLast();
+            pageNumber++;
+
+            logger.debug("Processed regular transactions batch {} with {} transactions", pageNumber, transactions.size());
+        }
+    }
+
+    private void processGlobalMappedTransactions(
+            Long userId,
+            YearMonth yearMonth,
+            LocalDateTime oldestAggregationTime,
+            Map<Long, TransactionAggregates> aggregatesByCategory) {
+
+        int pageNumber = 0;
+        boolean hasMoreData = true;
+
+        while (hasMoreData) {
+            Pageable pageable = PageRequest.of(pageNumber, BATCH_SIZE);
+
+            Page<Transaction> transactionPage = transactionRepository.findGlobalMappedTransactionsSincePaged(
+                    userId, yearMonth, oldestAggregationTime, pageable);
+
+            List<Transaction> transactions = transactionPage.getContent();
+
+            if (transactions.isEmpty()) {
+                hasMoreData = false;
+                continue;
+            }
+
+            for (Transaction transaction : transactions) {
+                Long categoryId = transaction.getCategory().getId();
+
+                TransactionAggregates aggregates = aggregatesByCategory.computeIfAbsent(
+                        categoryId, k -> new TransactionAggregates());
+
+                // Only add emissions, amounts are already added in processRegularTransactions
+                aggregates.addEmission(transaction.getCarbonEmission());
+            }
+
+            hasMoreData = !transactionPage.isLast();
+            pageNumber++;
+
+            logger.debug("Processed global mapped transactions batch {} with {} transactions", pageNumber, transactions.size());
+        }
     }
 
     private static class TransactionAggregates {

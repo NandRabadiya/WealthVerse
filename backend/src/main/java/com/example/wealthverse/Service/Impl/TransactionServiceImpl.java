@@ -126,14 +126,21 @@ public class TransactionServiceImpl implements TransactionService {
             TransactionType transactionType = TransactionType.valueOf(row[4].trim().toUpperCase());
             LocalDateTime createdAt = LocalDateTime.parse(row[5].trim());
 
+            long userId=user.getId();
             // Lookup global category mapping
-            Optional<MerchantCategoryMapping> mappingOpt = mappingRepository
-                    .findByMerchantNameAndIsGlobalMappingTrue(merchantName);
+//            Optional<MerchantCategoryMapping> mappingOpt = mappingRepository
+//                    .findByMerchantNameAndIsGlobalMappingTrue(merchantName);
 
-            if (mappingOpt.isEmpty()) {
-                logger.warn("No global mapping for merchant: {} at row {}", merchantName, rowNum);
-                throw new IllegalStateException("No global mapping for merchant: " + merchantName);
-            }
+            // 2. Lookup category mapping
+            MerchantCategoryMapping mappingOpt = mappingRepository
+                    .findBestMapping(merchantName, userId)
+                    .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
+
+
+//            if (mappingOpt.isEmpty()) {
+//                logger.warn("No global mapping for merchant: {} at row {}", merchantName, rowNum);
+//                throw new IllegalStateException("No global mapping for merchant: " + merchantName);
+//            }
 
             // Build transaction entity
             Transaction transaction = new Transaction();
@@ -144,7 +151,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setTransactionType(transactionType);
             transaction.setCreatedAt(createdAt);
             transaction.setUser(user);
-            transaction.setCategory(mappingOpt.get().getCategory());
+            transaction.setCategory(mappingOpt.getCategory());
             transaction.setCarbonEmission(BigDecimal.ZERO); // Default value, consider calculating this
 
             return transaction;
@@ -238,7 +245,7 @@ public class TransactionServiceImpl implements TransactionService {
             dto.setCategoryId(tx.getCategory().getId());
             dto.setCarbonEmitted(tx.getCarbonEmission());
             dto.setCreatedAt(tx.getCreatedAt());
-            dto.setGlobal(tx.getCategory().isGlobal());
+            dto.setGlobal();
             return dto;
         });
 
