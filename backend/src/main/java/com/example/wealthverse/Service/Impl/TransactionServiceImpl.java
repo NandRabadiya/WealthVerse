@@ -131,6 +131,12 @@ public class TransactionServiceImpl implements TransactionService {
 //            Optional<MerchantCategoryMapping> mappingOpt = mappingRepository
 //                    .findByMerchantNameAndIsGlobalMappingTrue(merchantName);
 
+            if (row[2] == null || row[2].trim().isEmpty() ||
+                    row[3] == null || row[3].trim().isEmpty()) {
+                logger.warn("Skipping row {} - merchant ID or name is null/empty", rowNum);
+                return null;
+            }
+
             // 2. Lookup category mapping
             MerchantCategoryMapping mappingOpt = mappingRepository
                     .findBestMapping(merchantName.toUpperCase(), userId)
