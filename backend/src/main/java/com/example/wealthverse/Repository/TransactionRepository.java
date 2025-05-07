@@ -1,6 +1,6 @@
 package com.example.wealthverse.Repository;
 
-import com.example.wealthverse.Model.MerchantCategoryMapping;
+import com.example.wealthverse.Enums.TransactionType;
 import com.example.wealthverse.Model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -41,11 +40,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     /**
      * Paginated version of findTransactionsSince to handle large volumes of data
+     * Only returns DEBIT transactions
      */
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId " +
             "AND YEAR(t.createdAt) = :#{#yearMonth.year} " +
             "AND MONTH(t.createdAt) = :#{#yearMonth.monthValue} " +
             "AND t.createdAt > :since " +
+            "AND t.transactionType = com.example.wealthverse.Enums.TransactionType.DEBIT " +
             "ORDER BY t.createdAt ASC")
     Page<Transaction> findTransactionsSincePaged(
             @Param("userId") Long userId,
@@ -53,10 +54,27 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("since") LocalDateTime since,
             Pageable pageable);
 
+    /**
+     * Find all DEBIT transactions for a user in a specific month that occurred after a given timestamp
+     * Only consider transactions where the merchant has a global mapping
+     */
+    @Query("SELECT t FROM Transaction t " +
+            "WHERE t.user.id = :userId " +
+            "AND YEAR(t.createdAt) = :#{#yearMonth.year} " +
+            "AND MONTH(t.createdAt) = :#{#yearMonth.monthValue} " +
+            "AND t.createdAt > :since " +
+            "AND t.transactionType = com.example.wealthverse.Enums.TransactionType.DEBIT " +
+            "AND EXISTS (SELECT m FROM MerchantCategoryMapping m " +
+            "            WHERE m.merchantName = t.merchantName " +
+            "            AND m.isGlobalMapping = true) " +
+            "ORDER BY t.createdAt ASC")
+    Page<Transaction> findGlobalMappedTransactionsSincePaged(
+            @Param("userId") Long userId,
+            @Param("yearMonth") YearMonth yearMonth,
+            @Param("since") LocalDateTime since,
+            Pageable pageable);
 
     Page<Transaction> findAllByUserId(Long userId, Pageable pageable);
-
-
 
     /**
      * Count transactions in a specific month for a user
