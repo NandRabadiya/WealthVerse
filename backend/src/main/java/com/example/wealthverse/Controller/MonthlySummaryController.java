@@ -1,6 +1,7 @@
 package com.example.wealthverse.Controller;
 
 import com.example.wealthverse.DTO.CategorySummaryResponse;
+import com.example.wealthverse.DTO.CategorywiseAndTotalData;
 import com.example.wealthverse.DTO.MonthlySummaryResponse;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
 import com.example.wealthverse.Service.MonthlyCategorySummaryService;
@@ -24,6 +25,8 @@ public class MonthlySummaryController {
 
     private final JWTService jwtService;
 
+
+
     @Autowired
     public MonthlySummaryController(MonthlyCategorySummaryService summaryService, JWTService jwtService) {
         this.summaryService = summaryService;
@@ -39,11 +42,11 @@ public class MonthlySummaryController {
      * @return Response containing summary data for the month
      */
     @GetMapping("/monthly/{yearMonth}")
-    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
+    public ResponseEntity<CategorywiseAndTotalData> getMonthlySummary(
             @RequestHeader("Authorization" )String  token,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
-
+        CategorywiseAndTotalData categorywiseAndTotalData = null;
         Long userId = jwtService.getUserIdFromToken(token);
 
         // Get the summary data with incremental aggregation
@@ -67,7 +70,10 @@ public class MonthlySummaryController {
                         .collect(Collectors.toList())
         );
 
-        return ResponseEntity.ok(response);
+        categorywiseAndTotalData.setCategorySummaries(categorySummaries);
+        categorywiseAndTotalData.setResponse(response);
+
+        return ResponseEntity.ok(categorywiseAndTotalData);
     }
 
     /**
