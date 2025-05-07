@@ -205,9 +205,9 @@ export function TransactionAnalysis() {
   };
 
   // Filter transactions based on viewType
-  const getFilteredTransactions = () => {
-    return transactions;
-  };
+  // const getFilteredTransactions = () => {
+  //   return transactions;
+  // };
 
   // Custom tooltip for the pie chart
   const CustomTooltip = ({ active, payload }) => {
