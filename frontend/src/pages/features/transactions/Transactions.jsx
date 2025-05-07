@@ -1,6 +1,6 @@
 import React from "react";
 import { TransactionTable } from "./TransactionTable/";
-import FeaturesNavbar from "./FeaturesNavbar";
+import FeaturesNavbar from "../FeaturesNavbar";
 
 export default function TransactionsPage() {
   return (
