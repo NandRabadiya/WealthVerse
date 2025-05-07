@@ -1,6 +1,6 @@
 // pages/features/FeaturesNavbar.jsx
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "../../auth/AuthContext"; // Import the useAuth hook
 //import { useNavigate } from "react-router-dom";
@@ -13,6 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/Dialog";
 import { AddTransactionForm } from "./spendAnalysis/AddTransaction";
+import WealthVerse from "/WealthVerse.png"; // Adjust the path as necessary
 
 // Define the feature links you want in the navbar
 const features = [
@@ -28,8 +29,15 @@ const FeaturesNavbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="flex justify-between items-center py-6 px-6 md:px-12 lg:px-24 bg-gray-900 text-white">
-      <div className="font-bold text-2xl text-green-400">WealthVerse</div>
+    <nav className="flex justify-between items-center h-20 px-6 md:px-12 lg:px-24 bg-gray-900 text-white">
+      {/* <div className="font-bold text-2xl text-green-400">WealthVerse</div> */}
+      <Link to="/">
+        <img
+          src={WealthVerse} // Make sure your logo file is in the public folder
+          alt="WealthVerse Logo"
+          className="h-40 object-contain w-auto cursor-pointer"
+        />
+      </Link>
       <div className="flex flex-grow justify-center space-x-8">
         {features.map((feature) => (
           <NavLink
