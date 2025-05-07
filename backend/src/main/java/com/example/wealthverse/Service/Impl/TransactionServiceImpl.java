@@ -1,14 +1,16 @@
-package com.example.wealthverse.Service;
+package com.example.wealthverse.Service.Impl;
 
+import com.example.wealthverse.DTO.AddTransactionRequest;
 import com.example.wealthverse.Enums.PaymentMode;
 import com.example.wealthverse.Enums.TransactionType;
-import com.example.wealthverse.Interface.TransactionImportService;
+import com.example.wealthverse.Service.TransactionService;
 import com.example.wealthverse.Model.MerchantCategoryMapping;
 import com.example.wealthverse.Model.Transaction;
 import com.example.wealthverse.Model.User;
 import com.example.wealthverse.Repository.MerchantCategoryMappingRepository;
 import com.example.wealthverse.Repository.TransactionRepository;
 import com.example.wealthverse.Repository.UserRepository;
+import com.example.wealthverse.Service.JWTService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
@@ -30,8 +32,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TransactionImportServiceImpl implements TransactionImportService {
-    private static final Logger logger = LoggerFactory.getLogger(TransactionImportServiceImpl.class);
+public class TransactionServiceImpl implements TransactionService {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionServiceImpl.class);
     private static final int BATCH_SIZE = 500;
 
     private final TransactionRepository transactionRepository;
@@ -40,7 +42,7 @@ public class TransactionImportServiceImpl implements TransactionImportService {
     private final JWTService jwtService;
 
     @Autowired
-    public TransactionImportServiceImpl(
+    public TransactionServiceImpl(
             TransactionRepository transactionRepository,
             MerchantCategoryMappingRepository mappingRepository,
             UserRepository userRepository,
@@ -167,5 +169,35 @@ public class TransactionImportServiceImpl implements TransactionImportService {
             transactionRepository.saveAll(batch);
             logger.debug("Saved batch of {} transactions", batch.size());
         }
+    }
+
+    @Override
+    @Transactional
+    public Transaction addTransaction(AddTransactionRequest request, String authHeader) {
+        // 1. Extract user
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.getUserIdFromToken(token);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+
+        // 2. Lookup category mapping
+        MerchantCategoryMapping mapping = mappingRepository
+                .findByMerchantNameAndIsGlobalMappingTrue(request.getMerchantName())
+                .orElseThrow(() -> new IllegalStateException(
+                        "No global mapping for merchant: " + request.getMerchantName()));
+
+        // 3. Build and save entity
+        Transaction tx = new Transaction();
+        tx.setAmount(request.getAmount());
+        tx.setPaymentMode(request.getPaymentMode());
+        tx.setMerchantId(request.getMerchantId());
+        tx.setMerchantName(request.getMerchantName());
+        tx.setTransactionType(request.getTransactionType());
+        tx.setCreatedAt(request.getCreatedAt() != null ?
+                request.getCreatedAt() : LocalDateTime.now());
+        tx.setUser(user);
+        tx.setCategory(mapping.getCategory());
+        tx.setCarbonEmission(BigDecimal.ZERO);
+        return transactionRepository.save(tx);
     }
 }

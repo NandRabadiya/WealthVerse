@@ -1,10 +1,10 @@
-package com.example.wealthverse.Service;
+package com.example.wealthverse.Service.Impl;
 
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.MerchantCategoryMapping;
 import com.example.wealthverse.Model.User;
 import com.example.wealthverse.Repository.MerchantCategoryMappingRepository;
-import com.example.wealthverse.Interface.MerchantCategoryMappingService;
+import com.example.wealthverse.Service.MerchantCategoryMappingService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

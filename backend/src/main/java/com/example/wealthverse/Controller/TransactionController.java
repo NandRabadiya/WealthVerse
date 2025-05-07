@@ -1,7 +1,9 @@
 package com.example.wealthverse.Controller;
 
-import com.example.wealthverse.Interface.TransactionImportService;
+import com.example.wealthverse.DTO.AddTransactionRequest;
+import com.example.wealthverse.Service.TransactionService;
 import com.example.wealthverse.Model.ApiResponse;
+import com.example.wealthverse.Model.Transaction;
 import com.opencsv.exceptions.CsvException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,14 +17,14 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/transactions/import")
-public class TransactionImportController {
-    private static final Logger logger = LoggerFactory.getLogger(TransactionImportController.class);
-    private final TransactionImportService transactionImportService;
+@RequestMapping("/api/transactions")
+public class TransactionController {
+    private static final Logger logger = LoggerFactory.getLogger(TransactionController.class);
+    private final TransactionService transactionService;
 
     @Autowired
-    public TransactionImportController(TransactionImportService transactionImportService) {
-        this.transactionImportService = transactionImportService;
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     /**
@@ -32,7 +34,7 @@ public class TransactionImportController {
      * @param authHeader Authentication header with JWT token
      * @return ResponseEntity with success or error message
      */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/import",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> importCsv(
             @RequestParam("file") MultipartFile file,
             @RequestHeader("Authorization") String authHeader) {
@@ -54,7 +56,7 @@ public class TransactionImportController {
 
         try {
             // Process file
-            transactionImportService.importFromCsv(file, authHeader);
+            transactionService.importFromCsv(file, authHeader);
             logger.info("Successfully imported CSV file: {}", filename);
 
             return ResponseEntity.ok(new ApiResponse(true, "CSV imported successfully"));
@@ -83,5 +85,14 @@ public class TransactionImportController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse(false, "An unexpected error occurred. Please try again later."));
         }
+    }
+
+
+    @PostMapping("/add")
+    public ResponseEntity<Transaction> addTransaction(
+            @RequestBody AddTransactionRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+        Transaction saved = transactionService.addTransaction(request, authHeader);
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
     }
 }

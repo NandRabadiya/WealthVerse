@@ -1,4 +1,4 @@
-package com.example.wealthverse.Interface;
+package com.example.wealthverse.Service;
 
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.MerchantCategoryMapping;

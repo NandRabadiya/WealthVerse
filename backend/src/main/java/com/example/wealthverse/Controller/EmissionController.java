@@ -2,7 +2,7 @@ package com.example.wealthverse.Controller;
 
 
 import com.example.wealthverse.DTO.EmissionCalculationRequest;
-import com.example.wealthverse.Service.CategoryServiceImpl;
+import com.example.wealthverse.Service.Impl.CategoryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;

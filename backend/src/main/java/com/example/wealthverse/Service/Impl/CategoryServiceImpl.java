@@ -1,10 +1,10 @@
-package com.example.wealthverse.Service;
+package com.example.wealthverse.Service.Impl;
 
 import com.example.wealthverse.DTO.EmissionCalculationRequest;
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.User;
 import com.example.wealthverse.Repository.CategoryRepository;
-import com.example.wealthverse.Interface.CategoryService;
+import com.example.wealthverse.Service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

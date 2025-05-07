@@ -3,7 +3,7 @@ package com.example.wealthverse.Controller;
 import com.example.wealthverse.DTO.CategorySummaryResponse;
 import com.example.wealthverse.DTO.MonthlySummaryResponse;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
-import com.example.wealthverse.Service.Impl.MonthlyCategorySummaryService;
+import com.example.wealthverse.Service.MonthlyCategorySummaryService;
 import com.example.wealthverse.Service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
