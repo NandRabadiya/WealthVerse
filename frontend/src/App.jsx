@@ -13,7 +13,7 @@ import CibilScoring from "./pages/features/CibilScoring";
 import LoginPage from "./pages/authentication/LoginPage";
 import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import Transactions from "./pages/features/Transactions";
+import Transactions from "./pages/features/transactions/Transactions";
 
 function App() {
   return (
