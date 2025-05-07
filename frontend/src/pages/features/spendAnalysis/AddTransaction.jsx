@@ -1,16 +1,10 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { CalendarIcon, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tabs";
-import { Calendar } from "@/components/ui/Calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/Popover";
 import {
   Select,
   SelectContent,
@@ -19,27 +13,12 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { cn } from "@/lib/utils";
+import axios from "../../../api/api";
 
-const paymentModes = [
-  "Credit Card",
-  "Debit Card",
-  "UPI",
-  "Net Banking",
-  "Cash",
-];
-const transactionTypes = [
-  "Food",
-  "Shopping",
-  "Transportation",
-  "Entertainment",
-  "Utilities",
-  "Healthcare",
-  "Education",
-  "Other",
-];
+const paymentModes = ["UPI", "CARD", "NET_BANKING"];
+const transactionTypes = ["DEBIT", "CREDIT"];
 
 export function AddTransactionForm({ onSuccess }) {
-  const [date, setDate] = useState(new Date());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
@@ -63,27 +42,20 @@ export function AddTransactionForm({ onSuccess }) {
     setIsSubmitting(true);
 
     try {
-      // Format the data for your Spring Boot API
+      // Get current date and time in the required format
+      const currentDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
+      
       const transactionData = {
-        ...formData,
-        date: format(date, "yyyy-MM-dd"),
         amount: Number.parseFloat(formData.amount),
+        merchantId: formData.merchant_id,
+        merchantName: formData.merchant_name,
+        paymentMode: formData.payment_mode,
+        transactionType: formData.transaction_type,
+        createdAt: currentDateTime, // Using current date and time
       };
 
-      // API call to your Spring Boot backend
-      // const response = await fetch('your-api-endpoint/transactions', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(transactionData),
-      // })
-
-      // if (!response.ok) throw new Error('Failed to add transaction')
-
-      // Simulate API call for now
+      const response = await axios.post("/transactions/add", transactionData);
       console.log("Transaction data:", transactionData);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Reset form
       setFormData({
@@ -93,9 +65,7 @@ export function AddTransactionForm({ onSuccess }) {
         payment_mode: "",
         transaction_type: "",
       });
-      setDate(new Date());
 
-      // Close dialog
       if (onSuccess) onSuccess();
     } catch (error) {
       console.error("Error adding transaction:", error);
@@ -105,40 +75,24 @@ export function AddTransactionForm({ onSuccess }) {
   };
 
   const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    console.log("File upload triggered");
+    // const file = e.target.files[0];
+    // if (!file) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+    // const formData = new FormData();
+    // formData.append("file", file);
 
-    setIsSubmitting(true);
+    // setIsSubmitting(true);
 
-    try {
-      // API call to your Spring Boot backend for CSV upload
-      // const response = await fetch('your-api-endpoint/transactions/upload', {
-      //   method: 'POST',
-      //   body: formData,
-      // })
-
-      // if (!response.ok) throw new Error('Failed to upload transactions')
-
-      // Simulate API call for now
-      console.log("Uploading file:", file.name);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Close dialog
-      if (onSuccess) onSuccess();
-    } catch (error) {
-      console.error("Error uploading transactions:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Function to disable future dates
-  const disabledDays = (date) => {
-    const today = new Date();
-    return date > today;
+    // try {
+    //   console.log("Uploading file:", file.name);
+    //   await new Promise((resolve) => setTimeout(resolve, 1500));
+    //   if (onSuccess) onSuccess();
+    // } catch (error) {
+    //   console.error("Error uploading transactions:", error);
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   return (
@@ -169,7 +123,7 @@ export function AddTransactionForm({ onSuccess }) {
                 id="amount"
                 name="amount"
                 type="number"
-                step="0.01"
+                step="1"
                 placeholder="0.00"
                 value={formData.amount}
                 onChange={handleChange}
@@ -179,33 +133,12 @@ export function AddTransactionForm({ onSuccess }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date" className="text-white">
-                Date
+              <Label className="text-white">
+                Transaction Date
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-gray-800 border-gray-700 text-white hover:bg-gray-700",
-                      !date && "text-gray-400"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-gray-800 border-gray-700">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    disabled={disabledDays}
-                    initialFocus
-                    className="bg-gray-800 text-white"
-                  />
-                </PopoverContent>
-              </Popover>
+              <div className="text-gray-400 text-sm py-2 px-3 bg-gray-800 rounded-md border border-gray-700">
+                {format(new Date(), "PPPpp")}
+              </div>
             </div>
           </div>
 

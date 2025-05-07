@@ -17,46 +17,67 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Calculator } from "lucide-react";
+import api from "../../../api/api"; // Adjust the import path as necessary
 
-// Sample emission factors for different categories
-const emissionFactors = {
-  Transportation: 0.2, // kg CO2 per rupee
-  "Food & Dining": 0.15,
-  Shopping: 0.1,
-  Utilities: 0.25,
-  Entertainment: 0.05,
-  Education: 0.03,
-  Healthcare: 0.04,
-  Other: 0.08,
-};
+const categories = [
+  "ELECTRICITY",
+  "FUEL",
+  "FLIGHT",
+  "PUBLIC_TRANSPORT",
+  "GROCERIES",
+  "FOOD_DINNING",
+  "ONLINE_FOOD",
+  "CLOTHINNG_SHOPPING",
+  "ONLINE_SHOPPING",
+  "SUBSCRIPTIONS",
+  "HOTEL_STAY",
+  "TRAVELING",
+  "CREDITECART_PAYMENT",
+  "INSURANCE",
+  "CASH",
+  "MISCELLANEOUS",
+  "NGO",
+  "INVESTMENT",
+  "RECHARGE",
+];
 
 const CalculatorTab = () => {
   const [category, setCategory] = useState("");
   const [amount, setAmount] = useState("");
   const [result, setResult] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleCalculate = () => {
+  const handleCalculate = async () => {
     if (!category || !amount || isNaN(amount) || amount <= 0) return;
 
     setIsCalculating(true);
-
+    setError(null);
     // Simulate API call
-    setTimeout(() => {
-      const emissionFactor = emissionFactors[category] || 0.1;
-      const carbonFootprint = Number.parseFloat(amount) * emissionFactor;
+    setError(null);
+
+    try {
+      // Call the backend API
+      const response = await api.post("/category/calculate", {
+        categoryName: category,
+        amountSpent: parseFloat(amount),
+      });
+
+      // Process response
+      const carbonFootprint = response.data;
 
       setResult({
         category,
-        amount: Number.parseFloat(amount),
-        emissionFactor,
+        amount: parseFloat(amount),
         carbonFootprint: carbonFootprint.toFixed(2),
       });
-
+    } catch (err) {
+      console.error("Error calculating carbon footprint:", err);
+      setError("Failed to calculate carbon footprint. Please try again.");
+    } finally {
       setIsCalculating(false);
-    }, 1000);
+    }
   };
-
   return (
     <div className="space-y-8">
       <Card className="bg-gray-900 border-gray-800">
@@ -84,11 +105,9 @@ const CalculatorTab = () => {
               </h4>
               <ul className="space-y-1 text-gray-300">
                 <li>Fuel purchase: ₹1,200</li>
-                <li>Average fuel price: ₹100/liter</li>
-                <li>Amount of fuel: 12 liters</li>
-                <li>Emission factor: 2.3 kg CO₂ per liter</li>
+                <li>Emission factor: 0.027 kg CO₂ per ₹</li>
                 <li className="text-green-400 font-medium mt-2">
-                  Carbon footprint: 12 × 2.3 = 27.6 kg CO₂
+                  Carbon footprint: 1200 × 0.027 = 32.4 kg CO₂
                 </li>
               </ul>
             </div>
@@ -108,7 +127,7 @@ const CalculatorTab = () => {
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 border-gray-700 text-white">
-                    {Object.keys(emissionFactors).map((cat) => (
+                    {categories.map((cat) => (
                       <SelectItem
                         key={cat}
                         value={cat}
@@ -142,6 +161,9 @@ const CalculatorTab = () => {
               >
                 {isCalculating ? "Calculating..." : "Calculate Impact"}
               </Button>
+              {error && (
+                <div className="text-red-400 text-sm mt-2">{error}</div>
+              )}
             </div>
 
             {result && (
@@ -158,12 +180,6 @@ const CalculatorTab = () => {
                     <span className="text-gray-400">Amount Spent:</span>
                     <span className="text-white">
                       ₹{result.amount.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Emission Factor:</span>
-                    <span className="text-white">
-                      {result.emissionFactor} kg CO₂/₹
                     </span>
                   </div>
                   <div className="h-px bg-gray-700 my-2"></div>
