@@ -29,7 +29,7 @@ const FeaturesNavbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="flex justify-between items-center h-20 px-6 md:px-12 lg:px-24 bg-gray-900 text-white">
+    <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-20  px-6 md:px-12 lg:px-24 bg-transparent backdrop-blur-md text-white">
       {/* <div className="font-bold text-2xl text-green-400">WealthVerse</div> */}
       <Link to="/">
         <img

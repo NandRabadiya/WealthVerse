@@ -72,7 +72,7 @@ const LandingPage = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
       {/* Navbar */}
-      <nav className="flex justify-between items-center h-20 px-6 md:px-12 lg:px-24">
+      <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-20 px-6 md:px-12 lg:px-24 bg-gray-900">
         <Link to="/">
           <img
             src={WealthVerse}
@@ -103,7 +103,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-16 md:py-24 px-6 md:px-12 lg:px-24 bg-blue-900">
+      <section className="pt-30 py-16 md:py-24 px-6 md:px-12 lg:px-24 bg-blue-900">
         <div className="max-w-3xl mx-auto text-center animate-scale-in">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white">
             Banking Reimagined for the Digital Age
