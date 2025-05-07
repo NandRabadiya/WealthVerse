@@ -13,6 +13,7 @@ import CibilScoring from "./pages/features/CibilScoring";
 import LoginPage from "./pages/authentication/LoginPage";
 import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import Transactions from "./pages/features/Transactions";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/spend-analysis" element={<SpendAnalysis />} />
+            <Route path="/transactions" element={<Transactions />} />
             <Route path="/carbon-footprint" element={<CarbonFootPrint />} />
             <Route path="/budget-planner" element={<BudgetPlanner />} />
             <Route path="/cibil-scoring" element={<CibilScoring />} />

@@ -142,7 +142,7 @@ public class TransactionServiceImpl implements TransactionService {
 
             // 2. Lookup category mapping
             MerchantCategoryMapping mappingOpt = mappingRepository
-                    .findBestMapping(merchantName, userId)
+                    .findBestMapping(merchantName.toUpperCase(), userId)
                     .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
 
 
@@ -156,7 +156,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setAmount(amount);
             transaction.setPaymentMode(paymentMode);
             transaction.setMerchantId(merchantId);
-            transaction.setMerchantName(merchantName);
+            transaction.setMerchantName(merchantName.toUpperCase());
             transaction.setTransactionType(transactionType);
             transaction.setCreatedAt(createdAt);
             transaction.setUser(user);
@@ -254,7 +254,7 @@ public class TransactionServiceImpl implements TransactionService {
             dto.setCategoryId(tx.getCategory().getId());
             dto.setCarbonEmitted(tx.getCarbonEmission());
             dto.setCreatedAt(tx.getCreatedAt());
-
+            dto.setGlobal(true);
             return dto;
         });
 

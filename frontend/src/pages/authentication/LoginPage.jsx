@@ -6,6 +6,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { User } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -26,7 +27,11 @@ const LoginPage = () => {
   });
 
   const onSubmit = async (data) => {
-    const result = await login(data.email, data.password);
+    // If data is passed directly from a demo account button
+    const email = data.email || "";
+    const password = data.password || "";
+
+    const result = await login(email, password);
     if (!result.success) {
       setError(result.error || "Invalid email or password");
       return;
@@ -65,6 +70,46 @@ const LoginPage = () => {
           >
             Login
           </Button>
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-400 mb-3">
+              OR use any of below accounts
+            </p>
+            <div className="flex justify-center gap-6">
+              {[
+                {
+                  name: "Venu",
+                  email: "venupatel004@gmail.com",
+                  password: "Venu@123",
+                },
+                {
+                  name: "Nand",
+                  email: "nandrabadiya2003@gmail.com",
+                  password: "Nand@123",
+                },
+                {
+                  name: "Shaily",
+                  email: "shaily@gmail.com",
+                  password: "Shaily@123",
+                },
+                {
+                  name: "Kunj",
+                  email: "kunjvasoya03@gmail.com",
+                  password: "Kunj@123",
+                },
+              ].map((account, index) => (
+                <div
+                  key={index}
+                  onClick={() => onSubmit(account)}
+                  className="flex flex-col items-center cursor-pointer"
+                >
+                  <div className="flex justify-center items-center w-12 h-12 bg-blue-900 rounded-full hover:opacity-90 transition-opacity mb-1">
+                    <User className="text-white w-6 h-6" />
+                  </div>
+                  <span className="text-xs text-gray-400">{account.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <div className="text-center">
             <p className="text-sm text-gray-400">
               Don't have an account?{" "}

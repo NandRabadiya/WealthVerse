@@ -4,7 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "../../auth/AuthContext"; // Import the useAuth hook
 //import { useNavigate } from "react-router-dom";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Eye } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +66,13 @@ const FeaturesNavbar = () => {
             <AddTransactionForm onSuccess={() => setOpen(false)} />
           </DialogContent>
         </Dialog>
+
+        <Link to="/transactions">
+          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2 cursor-pointer">
+            <Eye className="h-5 w-5" />
+            View All Transactions
+          </button>
+        </Link>
 
         <Button
           onClick={async () => {
