@@ -5,5 +5,5 @@ import com.example.wealthverse.Model.MerchantCategoryMapping;
 import com.example.wealthverse.Model.User;
 
 public interface MerchantCategoryMappingService {
-    MerchantCategoryMapping addCustomMapping(String merchantName, boolean isGlobalMapping, User user, Category category);
+    MerchantCategoryMapping addCustomMapping(String merchantName, long user, long categoryId);
 }
