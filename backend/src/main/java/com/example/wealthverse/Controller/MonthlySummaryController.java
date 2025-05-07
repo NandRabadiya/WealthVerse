@@ -9,11 +9,11 @@ import com.example.wealthverse.Service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,10 +22,7 @@ import java.util.stream.Collectors;
 public class MonthlySummaryController {
 
     private final MonthlyCategorySummaryService summaryService;
-
     private final JWTService jwtService;
-
-
 
     @Autowired
     public MonthlySummaryController(MonthlyCategorySummaryService summaryService, JWTService jwtService) {
@@ -37,16 +34,15 @@ public class MonthlySummaryController {
      * Get monthly spending and carbon emissions summary categorized by spending categories
      * Includes percentage of total carbon emissions for each category
      *
-    // * @param userDetails authenticated user
+     * @param token JWT token from Authorization header
      * @param yearMonth the target month in format YYYY-MM
      * @return Response containing summary data for the month
      */
     @GetMapping("/monthly/{yearMonth}")
     public ResponseEntity<CategorywiseAndTotalData> getMonthlySummary(
-            @RequestHeader("Authorization" )String  token,
+            @RequestHeader("Authorization") String token,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
-        CategorywiseAndTotalData categorywiseAndTotalData = null;
         Long userId = jwtService.getUserIdFromToken(token);
 
         // Get the summary data with incremental aggregation
@@ -63,17 +59,20 @@ public class MonthlySummaryController {
         response.setCategorySummaries(categorySummaries);
         response.calculateTotals();
 
-        // Sort categories by emission percentage (highest first) before returning
+        // Use null-safe comparator for sorting by emission percentage (highest first)
         response.setCategorySummaries(
                 categorySummaries.stream()
-                        .sorted((c1, c2) -> c2.getEmissionPercentage().compareTo(c1.getEmissionPercentage()))
+                        .sorted(Comparator.comparing(
+                                CategorySummaryResponse::getEmissionPercentage,
+                                Comparator.nullsLast(Comparator.reverseOrder())))
                         .collect(Collectors.toList())
         );
 
-        categorywiseAndTotalData.setCategorySummaries(categorySummaries);
-        categorywiseAndTotalData.setResponse(response);
+        CategorywiseAndTotalData dto = new CategorywiseAndTotalData();
+        dto.setCategorySummaries(categorySummaries);
+        dto.setResponse(response);
 
-        return ResponseEntity.ok(categorywiseAndTotalData);
+        return ResponseEntity.ok(dto);
     }
 
     /**
@@ -89,16 +88,26 @@ public class MonthlySummaryController {
     }
 
     /**
-     * Convert entity to DTO
+     * Convert entity to DTO with null-safe category name retrieval
      */
     private CategorySummaryResponse convertToDto(MonthlyCategorySummary summary) {
         CategorySummaryResponse dto = new CategorySummaryResponse();
         dto.setCategoryId(summary.getCategoryId());
-        dto.setCategoryName(summary.getCategory().getName());
+
+        // Null-safe approach: check if category exists before accessing its name
+        if (summary.getCategory() != null) {
+            dto.setCategoryName(summary.getCategory().getName());
+        } else {
+            // Set a default or placeholder value if category is null
+            dto.setCategoryName("Unknown Category");
+        }
+
         dto.setTotalAmount(summary.getTotalAmount());
         dto.setTotalEmission(summary.getTotalEmission());
+
+        // Initialize with zero to avoid null emission percentage
+        dto.setEmissionPercentage(BigDecimal.ZERO);
+
         return dto;
     }
-
-
 }
