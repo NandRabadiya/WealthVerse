@@ -104,7 +104,8 @@ export function TransactionTable({ selectedMonth }) {
         date: transaction.createdAt,
         merchant_name: transaction.merchantName,
         merchant_id: transaction.merchantId,
-        category: transaction.categoryId?.toString() || "Other", // This would need to be mapped to actual category names
+        category_id: transaction.categoryId,
+        category: transaction.categoryName,
         payment_mode: transaction.paymentMode,
         transaction_type: transaction.transactionType,
         amount: transaction.amount,
@@ -206,7 +207,7 @@ export function TransactionTable({ selectedMonth }) {
                       className="hover:bg-gray-800"
                     >
                       <TableCell className="text-white">
-                        {format(new Date(transaction.date), "MMM dd, yyyy")}
+                        {format(new Date(transaction.date), "dd")}
                       </TableCell>
                       <TableCell className="text-white">
                         {transaction.merchant_name}
@@ -291,14 +292,17 @@ export function TransactionTable({ selectedMonth }) {
                             >
                               {transaction.category}
                             </Badge>
-                            <button
-                              onClick={() =>
-                                setEditingCategoryId(transaction.id)
-                              }
-                              className="text-gray-400 hover:text-white"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
+                            {(transaction.category== "MISCELLANEOUS" ||
+                              transaction.isGloballse) && (
+                              <button
+                                onClick={() =>
+                                  setEditingCategoryId(transaction.id)
+                                }
+                                className="text-gray-400 hover:text-white"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </button>
+                            )}
                           </div>
                         )}
                       </TableCell>
@@ -341,7 +345,7 @@ export function TransactionTable({ selectedMonth }) {
                   : "No transactions"}
               </p>
               <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-400">Show:</span>
+                <span className="text-sm text-gray-400">Show:</span>
                 <Select
                   value={itemsPerPage.toString()}
                   onValueChange={(value) => {
