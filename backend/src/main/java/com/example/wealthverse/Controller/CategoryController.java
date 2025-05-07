@@ -33,7 +33,7 @@ public class CategoryController {
     @PostMapping("/custom")
     public ResponseEntity<String> addCustomCategory(
             @RequestHeader("Authorization") String authHeader,
-            @RequestBody String category) {
+            @RequestParam String category) {
 
         categoryService.addCustomCategory(category, authHeader);
         return ResponseEntity.status(HttpStatus.CREATED).body("Category created successfully");

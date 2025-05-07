@@ -29,17 +29,17 @@ public class MerchantCategoryMappingServiceImpl implements MerchantCategoryMappi
     }
 
     @Override
-    public MerchantCategoryMapping addCustomMapping(String merchantName,long userId, long categoryId) {
+    public MerchantCategoryMapping addCustomMapping(String merchantName,long userId, String categoryName) {
         MerchantCategoryMapping mapping = new MerchantCategoryMapping();
-        mapping.setMerchantName(merchantName);
+        mapping.setMerchantName(merchantName.toUpperCase());
         mapping.setGlobalMapping(false);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("User not found with id: " + userId));
 
         mapping.setUser(user); // null if global
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalStateException("Category not found with id: " + categoryId));
+        Category category = categoryRepository.findByName(categoryName.toUpperCase())
+                .orElseThrow(() -> new IllegalStateException("Category not found with Name: " + categoryName));
 
         mapping.setCategory(category);
         mapping.setCreatedAt(LocalDateTime.now());
