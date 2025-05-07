@@ -118,6 +118,16 @@ public class TransactionDTO {
 
     private Long categoryId;
 
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    private String categoryName;
+
     private BigDecimal carbonEmitted;
 
     private LocalDateTime createdAt;
