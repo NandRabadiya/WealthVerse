@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Link } from "react-router-dom";
 import WealthVerse from "/WealthVerse.png";
 import { User } from "lucide-react";
+import TeamPage from "./TeamPage";
 
 const LandingPage = () => {
   const { token, logout } = useAuth();
@@ -197,10 +198,15 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Team Page */}
+      <section>
+        <TeamPage />
+      </section>
+
       {/* Footer */}
       <footer className="py-8 px-6 md:px-12 lg:px-24 bg-gray-800 border-t border-gray-700 mt-auto">
         <p className="text-center text-gray-400">
-          Made with <span className="text-red-500">❤</span> by team
+          Made with <span className="text-red-500">❤</span> by Team
         </p>
       </footer>
     </div>
