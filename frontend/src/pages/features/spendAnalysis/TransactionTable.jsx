@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import {
@@ -11,6 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/Table";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
 
 // Sample data - in a real app, this would come from your Spring Boot API
@@ -125,18 +132,72 @@ const typeColors = {
   Other: "bg-gray-500",
 };
 
+const defaultCategories = [
+  "Food",
+  "Shopping",
+  "Transportation",
+  "Entertainment",
+  "Utilities",
+  "Healthcare",
+  "Education",
+  "Other",
+];
+
 export function TransactionTable({ viewType = "all" }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(5);
+  const [transactions, setTransactions] = useState([]);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [userCategories, setUserCategories] = useState([]);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+
+  // Add a ref to maintain the focus on the input field
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    // Sort sampleTransactions by date descending
+    const sorted = [...sampleTransactions].sort(
+      (a, b) => new Date(b.date) - new Date(a.date)
+    );
+    setTransactions(sorted);
+
+    // Fetch user-defined categories (mocked)
+    setUserCategories(["Investment", "Travel"]);
+  }, []);
+
+  // Focus the input field when adding a new category
+  useEffect(() => {
+    if (isAddingCategory && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isAddingCategory]);
+
+  //Update category
+  const updateCategory = (id, newCategory) => {
+    const updated = transactions.map((t) =>
+      t.id === id ? { ...t, transaction_type: newCategory } : t
+    );
+    setTransactions(updated);
+    setEditingCategoryId(null);
+  };
+
+  // Handle adding a new category
+  const handleAddCategory = (transactionId) => {
+    if (newCategoryName && !userCategories.includes(newCategoryName)) {
+      const updated = [...userCategories, newCategoryName];
+      setUserCategories(updated);
+      updateCategory(transactionId, newCategoryName);
+      setIsAddingCategory(false);
+      setNewCategoryName("");
+    }
+  };
 
   // Calculate pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sampleTransactions.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
-  const totalPages = Math.ceil(sampleTransactions.length / itemsPerPage);
+  const currentItems = transactions.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
 
   const nextPage = () => {
     if (currentPage < totalPages) {
@@ -178,15 +239,78 @@ export function TransactionTable({ viewType = "all" }) {
                 <TableCell className="text-white font-medium">
                   {transaction.merchant_name}
                 </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="outline"
-                    className={`${
-                      typeColors[transaction.transaction_type] || "bg-gray-500"
-                    } text-white border-0`}
-                  >
-                    {transaction.transaction_type}
-                  </Badge>
+                <TableCell className="text-white flex items-center space-x-2">
+                  {editingCategoryId === transaction.id ? (
+                    <Select
+                      onValueChange={(val) => {
+                        if (val !== "__add__") {
+                          updateCategory(transaction.id, val);
+                        } else {
+                          setIsAddingCategory(true);
+                        }
+                      }}
+                      defaultValue={transaction.transaction_type}
+                    >
+                      <SelectTrigger className="w-[200px] bg-gray-800 border-gray-700 text-white">
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-gray-800 text-white">
+                        {[...defaultCategories, ...userCategories].map(
+                          (cat) => (
+                            <SelectItem key={cat} value={cat}>
+                              {cat}
+                            </SelectItem>
+                          )
+                        )}
+                        {!isAddingCategory ? (
+                          <SelectItem
+                            value="__add__"
+                            className="text-green-400"
+                          >
+                            <Plus className="w-4 h-4 inline mr-1" /> Add new
+                            category
+                          </SelectItem>
+                        ) : (
+                          <div className="p-2 space-y-2">
+                            <input
+                              ref={inputRef} // Reference to maintain focus
+                              type="text"
+                              value={newCategoryName}
+                              onChange={(e) =>
+                                setNewCategoryName(e.target.value)
+                              }
+                              className="w-full p-1 text-gray-400 border-b rounded"
+                              placeholder="New category name"
+                            />
+                            <Button
+                              className="w-full text-sm bg-white text-black hover:bg-gray-400 cursor-pointer"
+                              onClick={() => handleAddCategory(transaction.id)}
+                            >
+                              Add Category
+                            </Button>
+                          </div>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <Badge
+                        variant="outline"
+                        className={`${
+                          typeColors[transaction.transaction_type] ||
+                          "bg-gray-500"
+                        } text-white border-0`}
+                      >
+                        {transaction.transaction_type}
+                      </Badge>
+                      <button
+                        onClick={() => setEditingCategoryId(transaction.id)}
+                        className="text-gray-400 hover:text-white"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell className="text-white">
                   {transaction.payment_mode}
