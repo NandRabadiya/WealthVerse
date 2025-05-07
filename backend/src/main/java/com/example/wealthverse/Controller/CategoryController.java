@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/category")
+@RequestMapping("/api/category")
 public class CategoryController {
 
 
