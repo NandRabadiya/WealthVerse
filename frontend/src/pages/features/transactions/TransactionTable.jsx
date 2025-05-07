@@ -129,14 +129,27 @@ export function TransactionTable({ selectedMonth }) {
     }
   }, [isAddingCategory]);
 
-  const updateCategory = (id, newCategory) => {
-    const updated = transactions.map((t) =>
-      t.id === id ? { ...t, category: newCategory } : t
-    );
-    setTransactions(updated);
-    setEditingCategoryId(null);
-    // Here you would also update the category on your backend
-    // api.post(`/transactions/${id}/updateCategory`, { categoryId: newCategory });
+  const updateCategory = async (id, newCategory) => {
+    const originalTransactions = [...transactions]; // Store original transactions
+    try {
+      const updated = transactions.map((t) =>
+        t.id === id ? { ...t, category: newCategory } : t
+      );
+      setTransactions(updated);
+      setEditingCategoryId(null);
+      
+      await api.post(`/api/category-mapping/mappings/custom`, null, {
+        params: {
+          merchantName: transactions.find(t => t.id === id).merchant_name,
+          categoryName: newCategory
+        }
+      });
+      
+       await fetchTransactions();
+    } catch (error) {
+      console.error("Error updating category:", error);
+      setTransactions(originalTransactions); // Reset to original transactions on error
+    }
   };
 
   const handleAddCategory = (transactionId) => {
@@ -182,19 +195,19 @@ export function TransactionTable({ selectedMonth }) {
           </div>
         ) : (
           <>
-            <Table className="w-full table-fixed">
+            <Table className="w-full">
               <TableHeader>
                 <TableRow className="border-gray-800 hover:bg-gray-900">
-                  <TableHead className="text-gray-400">Date</TableHead>
-                  <TableHead className="text-gray-400">Merchant</TableHead>
-                  <TableHead className="text-gray-400">Merchant ID</TableHead>
-                  <TableHead className="text-gray-400">Category</TableHead>
-                  <TableHead className="text-gray-400">Payment Mode</TableHead>
-                  <TableHead className="text-gray-400">Type</TableHead>
-                  <TableHead className="text-gray-400 text-right">
+                  <TableHead className="text-gray-400 w-10">Date</TableHead>
+                  <TableHead className="text-gray-400 w-44">Merchant</TableHead>
+                  <TableHead className="text-gray-400 w-24">Merchant ID</TableHead>
+                  <TableHead className="text-gray-400 w-40">Category</TableHead>
+                  <TableHead className="text-gray-400 w-28">Payment Mode</TableHead>
+                  <TableHead className="text-gray-400 w-20">Type</TableHead>
+                  <TableHead className="text-gray-400 text-right w-28">
                     Amount
                   </TableHead>
-                  <TableHead className="text-gray-400">
+                  <TableHead className="text-gray-400 w-32">
                     Carbon Emission
                   </TableHead>
                 </TableRow>
@@ -206,16 +219,16 @@ export function TransactionTable({ selectedMonth }) {
                       key={transaction.id}
                       className="hover:bg-gray-800"
                     >
-                      <TableCell className="text-white">
+                      <TableCell className="text-white w-10">
                         {format(new Date(transaction.date), "dd")}
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-white w-44 truncate">
                         {transaction.merchant_name}
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-white w-24 truncate">
                         {transaction.merchant_id}
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-white w-40">
                         {editingCategoryId === transaction.id ? (
                           <div className="flex items-start gap-2">
                             <Select
@@ -228,7 +241,7 @@ export function TransactionTable({ selectedMonth }) {
                               }}
                               defaultValue={transaction.category}
                             >
-                              <SelectTrigger className="w-[180px] bg-gray-800 border-gray-700 text-white">
+                              <SelectTrigger className="w-28 bg-gray-800 border-gray-700 text-white">
                                 <SelectValue placeholder="Select Category" />
                               </SelectTrigger>
                               <SelectContent className="bg-gray-800 text-white">
@@ -292,8 +305,7 @@ export function TransactionTable({ selectedMonth }) {
                             >
                               {transaction.category}
                             </Badge>
-                            {(transaction.category== "MISCELLANEOUS" ||
-                              transaction.isGloballse) && (
+                            {(transaction.category== "MISCELLANEOUS") && (
                               <button
                                 onClick={() =>
                                   setEditingCategoryId(transaction.id)
@@ -307,16 +319,16 @@ export function TransactionTable({ selectedMonth }) {
                         )}
                       </TableCell>
 
-                      <TableCell className="text-white">
+                      <TableCell className="text-white w-28">
                         {transaction.payment_mode}
                       </TableCell>
-                      <TableCell className="text-white">
+                      <TableCell className="text-white w-20">
                         {transaction.transaction_type}
                       </TableCell>
-                      <TableCell className="text-right text-green-400 font-semibold">
+                      <TableCell className="text-right text-green-400 font-semibold w-28">
                         ₹{parseFloat(transaction.amount).toFixed(2)}
                       </TableCell>
-                      <TableCell className="text-white flex gap-2 items-center">
+                      <TableCell className="text-white flex gap-2 items-center w-32">
                         {getEcoTag(transaction.carbon_emission)}
                       </TableCell>
                     </TableRow>
@@ -353,7 +365,7 @@ export function TransactionTable({ selectedMonth }) {
                     setCurrentPage(0); // Reset to first page when changing page size
                   }}
                 >
-                  <SelectTrigger className="w-[80px] bg-gray-800 border-gray-700 text-white">
+                  <SelectTrigger className="w-20 bg-gray-800 border-gray-700 text-white">
                     <SelectValue placeholder="5" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-800 text-white">
