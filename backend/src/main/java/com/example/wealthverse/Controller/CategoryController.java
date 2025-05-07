@@ -1,5 +1,6 @@
 package com.example.wealthverse.Controller;
 
+import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.DTO.EmissionCalculationRequest;
 import com.example.wealthverse.Service.CategoryService;
 import com.example.wealthverse.Service.Impl.CategoryServiceImpl;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -33,6 +35,9 @@ public class CategoryController {
         categoryService.addCustomCategory(category, authHeader);
         return ResponseEntity.status(HttpStatus.CREATED).body("Category created successfully");
 
+    @GetMapping("/user/{userId}")
+    public List<Category> getCategoriesByUserId(@PathVariable Long userId) {
+        return categoryServiceImpl.getAllCategoriesByUserId(userId);
     }
 
 }

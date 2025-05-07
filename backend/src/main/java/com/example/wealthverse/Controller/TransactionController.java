@@ -1,6 +1,7 @@
 package com.example.wealthverse.Controller;
 
 import com.example.wealthverse.DTO.AddTransactionRequest;
+import com.example.wealthverse.DTO.TransactionDTO;
 import com.example.wealthverse.Service.TransactionService;
 import com.example.wealthverse.Model.ApiResponse;
 import com.example.wealthverse.Model.Transaction;
@@ -8,6 +9,7 @@ import com.opencsv.exceptions.CsvException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -94,5 +96,15 @@ public class TransactionController {
             @RequestHeader("Authorization") String authHeader) {
          transactionService.addTransaction(request, authHeader);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/getall")
+    public ResponseEntity<Page<TransactionDTO>> getAllTransactions(
+            @RequestHeader("Authorization") String authHeader,
+            @RequestParam(defaultValue = "0")    int page,
+            @RequestParam(defaultValue = "10")   int size
+    ) {
+        Page<TransactionDTO> dtos = transactionService.getAllTransactions(authHeader, page, size);
+        return ResponseEntity.ok(dtos);
     }
 }

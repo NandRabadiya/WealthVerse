@@ -54,6 +54,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             Pageable pageable);
 
 
+    Page<Transaction> findAllByUserId(Long userId, Pageable pageable);
+
+
+
     /**
      * Count transactions in a specific month for a user
      */
