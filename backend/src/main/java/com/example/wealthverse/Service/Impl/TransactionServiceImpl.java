@@ -1,6 +1,7 @@
 package com.example.wealthverse.Service.Impl;
 
 import com.example.wealthverse.DTO.AddTransactionRequest;
+import com.example.wealthverse.DTO.TransactionDTO;
 import com.example.wealthverse.Enums.PaymentMode;
 import com.example.wealthverse.Enums.TransactionType;
 import com.example.wealthverse.Service.TransactionService;
@@ -17,9 +18,11 @@ import com.opencsv.exceptions.CsvException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.Page;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -173,7 +176,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public Transaction addTransaction(AddTransactionRequest request, String authHeader) {
+    public void addTransaction(AddTransactionRequest request, String authHeader) {
         // 1. Extract user
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtService.getUserIdFromToken(token);
@@ -182,22 +185,62 @@ public class TransactionServiceImpl implements TransactionService {
 
         // 2. Lookup category mapping
         MerchantCategoryMapping mapping = mappingRepository
-                .findByMerchantNameAndIsGlobalMappingTrue(request.getMerchantName())
-                .orElseThrow(() -> new IllegalStateException(
-                        "No global mapping for merchant: " + request.getMerchantName()));
+                .findBestMapping(request.getMerchantName(), userId)
+                .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
+
 
         // 3. Build and save entity
         Transaction tx = new Transaction();
         tx.setAmount(request.getAmount());
         tx.setPaymentMode(request.getPaymentMode());
         tx.setMerchantId(request.getMerchantId());
-        tx.setMerchantName(request.getMerchantName());
+        tx.setMerchantName(request.getMerchantName().toUpperCase());
         tx.setTransactionType(request.getTransactionType());
         tx.setCreatedAt(request.getCreatedAt() != null ?
                 request.getCreatedAt() : LocalDateTime.now());
         tx.setUser(user);
         tx.setCategory(mapping.getCategory());
         tx.setCarbonEmission(BigDecimal.ZERO);
-        return transactionRepository.save(tx);
+
+
+        try {
+            transactionRepository.save(tx);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to save transaction", e);
+        }
+
+    }
+
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<TransactionDTO> getAllTransactions(String authHeader, int page, int size) {
+        // 1. Extract userId from JWT
+        String token = authHeader.replace("Bearer ", "");
+        Long userId = jwtService.getUserIdFromToken(token);
+
+        // 2. Build pageable: sort by createdAt desc
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // 3. Query repository
+        Page<Transaction> txPage = transactionRepository.findAllByUserId(userId, pageable);
+
+        // 4. Map to DTO
+        return txPage.map(tx -> {
+            TransactionDTO dto = new TransactionDTO();
+            dto.setId(tx.getId());
+            dto.setAmount(tx.getAmount());
+            dto.setPaymentMode(tx.getPaymentMode());
+            dto.setMerchantId(tx.getMerchantId());
+            dto.setMerchantName(tx.getMerchantName());
+            dto.setTransactionType(tx.getTransactionType());
+            dto.setUserId(tx.getUser().getId());
+            dto.setCategoryId(tx.getCategory().getId());
+            dto.setCarbonEmitted(tx.getCarbonEmission());
+            dto.setCreatedAt(tx.getCreatedAt());
+            dto.setGlobal(tx.getCategory().isGlobal());
+            return dto;
+        });
+
     }
 }

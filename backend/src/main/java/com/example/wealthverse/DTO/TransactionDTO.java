@@ -13,6 +13,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TransactionDTO {
+    public boolean isGlobal() {
+        return isGlobal;
+    }
+
+    public void setGlobal(boolean global) {
+        isGlobal = global;
+    }
 
     private Long id;
 
