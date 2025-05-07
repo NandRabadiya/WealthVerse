@@ -1,7 +1,6 @@
 // pages/features/SpendingAnalysis.jsx
 import FeatureLayout from "../FeatureLayout";
 import { TransactionAnalysis } from "./TransactionAnalysis";
-import { TransactionTable } from "./TransactionTable";
 
 const SpendingAnalysis = () => {
   return (
@@ -11,7 +10,6 @@ const SpendingAnalysis = () => {
 
         <div className="space-y-8">
           <TransactionAnalysis />
-          <TransactionTable />
         </div>
       </div>
     </FeatureLayout>
