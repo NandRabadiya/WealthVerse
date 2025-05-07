@@ -212,12 +212,12 @@ export function TransactionTable({ viewType = "all" }) {
   };
 
   return (
-    <Card className="bg-gray-900 border-gray-800">
+    <Card className="bg-gray-900 border border-gray-800 shadow-lg rounded-xl">
       <CardHeader>
         <CardTitle className="text-white">Transaction History</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
+        <Table className="w-full table-fixed">
           <TableHeader>
             <TableRow className="border-gray-800 hover:bg-gray-900">
               <TableHead className="text-gray-400">Date</TableHead>
