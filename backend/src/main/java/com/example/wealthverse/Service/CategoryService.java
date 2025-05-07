@@ -7,6 +7,6 @@ import com.example.wealthverse.Model.User;
 import java.math.BigDecimal;
 
 public interface CategoryService {
-    Category addCustomCategory(String name, boolean isGlobal, User user);
+    void addCustomCategory(String name,String token);
     BigDecimal calculateEmission(EmissionCalculationRequest request);
 }

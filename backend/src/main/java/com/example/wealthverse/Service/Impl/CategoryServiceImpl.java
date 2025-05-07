@@ -4,7 +4,9 @@ import com.example.wealthverse.DTO.EmissionCalculationRequest;
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.User;
 import com.example.wealthverse.Repository.CategoryRepository;
+import com.example.wealthverse.Repository.UserRepository;
 import com.example.wealthverse.Service.CategoryService;
+import com.example.wealthverse.Service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +18,34 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    private final UserRepository userRepository;
+
+    private final JWTService jwtService;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, UserRepository userRepository, JWTService jwtService) {
         this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @Override
-    public Category addCustomCategory(String name, boolean isGlobal, User user) {
+    public void addCustomCategory(String name, String token) {
+
+        User user = userRepository.getById(jwtService.getUserIdFromToken(token));
         Category category = new Category();
         category.setName(name);
-        category.setGlobal(isGlobal);
+        category.setGlobal(false);
         category.setUser(user); // null if global
         category.setCreatedAt(LocalDateTime.now());
-        return categoryRepository.save(category);
+
+      try {
+          categoryRepository.save(category);
+      }catch (Exception e){
+          throw new IllegalStateException("Failed to save category", e);
+      }
+
+
     }
 
 

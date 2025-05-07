@@ -9,6 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
 public interface TransactionService {
 
     void importFromCsv(MultipartFile csvFile, String authHeader) throws IOException, CsvException, java.io.IOException;
-    Transaction addTransaction(AddTransactionRequest request, String authHeader);
+    void addTransaction(AddTransactionRequest request, String authHeader);
 
 }

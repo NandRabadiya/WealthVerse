@@ -92,7 +92,7 @@ public class TransactionController {
     public ResponseEntity<Transaction> addTransaction(
             @RequestBody AddTransactionRequest request,
             @RequestHeader("Authorization") String authHeader) {
-        Transaction saved = transactionService.addTransaction(request, authHeader);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+         transactionService.addTransaction(request, authHeader);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

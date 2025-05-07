@@ -18,6 +18,19 @@ public class AddTransactionRequest {
     @Column(precision = 12, scale = 2)
     private BigDecimal amount;
 
+    private PaymentMode paymentMode;
+
+    private String merchantId;
+
+    private String merchantName;
+
+    private TransactionType transactionType;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private LocalDateTime createdAt;
+
+
+
     public BigDecimal getAmount() {
         return amount;
     }
@@ -66,14 +79,4 @@ public class AddTransactionRequest {
         this.createdAt = createdAt;
     }
 
-    private PaymentMode paymentMode;
-
-    private String merchantId;
-
-    private String merchantName;
-
-    private TransactionType transactionType;
-
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdAt;
 }

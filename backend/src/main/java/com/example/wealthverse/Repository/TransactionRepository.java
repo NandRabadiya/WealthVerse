@@ -1,5 +1,6 @@
 package com.example.wealthverse.Repository;
 
+import com.example.wealthverse.Model.MerchantCategoryMapping;
 import com.example.wealthverse.Model.Transaction;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
@@ -50,6 +52,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             @Param("yearMonth") YearMonth yearMonth,
             @Param("since") LocalDateTime since,
             Pageable pageable);
+
 
     /**
      * Count transactions in a specific month for a user

@@ -173,7 +173,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public Transaction addTransaction(AddTransactionRequest request, String authHeader) {
+    public void addTransaction(AddTransactionRequest request, String authHeader) {
         // 1. Extract user
         String token = authHeader.replace("Bearer ", "");
         Long userId = jwtService.getUserIdFromToken(token);
@@ -182,22 +182,29 @@ public class TransactionServiceImpl implements TransactionService {
 
         // 2. Lookup category mapping
         MerchantCategoryMapping mapping = mappingRepository
-                .findByMerchantNameAndIsGlobalMappingTrue(request.getMerchantName())
-                .orElseThrow(() -> new IllegalStateException(
-                        "No global mapping for merchant: " + request.getMerchantName()));
+                .findBestMapping(request.getMerchantName(), userId)
+                .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
+
 
         // 3. Build and save entity
         Transaction tx = new Transaction();
         tx.setAmount(request.getAmount());
         tx.setPaymentMode(request.getPaymentMode());
         tx.setMerchantId(request.getMerchantId());
-        tx.setMerchantName(request.getMerchantName());
+        tx.setMerchantName(request.getMerchantName().toUpperCase());
         tx.setTransactionType(request.getTransactionType());
         tx.setCreatedAt(request.getCreatedAt() != null ?
                 request.getCreatedAt() : LocalDateTime.now());
         tx.setUser(user);
         tx.setCategory(mapping.getCategory());
         tx.setCarbonEmission(BigDecimal.ZERO);
-        return transactionRepository.save(tx);
+
+
+        try {
+            transactionRepository.save(tx);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to save transaction", e);
+        }
+
     }
 }
