@@ -25,7 +25,6 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.data.domain.Page;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -320,6 +319,7 @@ public class TransactionServiceImpl implements TransactionService {
         dto.setTransactionType(tx.getTransactionType());
         dto.setUserId(tx.getUser().getId());
         dto.setCategoryId(tx.getCategory().getId());
+        dto.setCategoryName(tx.getCategory().getName());
         dto.setCarbonEmitted(tx.getCarbonEmission());
         dto.setCreatedAt(tx.getCreatedAt());
         dto.setGlobal(true);
