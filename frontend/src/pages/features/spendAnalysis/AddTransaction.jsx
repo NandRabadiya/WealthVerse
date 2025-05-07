@@ -183,15 +183,15 @@ export function AddTransactionForm({ onSuccess }) {
                 value={formData.payment_mode}
                 required
               >
-                <SelectTrigger className="bg-gray-800 border-gray-700 text-white">
+                <SelectTrigger className="bg-gray-800 border-gray-700 text-white ">
                   <SelectValue placeholder="Select payment mode" />
                 </SelectTrigger>
-                <SelectContent className="bg-gray-800 border-gray-700 text-white">
+                <SelectContent className="bg-gray-800 border-gray-700 text-white ">
                   {paymentModes.map((mode) => (
                     <SelectItem
                       key={mode}
                       value={mode}
-                      className="hover:bg-gray-700 focus:bg-gray-700"
+                      className="hover:bg-gray-700 focus:bg-white"
                     >
                       {mode}
                     </SelectItem>
@@ -219,7 +219,7 @@ export function AddTransactionForm({ onSuccess }) {
                     <SelectItem
                       key={type}
                       value={type}
-                      className="hover:bg-gray-700 focus:bg-gray-700"
+                      className="hover:bg-gray-700 focus:bg-white"
                     >
                       {type}
                     </SelectItem>

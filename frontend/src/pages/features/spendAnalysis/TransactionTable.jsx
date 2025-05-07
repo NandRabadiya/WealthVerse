@@ -192,7 +192,7 @@ export function TransactionTable({ viewType = "all" }) {
                   {transaction.payment_mode}
                 </TableCell>
                 <TableCell className="text-right font-medium text-green-400">
-                  ${transaction.amount.toFixed(2)}
+                  ₹{transaction.amount.toFixed(2)}
                 </TableCell>
               </TableRow>
             ))}
