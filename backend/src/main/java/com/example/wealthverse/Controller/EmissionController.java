@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/api/emission")
+    @RequestMapping("/api/emission")
 public class EmissionController {
 
     @Autowired

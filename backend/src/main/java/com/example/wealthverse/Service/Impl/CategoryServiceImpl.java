@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -43,5 +44,10 @@ public class CategoryServiceImpl implements CategoryService {
 
 
         return emissionFactor.multiply(amount);
+    }
+
+    @Override
+    public List<Category> getAllCategoriesByUserId(Long userId) {
+        return categoryRepository.findByUserId(userId);
     }
 }
