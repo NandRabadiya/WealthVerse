@@ -2,6 +2,7 @@ package com.example.wealthverse.Service.Impl;
 
 import com.example.wealthverse.DTO.CategorySummaryResponse;
 import com.example.wealthverse.DTO.MonthlySummaryResponse;
+import com.example.wealthverse.DTO.MultiMonthSummaryResponse;
 import com.example.wealthverse.Enums.TransactionType;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
 import com.example.wealthverse.Model.Transaction;
@@ -133,4 +134,61 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
 
         return dto;
     }
+
+    @Override
+    public MultiMonthSummaryResponse getMultiMonthSummaryForUser(Long userId, YearMonth currentYearMonth, int numberOfMonths) {
+        // Create the response object
+        MultiMonthSummaryResponse response = new MultiMonthSummaryResponse();
+
+        // Set date range
+        YearMonth endYearMonth = currentYearMonth;
+        YearMonth startYearMonth = currentYearMonth.minusMonths(numberOfMonths - 1);
+        response.setStartYearMonth(startYearMonth);
+        response.setEndYearMonth(endYearMonth);
+
+        // Fetch all data for the date range at once
+        List<MonthlyCategorySummary> allMonthlySummaries =
+                summaryRepository.findByUserIdAndYearMonthRangeWithCategory(userId, startYearMonth, endYearMonth);
+
+        // Group by YearMonth
+        Map<YearMonth, List<MonthlyCategorySummary>> summariesByMonth = allMonthlySummaries.stream()
+                .collect(Collectors.groupingBy(
+                        MonthlyCategorySummary::getYearMonth
+                ));
+
+        // Process each month's data
+        List<MonthlySummaryResponse> monthlySummaries = new ArrayList<>();
+        YearMonth yearMonth = startYearMonth;
+
+        while (!yearMonth.isAfter(endYearMonth)) {
+            MonthlySummaryResponse monthlySummary = new MonthlySummaryResponse();
+            monthlySummary.setYearMonth(yearMonth.toString());
+
+            // Get this month's category summaries if they exist
+            List<MonthlyCategorySummary> thisMonthSummaries = summariesByMonth.getOrDefault(yearMonth, Collections.emptyList());
+
+            // Map entity data to DTOs
+            List<CategorySummaryResponse> categorySummaries = thisMonthSummaries.stream()
+                    .map(this::mapToCategorySummaryResponse)
+                    .collect(Collectors.toList());
+
+            monthlySummary.setCategorySummaries(categorySummaries);
+
+            // Calculate totals and percentages for this month
+            monthlySummary.calculateTotals();
+
+            monthlySummaries.add(monthlySummary);
+            yearMonth = yearMonth.plusMonths(1);
+        }
+
+        response.setMonthlySummaries(monthlySummaries);
+
+        // Calculate totals across all months
+        response.calculateTotals();
+
+        return response;
+    }
 }
+
+
+

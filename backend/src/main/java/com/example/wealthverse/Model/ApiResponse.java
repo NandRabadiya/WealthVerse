@@ -2,10 +2,6 @@ package com.example.wealthverse.Model;
 
 import lombok.*;
 
-/**
- * Standard API response model for consistent response formatting
- */
-
 
 @Data
 @Builder

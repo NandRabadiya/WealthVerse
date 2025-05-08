@@ -1,6 +1,7 @@
 package com.example.wealthverse.Service;
 
 import com.example.wealthverse.DTO.MonthlySummaryResponse;
+import com.example.wealthverse.DTO.MultiMonthSummaryResponse;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
 import com.example.wealthverse.Model.Transaction;
 
@@ -11,5 +12,5 @@ public interface MonthlyCategorySummaryService {
     void resetMonthSummaries(Long userId, YearMonth yearMonth);
     void updateMonthlySummaries(List<Transaction> transactions);
     MonthlySummaryResponse getMonthlySummaryForUser(Long userId, YearMonth yearMonth);
-
+    MultiMonthSummaryResponse getMultiMonthSummaryForUser(Long userId, YearMonth currentYearMonth, int numberOfMonths);
 }

@@ -28,20 +28,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     int bulkUpdateCategory(@Param("category") Category category, @Param("userId") Long userId, @Param("merchantName") String merchantName);
     List<Transaction> findByUserIdAndMerchantNameAndTransactionType(Long userId, String merchantName, TransactionType transactionType);
 
-    // Queries involving time, global categories, and payment mode
-    @Query("""
-    SELECT t FROM Transaction t
-    WHERE t.user.id = :userId 
-      AND t.createdAt >= :startDate 
-      AND FUNCTION('YEAR', t.createdAt) = :year 
-      AND FUNCTION('MONTH', t.createdAt) = :month 
-      AND t.category.isGlobal = true""")
-    Page<Transaction> findGlobalMappedTransactionsSincePaged(
-            @Param("userId") Long userId,
-            @Param("year") int year,
-            @Param("month") int month,
-            @Param("startDate") LocalDateTime startDate,
-            Pageable pageable);
 
     @Query("SELECT t FROM Transaction t WHERE t.user.id = :userId AND MONTH(t.createdAt) = :month AND YEAR(t.createdAt) = :year")
     Page<Transaction> findAllByUserIdAndMonth(@Param("userId") Long userId,
@@ -50,19 +36,4 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
                                               Pageable pageable);
 
 
-
-    @Query("""
-    SELECT t FROM Transaction t
-    WHERE t.user.id = :userId 
-      AND t.createdAt >= :oldestAggregationTime 
-      AND FUNCTION('YEAR', t.createdAt) = :#{#yearMonth.year} 
-      AND FUNCTION('MONTH', t.createdAt) = :#{#yearMonth.monthValue} 
-      AND t.category.isGlobal = true 
-      AND t.transactionType = com.example.wealthverse.Enums.TransactionType.DEBIT""")
-    Page<Transaction> findTransactionsSincePaged(
-            @Param("userId") Long userId,
-            @Param("yearMonth") YearMonth yearMonth,
-            @Param("oldestAggregationTime") LocalDateTime oldestAggregationTime,
-            Pageable pageable
-    );
 }

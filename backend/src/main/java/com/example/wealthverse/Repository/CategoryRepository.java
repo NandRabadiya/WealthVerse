@@ -10,15 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
-
-    List<Category> findByUser(User user);
-    List<Category> findByUserId(Long userId);
-
-    List<Category> findByIsGlobalTrue();
-
-    Optional<Category> findByNameAndUser(String name, User user);
-
-    Optional<Category> findByNameAndIsGlobalTrue(String name);
+   List<Category> findByUserId(Long userId);
 
     Optional<Category> findByName(String name);
 
