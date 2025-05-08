@@ -54,13 +54,24 @@ public interface MerchantCategoryMappingRepository extends JpaRepository<Merchan
 //    }
 
 
-    @Query("SELECT m FROM MerchantCategoryMapping m " +
+//    @Query("SELECT m FROM MerchantCategoryMapping m " +
+//            "WHERE m.merchantName = :merchantName " +
+//            "AND (m.user.id = :userId OR m.isGlobalMapping = true) " +
+//            "ORDER BY CASE WHEN m.user.id = :userId THEN 0 ELSE 1 END")
+//    Optional<MerchantCategoryMapping> findBestMapping(
+//            @Param("merchantName") String merchantName,
+//            @Param("userId") Long userId);
+
+
+    @Query(value = "SELECT m FROM MerchantCategoryMapping m " +
             "WHERE m.merchantName = :merchantName " +
-            "AND (m.user.id = :userId OR m.isGlobalMapping = true) " +
-            "ORDER BY CASE WHEN m.user.id = :userId THEN 0 ELSE 1 END")
+            "AND (m.user.id = :userId OR m.user.id = 1) " +
+            "ORDER BY CASE WHEN m.user.id = :userId THEN 0 ELSE 1 END " +
+            "LIMIT 1")
     Optional<MerchantCategoryMapping> findBestMapping(
             @Param("merchantName") String merchantName,
             @Param("userId") Long userId);
+
 
 
     /**

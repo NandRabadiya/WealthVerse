@@ -40,7 +40,7 @@ public class MonthlySummaryController {
      * @return Response containing summary data for the month
      */
     @GetMapping("/monthly/{yearMonth}")
-    public ResponseEntity<CategorywiseAndTotalData> getMonthlySummary(
+    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
             @RequestHeader("Authorization") String token,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
@@ -79,10 +79,8 @@ public class MonthlySummaryController {
         monthlyResponse.setTotalSpending(totalAmount);
         monthlyResponse.setTotalEmission(totalEmission);
 
-        CategorywiseAndTotalData dto = new CategorywiseAndTotalData();
-        dto.setCategorySummaries(sortedSummaries);
-        dto.setResponse(monthlyResponse);
-        return ResponseEntity.ok(dto);
+
+        return ResponseEntity.ok(monthlyResponse);
     }
 
     /**
