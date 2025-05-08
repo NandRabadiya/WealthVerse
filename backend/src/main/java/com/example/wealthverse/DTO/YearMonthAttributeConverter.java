@@ -17,4 +17,5 @@ public class YearMonthAttributeConverter implements AttributeConverter<YearMonth
     public YearMonth convertToEntityAttribute(String dbData) {
         return (dbData != null) ? YearMonth.parse(dbData) : null;
     }
+
 }

@@ -24,12 +24,9 @@ public class MerchantCategoryMapping {
 
     private Boolean isGlobalMapping = false;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "user_id", nullable = false)
-//    private User user;
 
     @ManyToOne(optional = true)
-    private User user; // null if global
+    private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
@@ -37,5 +34,61 @@ public class MerchantCategoryMapping {
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
+    }
+
+    public Boolean getGlobalMapping() {
+        return isGlobalMapping;
+    }
+
+    public void setGlobalMapping(Boolean globalMapping) {
+        isGlobalMapping = globalMapping;
+    }
+
+    public void setIsGlobalMapping(Boolean isGlobalMapping) {
+        this.isGlobalMapping = isGlobalMapping;
+    }
+
+    public Boolean getIsGlobalMapping() {
+        return isGlobalMapping;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }
 

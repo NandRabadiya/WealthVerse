@@ -51,5 +51,104 @@ public class Transaction {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
 
+    public Long getId() {
+        return id;
+    }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
+    }
+
+    public PaymentMode getPaymentMode() {
+        return paymentMode;
+    }
+
+    public void setPaymentMode(PaymentMode paymentMode) {
+        this.paymentMode = paymentMode;
+    }
+
+    public String getMerchantId() {
+        return merchantId;
+    }
+
+    public void setMerchantId(String merchantId) {
+        this.merchantId = merchantId;
+    }
+
+    public String getMerchantName() {
+        return merchantName;
+    }
+
+    public void setMerchantName(String merchantName) {
+        this.merchantName = merchantName;
+    }
+
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(TransactionType transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public Boolean getGloballyMapped() {
+        return isGloballyMapped;
+    }
+
+    public Boolean setIsGloballyMapped(Boolean isGloballyMapped) {
+        this.isGloballyMapped = isGloballyMapped;
+        return isGloballyMapped;
+    }
+    public Boolean getIsGloballyMapped() {
+        return isGloballyMapped;
+    }
+
+    public  Boolean isGloballyMapped() {
+        return isGloballyMapped;
+    }
+
+
+    public void setGloballyMapped(Boolean globallyMapped) {
+        isGloballyMapped = globallyMapped;
+    }
+
+    public BigDecimal getCarbonEmission() {
+        return carbonEmission;
+    }
+
+    public void setCarbonEmission(BigDecimal carbonEmission) {
+        this.carbonEmission = carbonEmission;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 }

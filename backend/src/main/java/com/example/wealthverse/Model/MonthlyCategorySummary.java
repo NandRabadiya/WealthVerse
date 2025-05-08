@@ -30,6 +30,8 @@ public class MonthlyCategorySummary {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
+    public MonthlyCategorySummary() {
+    }
 
     @Convert(converter = YearMonthAttributeConverter.class)
     @Column(name = "month_year", nullable = false, length = 7)

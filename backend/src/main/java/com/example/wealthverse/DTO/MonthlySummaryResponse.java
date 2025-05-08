@@ -76,5 +76,7 @@ public class MonthlySummaryResponse {
     public void setTotalEmission(BigDecimal totalEmission) {
         this.totalEmission = totalEmission;
     }
+
+
 }
 

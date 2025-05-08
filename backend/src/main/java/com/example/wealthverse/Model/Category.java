@@ -41,4 +41,74 @@ public class Category {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<MerchantCategoryMapping> merchantMappings;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Boolean getGlobal() {
+        return isGlobal;
+    }
+
+    public void setGlobal(Boolean global) {
+        isGlobal = global;
+    }
+
+    public Boolean setIsGlobal(Boolean isGlobal) {
+        return this.isGlobal = isGlobal;
+    }
+    public Boolean getIsGlobal() {
+        return isGlobal;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public BigDecimal getEmissionFactor() {
+        return emissionFactor;
+    }
+
+    public void setEmissionFactor(BigDecimal emissionFactor) {
+        this.emissionFactor = emissionFactor;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public List<MerchantCategoryMapping> getMerchantMappings() {
+        return merchantMappings;
+    }
+
+    public void setMerchantMappings(List<MerchantCategoryMapping> merchantMappings) {
+        this.merchantMappings = merchantMappings;
+    }
 }
