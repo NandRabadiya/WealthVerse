@@ -48,6 +48,7 @@ public class TransactionServiceImpl implements TransactionService {
     private final UserRepository userRepository;
     private final JWTService jwtService;
 
+    private  final MonthlyCategorySummaryServiceImpl monthlyCategorySummaryService;
     @Autowired
     private final CategoryRepository categoryRepository;
 
@@ -56,12 +57,13 @@ public class TransactionServiceImpl implements TransactionService {
             TransactionRepository transactionRepository,
             MerchantCategoryMappingRepository mappingRepository,
             UserRepository userRepository,
-            JWTService jwtService,
+            JWTService jwtService, MonthlyCategorySummaryServiceImpl monthlyCategorySummaryService,
             CategoryRepository categoryRepository) {
         this.transactionRepository = transactionRepository;
         this.mappingRepository = mappingRepository;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.monthlyCategorySummaryService = monthlyCategorySummaryService;
         this.categoryRepository = categoryRepository;
     }
 
@@ -93,6 +95,8 @@ public class TransactionServiceImpl implements TransactionService {
 
         List<Transaction> transactions = parseTransactionsFromCsv(csvFile, user);
         saveBatchTransactions(transactions);
+
+        monthlyCategorySummaryService.updateMonthlySummaries(transactions);
 
         logger.info("Successfully imported {} transactions for user ID: {}", transactions.size(), user.getId());
     }
@@ -187,6 +191,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
     }
 
+
     private void saveBatchTransactions(List<Transaction> transactions) {
         for (int i = 0; i < transactions.size(); i += BATCH_SIZE) {
             int endIndex = Math.min(i + BATCH_SIZE, transactions.size());
@@ -194,7 +199,11 @@ public class TransactionServiceImpl implements TransactionService {
             transactionRepository.saveAll(batch);
             logger.debug("Saved batch of {} transactions", batch.size());
         }
+
+
+
     }
+
 
     @Override
     @Transactional
@@ -239,6 +248,8 @@ public class TransactionServiceImpl implements TransactionService {
         tx.setCarbonEmission(emission);
 
         transactionRepository.save(tx);
+        monthlyCategorySummaryService.updateMonthlySummaries(List.of(tx));
+
     }
 
     @Override
