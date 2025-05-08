@@ -48,30 +48,39 @@ public class MonthlySummaryController {
         // Get the summary data with incremental aggregation
         List<MonthlyCategorySummary> summaries = summaryService.getUserMonthlySummary(userId, yearMonth);
 
-        // Convert to DTOs
+        // Calculate total amount and emissions across all categories using streams
+        BigDecimal totalAmount = summaries.stream()
+                .map(MonthlyCategorySummary::getTotalAmount)
+                .filter(amount -> amount != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalEmission = summaries.stream()
+                .map(MonthlyCategorySummary::getTotalEmission)
+                .filter(emission -> emission != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Convert to DTOs and calculate percentages
         List<CategorySummaryResponse> categorySummaries = summaries.stream()
-                .map(this::convertToDto)
+                .map(summary -> convertToDto(summary, totalEmission))
                 .collect(Collectors.toList());
 
-        // Calculate totals and percentages
-        MonthlySummaryResponse response = new MonthlySummaryResponse();
-        response.setYearMonth(yearMonth.toString());
-        response.setCategorySummaries(categorySummaries);
-        response.calculateTotals();
+        // Sort by emission percentage (highest first)
+        List<CategorySummaryResponse> sortedSummaries = categorySummaries.stream()
+                .sorted(Comparator.comparing(
+                        CategorySummaryResponse::getEmissionPercentage,
+                        Comparator.nullsLast(Comparator.reverseOrder())))
+                .collect(Collectors.toList());
 
-        // Use null-safe comparator for sorting by emission percentage (highest first)
-        response.setCategorySummaries(
-                categorySummaries.stream()
-                        .sorted(Comparator.comparing(
-                                CategorySummaryResponse::getEmissionPercentage,
-                                Comparator.nullsLast(Comparator.reverseOrder())))
-                        .collect(Collectors.toList())
-        );
+        // Create and populate the response objects
+        MonthlySummaryResponse monthlyResponse = new MonthlySummaryResponse();
+        monthlyResponse.setYearMonth(yearMonth.toString());
+        monthlyResponse.setCategorySummaries(sortedSummaries);
+        monthlyResponse.setTotalSpending(totalAmount);
+        monthlyResponse.setTotalEmission(totalEmission);
 
         CategorywiseAndTotalData dto = new CategorywiseAndTotalData();
-        dto.setCategorySummaries(categorySummaries);
-        dto.setResponse(response);
-
+        dto.setCategorySummaries(sortedSummaries);
+        dto.setResponse(monthlyResponse);
         return ResponseEntity.ok(dto);
     }
 
@@ -89,8 +98,9 @@ public class MonthlySummaryController {
 
     /**
      * Convert entity to DTO with null-safe category name retrieval
+     * and calculate emission percentage based on total emissions
      */
-    private CategorySummaryResponse convertToDto(MonthlyCategorySummary summary) {
+    private CategorySummaryResponse convertToDto(MonthlyCategorySummary summary, BigDecimal totalEmission) {
         CategorySummaryResponse dto = new CategorySummaryResponse();
         dto.setCategoryId(summary.getCategoryId());
 
@@ -102,11 +112,24 @@ public class MonthlySummaryController {
             dto.setCategoryName("Unknown Category");
         }
 
-        dto.setTotalAmount(summary.getTotalAmount());
-        dto.setTotalEmission(summary.getTotalEmission());
+        dto.setTotalAmount(summary.getTotalAmount() != null ? summary.getTotalAmount() : BigDecimal.ZERO);
+        dto.setTotalEmission(summary.getTotalEmission() != null ? summary.getTotalEmission() : BigDecimal.ZERO);
 
-        // Initialize with zero to avoid null emission percentage
-        dto.setEmissionPercentage(BigDecimal.ZERO);
+        // Calculate emission percentage with improved null safety and division by zero protection
+        if (totalEmission != null && totalEmission.compareTo(BigDecimal.ZERO) > 0 && summary.getTotalEmission() != null) {
+            try {
+                // Calculate percentage: (categoryEmission / totalEmission) * 100
+                BigDecimal percentage = summary.getTotalEmission()
+                        .multiply(new BigDecimal("100"))
+                        .divide(totalEmission, 2, BigDecimal.ROUND_HALF_UP);
+                dto.setEmissionPercentage(percentage);
+            } catch (ArithmeticException e) {
+                // Handle potential division issues
+                dto.setEmissionPercentage(BigDecimal.ZERO);
+            }
+        } else {
+            dto.setEmissionPercentage(BigDecimal.ZERO);
+        }
 
         return dto;
     }
