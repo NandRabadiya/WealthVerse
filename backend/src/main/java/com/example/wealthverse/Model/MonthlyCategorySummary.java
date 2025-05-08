@@ -2,6 +2,8 @@ package com.example.wealthverse.Model;
 
 import com.example.wealthverse.DTO.YearMonthAttributeConverter;
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -13,6 +15,12 @@ import java.util.Objects;
                 @Index(name = "idx_mcs_user_yearmonth", columnList = "user_id, year_month"),
                 @Index(name = "idx_mcs_category", columnList = "category_id")
         })
+@Getter
+@Setter
+@Data
+@AllArgsConstructor
+@Builder
+
 public class MonthlyCategorySummary {
 
     @Id
@@ -54,90 +62,8 @@ public class MonthlyCategorySummary {
         this.totalEmission = BigDecimal.ZERO;
     }
 
-    // Constructor with essential fields
-    public MonthlyCategorySummary(Long userId, YearMonth yearMonth, Long categoryId,
-                                  BigDecimal totalAmount, BigDecimal totalEmission,
-                                  LocalDateTime lastAggregatedAt) {
-        this.userId = userId;
-        this.yearMonth = yearMonth;
-        this.categoryId = categoryId;
-        this.totalAmount = totalAmount != null ? totalAmount : BigDecimal.ZERO;
-        this.totalEmission = totalEmission != null ? totalEmission : BigDecimal.ZERO;
-        this.lastAggregatedAt = lastAggregatedAt;
-    }
 
-    // Getters and setters with null safety
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public YearMonth getYearMonth() {
-        return yearMonth;
-    }
-
-    public void setYearMonth(YearMonth yearMonth) {
-        this.yearMonth = yearMonth;
-    }
-
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount != null ? totalAmount : BigDecimal.ZERO;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount != null ? totalAmount : BigDecimal.ZERO;
-    }
-
-    public BigDecimal getTotalEmission() {
-        return totalEmission != null ? totalEmission : BigDecimal.ZERO;
-    }
-
-    public void setTotalEmission(BigDecimal totalEmission) {
-        this.totalEmission = totalEmission != null ? totalEmission : BigDecimal.ZERO;
-    }
-
-    public LocalDateTime getLastAggregatedAt() {
-        return lastAggregatedAt;
-    }
-
-    public void setLastAggregatedAt(LocalDateTime lastAggregatedAt) {
-        this.lastAggregatedAt = lastAggregatedAt;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
 
     /**
      * Safely adds the amount to the existing total amount

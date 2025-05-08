@@ -15,8 +15,7 @@ public interface TransactionService {
     Page<TransactionDTO> getAllTransactions(String authHeader, int page, int size);
     /** Override category on a single transaction */
     void overrideTransactionCategory(CategoryApplyRequest req, String authHeader);
-    Page<TransactionDTO> getTransactionsByMonth(String authHeader, int month, int page, int size);
-
+    public Page<TransactionDTO> getTransactionsByMonth(String authHeader, int month, int page, int size);
     /** Apply category to all of the user’s transactions for this merchant */
     void applyCategoryToAllTransactions(CategoryApplyRequest req, String authHeader);}
 

@@ -15,91 +15,14 @@ import java.time.LocalDateTime;
 @Table(name = "transactions")
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Transaction {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public PaymentMode getPaymentMode() {
-        return paymentMode;
-    }
-
-    public void setPaymentMode(PaymentMode paymentMode) {
-        this.paymentMode = paymentMode;
-    }
-
-    public String getMerchantId() {
-        return merchantId;
-    }
-
-    public void setMerchantId(String merchantId) {
-        this.merchantId = merchantId;
-    }
-
-    public String getMerchantName() {
-        return merchantName;
-    }
-
-    public void setMerchantName(String merchantName) {
-        this.merchantName = merchantName;
-    }
-
-    public TransactionType getTransactionType() {
-        return transactionType;
-    }
-
-    public void setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public BigDecimal getCarbonEmission() {
-        return carbonEmission;
-    }
-
-    public void setCarbonEmission(BigDecimal carbon_emitted) {
-        this.carbonEmission = carbon_emitted;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     @Column(precision = 12, scale = 2)
     private BigDecimal amount;
@@ -123,13 +46,6 @@ public class Transaction {
     @Column(name="is_globally_mapped")
     private Boolean isGloballyMapped = false;
 
-    public Boolean getGloballyMapped() {
-        return isGloballyMapped;
-    }
-
-    public void setGloballyMapped(Boolean globallyMapped) {
-        isGloballyMapped = globallyMapped;
-    }
 
     @Column(precision = 17, scale = 5)
     private BigDecimal carbonEmission;

@@ -1,7 +1,16 @@
 package com.example.wealthverse.DTO;
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
 public class CategorySummaryResponse {
 
     private Long categoryId;
@@ -10,45 +19,7 @@ public class CategorySummaryResponse {
     private BigDecimal totalEmission;
     private BigDecimal emissionPercentage;
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
 
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getCategoryName() {
-        return categoryName;
-    }
-
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public BigDecimal getTotalEmission() {
-        return totalEmission;
-    }
-
-    public void setTotalEmission(BigDecimal totalEmission) {
-        this.totalEmission = totalEmission;
-    }
-
-    public BigDecimal getEmissionPercentage() {
-        return emissionPercentage;
-    }
-
-    public void setEmissionPercentage(BigDecimal emissionPercentage) {
-        this.emissionPercentage = emissionPercentage;
-    }
 
     public void calculateEmissionPercentage(BigDecimal totalEmissions) {
         if (totalEmissions == null || totalEmissions.compareTo(BigDecimal.ZERO) <= 0) {
