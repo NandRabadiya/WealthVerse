@@ -3,8 +3,6 @@ package com.example.wealthverse.DTO;
 import lombok.*;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Getter
 @Setter
@@ -51,5 +49,8 @@ public class AuthenticationResponse {
         this.refreshToken = refreshToken;
         this.message = message;
         this.id = id;
+    }
+
+    public AuthenticationResponse() {
     }
 }

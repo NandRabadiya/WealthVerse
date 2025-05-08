@@ -18,9 +18,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @Data
-@AllArgsConstructor
 @Builder
-@NoArgsConstructor
 public class MonthlyCategorySummary {
 
     @Id
@@ -75,6 +73,20 @@ public class MonthlyCategorySummary {
         } else {
             this.totalAmount = this.totalAmount.add(amount);
         }
+    }
+    public MonthlyCategorySummary(Long id, Long userId, YearMonth yearMonth, Long categoryId,
+                                  BigDecimal totalAmount, BigDecimal totalEmission,
+                                  LocalDateTime lastAggregatedAt,
+                                  User user, Category category) {
+        this.id = id;
+        this.userId = userId;
+        this.yearMonth = yearMonth;
+        this.categoryId = categoryId;
+        this.totalAmount = totalAmount;
+        this.totalEmission = totalEmission;
+        this.lastAggregatedAt = lastAggregatedAt;
+        this.user = user;
+        this.category = category;
     }
 
     public void addToTotalEmission(BigDecimal emission) {

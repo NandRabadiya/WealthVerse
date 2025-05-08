@@ -8,8 +8,6 @@ import lombok.*;
 
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Getter
 @Setter
@@ -17,6 +15,9 @@ public class ApiResponse {
     private boolean success;
     private String message;
     private Object data;
+
+    public ApiResponse() {
+    }
 
     public boolean isSuccess() {
         return success;
