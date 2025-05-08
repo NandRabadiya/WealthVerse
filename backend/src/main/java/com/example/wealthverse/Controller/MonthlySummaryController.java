@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,7 +40,7 @@ public class MonthlySummaryController {
      * @return Response containing summary data for the month
      */
     @GetMapping("/monthly/{yearMonth}")
-    public ResponseEntity<CategorywiseAndTotalData> getMonthlySummary(
+    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
             @RequestHeader("Authorization") String token,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
@@ -51,18 +52,18 @@ public class MonthlySummaryController {
         // Calculate total amount and emissions across all categories using streams
         BigDecimal totalAmount = summaries.stream()
                 .map(MonthlyCategorySummary::getTotalAmount)
-                .filter(amount -> amount != null)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalEmission = summaries.stream()
                 .map(MonthlyCategorySummary::getTotalEmission)
-                .filter(emission -> emission != null)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Convert to DTOs and calculate percentages
         List<CategorySummaryResponse> categorySummaries = summaries.stream()
                 .map(summary -> convertToDto(summary, totalEmission))
-                .collect(Collectors.toList());
+                .toList();
 
         // Sort by emission percentage (highest first)
         List<CategorySummaryResponse> sortedSummaries = categorySummaries.stream()
@@ -78,10 +79,8 @@ public class MonthlySummaryController {
         monthlyResponse.setTotalSpending(totalAmount);
         monthlyResponse.setTotalEmission(totalEmission);
 
-        CategorywiseAndTotalData dto = new CategorywiseAndTotalData();
-        dto.setCategorySummaries(sortedSummaries);
-        dto.setResponse(monthlyResponse);
-        return ResponseEntity.ok(dto);
+
+        return ResponseEntity.ok(monthlyResponse);
     }
 
     /**

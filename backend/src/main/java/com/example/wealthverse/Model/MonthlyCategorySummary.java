@@ -1,5 +1,6 @@
 package com.example.wealthverse.Model;
 
+import com.example.wealthverse.DTO.YearMonthAttributeConverter;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +22,9 @@ public class MonthlyCategorySummary {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "year_month", nullable = false)
+
+    @Convert(converter = YearMonthAttributeConverter.class)
+    @Column(name = "month_year", nullable = false, length = 7)
     private YearMonth yearMonth;
 
     @Column(name = "category_id", nullable = false)

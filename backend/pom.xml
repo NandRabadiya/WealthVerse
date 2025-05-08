@@ -159,6 +159,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>wealthverse-0.0.2</finalName>
 	</build>
 
 </project>

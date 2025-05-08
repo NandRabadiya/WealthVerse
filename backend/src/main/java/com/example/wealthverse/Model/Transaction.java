@@ -123,11 +123,11 @@ public class Transaction {
     @Column(name="is_globally_mapped")
     private Boolean isGloballyMapped = false;
 
-    public Boolean isGloballyMapped(boolean globalMapping) {
+    public Boolean getGloballyMapped() {
         return isGloballyMapped;
     }
 
-    public void setGloballyMapped(boolean globallyMapped) {
+    public void setGloballyMapped(Boolean globallyMapped) {
         isGloballyMapped = globallyMapped;
     }
 
