@@ -26,10 +26,6 @@ public class MonthlySummaryResponse {
 
 
 
-    /**
-     * Calculate total spending and emissions across all categories
-     * Also calculate the percentage of emissions for each category
-     */
     public void calculateTotals() {
         if (categorySummaries != null) {
             totalSpending = categorySummaries.stream()
@@ -47,6 +43,38 @@ public class MonthlySummaryResponse {
                 );
             }
         }
+    }
+
+    public String getYearMonth() {
+        return yearMonth;
+    }
+
+    public void setYearMonth(String yearMonth) {
+        this.yearMonth = yearMonth;
+    }
+
+    public List<CategorySummaryResponse> getCategorySummaries() {
+        return categorySummaries;
+    }
+
+    public void setCategorySummaries(List<CategorySummaryResponse> categorySummaries) {
+        this.categorySummaries = categorySummaries;
+    }
+
+    public BigDecimal getTotalSpending() {
+        return totalSpending;
+    }
+
+    public void setTotalSpending(BigDecimal totalSpending) {
+        this.totalSpending = totalSpending;
+    }
+
+    public BigDecimal getTotalEmission() {
+        return totalEmission;
+    }
+
+    public void setTotalEmission(BigDecimal totalEmission) {
+        this.totalEmission = totalEmission;
     }
 }
 

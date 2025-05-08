@@ -64,13 +64,6 @@ public class MonthlyCategorySummary {
         this.lastAggregatedAt = updatedAt;
     }
 
-
-    /**
-     * Safely adds the amount to the existing total amount
-     * with proper null handling
-     *
-     * @param amount Amount to add
-     */
     public void addToTotalAmount(BigDecimal amount) {
         if (amount == null) {
             return;
@@ -82,12 +75,6 @@ public class MonthlyCategorySummary {
         }
     }
 
-    /**
-     * Safely adds the emission to the existing total emission
-     * with proper null handling
-     *
-     * @param emission Emission to add
-     */
     public void addToTotalEmission(BigDecimal emission) {
         if (emission == null) {
             return;
@@ -97,6 +84,78 @@ public class MonthlyCategorySummary {
         } else {
             this.totalEmission = this.totalEmission.add(emission);
         }
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public YearMonth getYearMonth() {
+        return yearMonth;
+    }
+
+    public void setYearMonth(YearMonth yearMonth) {
+        this.yearMonth = yearMonth;
+    }
+
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    public BigDecimal getTotalEmission() {
+        return totalEmission;
+    }
+
+    public void setTotalEmission(BigDecimal totalEmission) {
+        this.totalEmission = totalEmission;
+    }
+
+    public LocalDateTime getLastAggregatedAt() {
+        return lastAggregatedAt;
+    }
+
+    public void setLastAggregatedAt(LocalDateTime lastAggregatedAt) {
+        this.lastAggregatedAt = lastAggregatedAt;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     @Override
