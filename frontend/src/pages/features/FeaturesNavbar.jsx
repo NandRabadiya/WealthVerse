@@ -20,7 +20,7 @@ import { ThemeToggle } from "@/components/ThemeToggle"; // Import the ThemeToggl
 const features = [
   { title: "Spend Analysis", url: "spend-analysis" },
   { title: "Carbon Footprint", url: "carbon-footprint" },
-  { title: "Budget Planner", url: "budget-planner" },
+  { title: "Planner", url: "budget-planner" },
 ];
 
 const FeaturesNavbar = () => {

@@ -7,8 +7,8 @@ export const API_URL = "https://wealthverse-production.up.railway.app/api"; // R
 
 
 const api = axios.create({
- //baseURL: "http://localhost:8080/api",
- baseURL:"https://wealthverse.duckdns.org/api",
+ baseURL: "http://localhost:8080/api",
+ //baseURL:"https://wealthverse.duckdns.org/api",
 });
 
 // Attach token from localStorage (or another secure place)

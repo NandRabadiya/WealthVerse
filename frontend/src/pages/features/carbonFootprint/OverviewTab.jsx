@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import {
   PieChart,
   Pie,
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -20,7 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Progress } from "@/components/ui/Progress";
-import { Leaf, AlertTriangle, TrendingDown } from "lucide-react";
+import { Leaf, AlertTriangle, MessageSquare, TrendingDown } from "lucide-react";
 import api from "../../../api/api"; // Import the API like in TransactionAnalysis
 import {
   Select,
@@ -30,16 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Label } from "@/components/ui/Label";
-
-// Sample data for the bar chart - keeping this as is for now
-const barData = [
-  { name: "Jan", spending: 1200, footprint: 180 },
-  { name: "Feb", spending: 1500, footprint: 210 },
-  { name: "Mar", spending: 1100, footprint: 160 },
-  { name: "Apr", spending: 1800, footprint: 250 },
-  { name: "May", spending: 1300, footprint: 190 },
-  { name: "Jun", spending: 1600, footprint: 230 },
-];
 
 // Colors for the pie chart
 const COLORS = [
@@ -138,13 +126,36 @@ const OverviewTab = () => {
     if (!monthlySummary) return;
 
     // Format data for the pie chart based on category data
-    const categoryData = monthlySummary.categorySummaries.map((category, index) => ({
-      name: formatCategoryName(category.categoryName),
-      value: category.totalEmission,
-      color: COLORS[index % COLORS.length],
-    }));
+    const categoryData = monthlySummary.categorySummaries.map(
+      (category, index) => ({
+        name: formatCategoryName(category.categoryName),
+        value: category.totalEmission,
+        color: COLORS[index % COLORS.length],
+      })
+    );
     setChartData(categoryData);
   }, [monthlySummary]);
+
+  // Calculate carbon intensity (kg CO₂e per $)
+  const calculateCarbonIntensity = () => {
+    if (!monthlySummary || monthlySummary.totalSpending === 0) return 0;
+    return monthlySummary.totalEmission / monthlySummary.totalSpending;
+  };
+
+  // Get intensity level based on carbon intensity value
+  const getIntensityLevel = (intensity) => {
+    if (intensity === 0) return "N/A";
+    if (intensity < 1) return "Low";
+    if (intensity < 2) return "Medium";
+    return "High";
+  };
+
+  // Get intensity progress value (0-100)
+  const getIntensityProgress = (intensity) => {
+    if (intensity === 0) return 0;
+    // Scale from 0 to 3 kg CO₂e/$ to 0-100%
+    return Math.min(Math.round((intensity / 3) * 100), 100);
+  };
 
   // Custom tooltip for the pie chart
   const CustomTooltip = ({ active, payload }) => {
@@ -160,8 +171,13 @@ const OverviewTab = () => {
     return null;
   };
 
+  // Calculate carbon intensity
+  const carbonIntensity = calculateCarbonIntensity();
+  const intensityLevel = getIntensityLevel(carbonIntensity);
+  const intensityProgress = getIntensityProgress(carbonIntensity);
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Month Selector */}
       <div className="flex justify-end items-center space-x-2">
         <Label htmlFor="yearMonth" className="text-white whitespace-nowrap">
@@ -224,182 +240,164 @@ const OverviewTab = () => {
 
       {/* Loading state */}
       {isLoading && (
-        <div className="text-center py-12">
+        <div className="text-center py-8">
           <p className="text-white">Loading data...</p>
         </div>
       )}
 
       {/* No data state */}
       {!isLoading && (!monthlySummary || chartData.length === 0) && (
-        <div className="text-center py-12">
+        <div className="text-center py-8 bg-gray-900 border border-gray-800 rounded-lg">
           <p className="text-white">
             No data available for the selected month.
           </p>
         </div>
       )}
 
-      {/* Metrics Cards */}
-      {!isLoading && monthlySummary && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Monthly Footprint */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-400">
-                Monthly Footprint
-              </CardDescription>
-              <CardTitle className="text-3xl text-white">
-                {monthlySummary.totalEmission.toFixed(2)} kg
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-green-400 flex items-center">
-                <TrendingDown className="h-4 w-4 mr-1" />
-                12% less than last month
-              </div>
-            </CardContent>
-          </Card>
+   {/* Metrics Cards */}
+{!isLoading && monthlySummary && (
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {/* Monthly Footprint */}
+    <Card className="bg-gray-900 border-gray-800 h-full">
+      <CardHeader className="pb-2 flex flex-col justify-center">
+        <CardDescription className="text-gray-400">
+          Monthly Footprint
+        </CardDescription>
+        <CardTitle className="text-3xl text-white">
+          {monthlySummary.totalEmission.toFixed(2)} kg CO₂e
+        </CardTitle>
+      </CardHeader>
+    </Card>
 
-          {/* YTD Total */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-400">
-                YTD Total
-              </CardDescription>
-              <CardTitle className="text-3xl text-white">1,245 kg</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm text-blue-400">
-                On track for 3,200 kg this year
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Carbon Intensity */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader className="pb-2">
-              <CardDescription className="text-gray-400">
-                Carbon Intensity
-              </CardDescription>
-              <CardTitle className="text-3xl text-white">Medium</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Progress
-                value={65}
-                className="h-2 bg-gray-700"
-                indicatorClassName="bg-yellow-500"
-              />
-              <div className="text-sm text-gray-400 mt-2">
-                65/100 - Better than 45% of users
-              </div>
-            </CardContent>
-          </Card>
+    {/* Carbon Intensity */}
+    <Card className="bg-gray-900 border-gray-800 h-full">
+      <CardHeader className="pb-2">
+        <CardDescription className="text-gray-400">
+          Carbon Intensity
+        </CardDescription>
+        <CardTitle className="text-3xl text-white">
+          {carbonIntensity.toFixed(2)} kg CO₂e/₹
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-400">Level:</span>
+          <span className={`text-sm font-medium ${
+            intensityLevel === "Low" ? "text-green-400" : 
+            intensityLevel === "Medium" ? "text-yellow-400" : 
+            intensityLevel === "High" ? "text-red-400" : 
+            "text-gray-400"
+          }`}>
+            {intensityLevel}
+          </span>
         </div>
-      )}
+        <Progress
+          value={intensityProgress}
+          className="h-2 bg-gray-700 mt-2"
+          indicatorClassName={`${
+            intensityLevel === "Low" ? "bg-green-500" : 
+            intensityLevel === "Medium" ? "bg-yellow-500" : 
+            "bg-red-500"
+          }`}
+        />
+      </CardContent>
+    </Card>
+   
+  </div>
+)}
 
-      {/* Charts */}
-      {!isLoading && monthlySummary && chartData.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Pie Chart */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white">
-                Your Carbon Footprint Breakdown
-              </CardTitle>
-              <CardDescription className="text-gray-400">
-                Where your environmental impact comes from
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={100}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name} ${(percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend
-                      formatter={(value) => (
-                        <span className="text-white">{value}</span>
-                      )}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Bar Chart */}
-          <Card className="bg-gray-900 border-gray-800">
-            <CardHeader>
-              <CardTitle className="text-white">Footprint vs. Finances</CardTitle>
-              <CardDescription className="text-gray-400">
-                Comparing your spending with your carbon impact
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={barData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="name" stroke="#9ca3af" />
-                    <YAxis yAxisId="left" orientation="left" stroke="#60a5fa" />
-                    <YAxis yAxisId="right" orientation="right" stroke="#4ade80" />
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: "#1f2937",
-                        borderColor: "#374151",
-                        color: "#fff",
-                      }}
-                      formatter={(value, name) => {
-                        if (name === "spending") return [`₹${value}`, "Spending"];
-                        return [`${value} kg`, "Carbon Footprint"];
-                      }}
-                    />
-                    <Legend
-                      formatter={(value) => {
-                        if (value === "spending")
-                          return (
-                            <span className="text-blue-400">Spending (₹)</span>
-                          );
-                        return (
-                          <span className="text-green-400">
-                            Carbon Footprint (kg)
-                          </span>
-                        );
-                      }}
-                    />
-                    <Bar
-                      yAxisId="left"
-                      dataKey="spending"
-                      fill="#60a5fa"
-                      name="spending"
-                    />
-                    <Bar
-                      yAxisId="right"
-                      dataKey="footprint"
-                      fill="#4ade80"
-                      name="footprint"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
-          </Card>
+{/* Charts */}
+{!isLoading && monthlySummary && (
+  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    {/* Pie Chart */}
+    <Card className="bg-gray-900 border-gray-800 h-full">
+      <CardHeader>
+        <CardTitle className="text-white">
+          Your Carbon Footprint Breakdown
+        </CardTitle>
+        <CardDescription className="text-gray-400">
+          Where your environmental impact comes from
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="flex justify-center">
+        <div className="w-full h-[300px]">
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) =>
+                    `${name} ${(percent * 100).toFixed(0)}%`
+                  }
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+                <Legend
+                  verticalAlign="bottom"
+                  align="center"
+                  layout="horizontal"
+                  formatter={(value) => (
+                    <span className="text-white">{value}</span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-400">No category data available</p>
+            </div>
+          )}
         </div>
-      )}
+      </CardContent>
+    </Card>
+
+    {/* Tips Section */}
+    <Card className="bg-gray-900 border-gray-800 h-full">
+      <CardHeader>
+        <CardTitle className="text-white flex items-center gap-2">
+          <MessageSquare className="h-5 w-5 text-blue-400" />
+          Ask Your Finance Assistant
+        </CardTitle>
+        <CardDescription className="text-gray-400">
+          Get personalized insights to reduce your carbon footprint
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <p className="text-gray-300">
+            Ask our AI assistant questions like:
+          </p>
+          <div className="space-y-2">
+            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
+              "How can I reduce my carbon footprint from transportation?"
+            </div>
+            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
+              "What are sustainable alternatives for my food purchases?"
+            </div>
+            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
+              "Compare my carbon footprint to the average person"
+            </div>
+            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
+              "What small changes would have the biggest impact?"
+            </div>
+          </div>
+          <p className="text-sm text-gray-400 mt-2">
+            Click on a question or type your own in the chat to get personalized advice
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+)}
     </div>
   );
 };
