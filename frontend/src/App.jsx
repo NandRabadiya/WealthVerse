@@ -18,26 +18,27 @@ import ChatBot from "./pages/chatbot/ChatBot";
 import { TransactionProvider } from "./context/TransactionContext";
 
 function App() {
+  const userId = localStorage.getItem("userId");
   return (
     <>
       <AuthProvider>
         <TransactionProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/spend-analysis" element={<SpendAnalysis />} />
-            <Route path="/transactions" element={<Transactions />} />
-            <Route path="/carbon-footprint" element={<CarbonFootPrint />} />
-            <Route path="/budget-planner" element={<BudgetPlanner />} />
-            <Route path="/cibil-scoring" element={<CibilScoring />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/spend-analysis" element={<SpendAnalysis />} />
+              <Route path="/transactions" element={<Transactions />} />
+              <Route path="/carbon-footprint" element={<CarbonFootPrint />} />
+              <Route path="/budget-planner" element={<BudgetPlanner />} />
+              <Route path="/cibil-scoring" element={<CibilScoring />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
 
-        <ChatBot userId={localStorage.getItem("userId")} />
+          {userId && <ChatBot userId={userId} />}
         </TransactionProvider>
       </AuthProvider>
     </>
