@@ -162,7 +162,7 @@ const OverviewTab = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "#1f2937",
+                      backgroundColor: "#fff",
                       borderColor: "#374151",
                       color: "#fff",
                     }}
