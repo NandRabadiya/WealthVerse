@@ -22,7 +22,7 @@ public class Category {
 
     private String name;
 
-    private boolean isGlobal = false;
+    private Boolean isGlobal = false;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt;
@@ -50,11 +50,11 @@ public class Category {
         this.name = name;
     }
 
-    public boolean isGlobal() {
+    public Boolean isGlobal() {
         return isGlobal;
     }
 
-    public void setGlobal(boolean global) {
+    public void setGlobal(Boolean global) {
         isGlobal = global;
     }
 

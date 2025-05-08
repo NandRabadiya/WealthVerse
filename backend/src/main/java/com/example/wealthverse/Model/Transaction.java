@@ -121,9 +121,9 @@ public class Transaction {
     private Category category;
 
     @Column(name="is_globally_mapped")
-    private boolean isGloballyMapped = false;
+    private Boolean isGloballyMapped = false;
 
-    public boolean isGloballyMapped(boolean globalMapping) {
+    public Boolean isGloballyMapped(boolean globalMapping) {
         return isGloballyMapped;
     }
 

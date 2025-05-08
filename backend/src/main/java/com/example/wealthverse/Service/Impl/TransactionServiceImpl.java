@@ -297,7 +297,7 @@ public class TransactionServiceImpl implements TransactionService {
         dto.setCategoryName(tx.getCategory().getName());
         dto.setCarbonEmitted(tx.getCarbonEmission());
         dto.setCreatedAt(tx.getCreatedAt());
-        dto.setGlobal(true);
+        dto.setGlobal(tx.getIsGloballyMapped());
         return dto;
     }
     @Transactional

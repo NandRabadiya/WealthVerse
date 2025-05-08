@@ -13,11 +13,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 public class TransactionDTO {
-    public boolean isGlobal() {
+    public Boolean isGlobal() {
         return isGlobal;
     }
 
-    public void setGlobal(boolean global) {
+    public void setGlobal(Boolean global) {
         isGlobal = global;
     }
 
@@ -132,6 +132,6 @@ public class TransactionDTO {
 
     private LocalDateTime createdAt;
 
-    private boolean isGlobal = false;
+    private Boolean isGlobal = false;
 
 }

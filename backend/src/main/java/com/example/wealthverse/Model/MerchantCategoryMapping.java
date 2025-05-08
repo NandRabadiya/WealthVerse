@@ -34,11 +34,11 @@ public class MerchantCategoryMapping {
         this.merchantName = merchantName;
     }
 
-    public boolean isGlobalMapping() {
+    public Boolean isGlobalMapping() {
         return isGlobalMapping;
     }
 
-    public void setGlobalMapping(boolean globalMapping) {
+    public void setGlobalMapping(Boolean globalMapping) {
         isGlobalMapping = globalMapping;
     }
 
@@ -68,7 +68,7 @@ public class MerchantCategoryMapping {
 
     private String merchantName;
 
-    private boolean isGlobalMapping = false;
+    private Boolean isGlobalMapping = false;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id", nullable = false)

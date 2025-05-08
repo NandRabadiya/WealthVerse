@@ -333,7 +333,7 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                             >
                               {transaction.category}
                             </Badge>
-                            {transaction.category == "MISCELLANEOUS" && (
+                            {transaction.isGlobal === false && (
                               <button
                                 onClick={() => {
                                   setEditingCategoryId(transaction.id);
