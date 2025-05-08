@@ -114,7 +114,7 @@ const LandingPage = () => {
           />
         </Link>
         <div className="flex items-center gap-4">
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
 
           {token ? (
             // Display Logout Button when user is logged in

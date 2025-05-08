@@ -34,7 +34,7 @@ const COLORS = [
 export function TransactionAnalysis() {
   const [monthlySummary, setMonthlySummary] = useState(null);
   const [chartData, setChartData] = useState([]);
-  const [viewType, setViewType] = useState("category"); // category or merchant
+   const [viewType, setViewType] = useState("category"); // category or merchant
   const [selectedYearMonth, setSelectedYearMonth] = useState(
     `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
       .toString()
@@ -154,19 +154,19 @@ export function TransactionAnalysis() {
           onValueChange={setViewType}
           className="w-full sm:w-auto"
         >
-          <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+          <TabsList className="grid w-full grid-cols-1bg-gray-800">
             <TabsTrigger
               value="category"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               By Category
             </TabsTrigger>
-            <TabsTrigger
+            {/* <TabsTrigger
               value="merchant"
               className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               By Merchant
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
         </Tabs>
 

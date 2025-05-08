@@ -54,7 +54,7 @@ const FeaturesNavbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-4">
-        <ThemeToggle />
+        {/* <ThemeToggle /> */}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2 cursor-pointer">
