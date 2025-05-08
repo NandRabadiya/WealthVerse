@@ -14,7 +14,7 @@ const teamMembers = [
   },
   {
     id: 2,
-    name: "Member Two",
+    name: "Venu Virpariya",
     role: "Backend Developer",
     photoUrl: "/images/member2.jpg",
     github: "https://github.com/member2",
@@ -22,7 +22,7 @@ const teamMembers = [
   },
   {
     id: 3,
-    name: "Member Three",
+    name: "Nand Rabadiya",
     role: "UI/UX Designer",
     photoUrl: "/images/member3.jpg",
     github: "https://github.com/member3",
@@ -30,7 +30,7 @@ const teamMembers = [
   },
   {
     id: 4,
-    name: "Member Four",
+    name: "Kunj Vasoya",
     role: "Cloud Specialist",
     photoUrl: "/images/member4.jpg",
     github: "https://github.com/member4",

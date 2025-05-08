@@ -99,16 +99,26 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+
     @GetMapping("/getall")
     public ResponseEntity<Page<TransactionDTO>> getAllTransactions(
             @RequestHeader("Authorization") String authHeader,
-            @RequestParam(defaultValue = "0")    int page,
-            @RequestParam(defaultValue = "10")   int size
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Integer month
     ) {
-        Page<TransactionDTO> dtos = transactionService.getAllTransactions(authHeader, page, size);
+        Page<TransactionDTO> dtos;
+
+        if (month != null) {
+            // If month parameter is provided, get transactions for that month
+            dtos = transactionService.getTransactionsByMonth(authHeader, month, page, size);
+        } else {
+            // Otherwise get all transactions
+            dtos = transactionService.getAllTransactions(authHeader, page, size);
+        }
+
         return ResponseEntity.ok(dtos);
     }
-
 
     @PostMapping("/apply-category")
     public ResponseEntity<String> applyCategory(

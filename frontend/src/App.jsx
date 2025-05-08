@@ -14,6 +14,7 @@ import LoginPage from "./pages/authentication/LoginPage";
 import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Transactions from "./pages/features/transactions/Transactions";
+import ChatBot from "./pages/chatbot/ChatBot";
 
 function App() {
   return (
@@ -33,6 +34,8 @@ function App() {
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+
+        <ChatBot />
       </AuthProvider>
     </>
   );

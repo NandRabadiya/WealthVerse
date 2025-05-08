@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -265,8 +266,26 @@ public class TransactionServiceImpl implements TransactionService {
        //     dto.setGlobal(tx.isGloballyMapped());
             return dto;
         });
+
     }
 
+    // Helper method to map Transaction to TransactionDTO
+    private TransactionDTO mapToDTO(Transaction tx) {
+        TransactionDTO dto = new TransactionDTO();
+        dto.setId(tx.getId());
+        dto.setAmount(tx.getAmount());
+        dto.setPaymentMode(tx.getPaymentMode());
+        dto.setMerchantId(tx.getMerchantId());
+        dto.setMerchantName(tx.getMerchantName());
+        dto.setTransactionType(tx.getTransactionType());
+        dto.setUserId(tx.getUser().getId());
+        dto.setCategoryId(tx.getCategory().getId());
+        dto.setCategoryName(tx.getCategory().getName());
+        dto.setCarbonEmitted(tx.getCarbonEmission());
+        dto.setCreatedAt(tx.getCreatedAt());
+        dto.setGlobal(true);
+        return dto;
+    }
     @Transactional
     @Override
     public void overrideTransactionCategory(CategoryApplyRequest req, String authHeader) {
