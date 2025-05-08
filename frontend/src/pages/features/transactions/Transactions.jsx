@@ -7,8 +7,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+} from "@/components/ui/Select";
+import { Label } from "@/components/ui/Label";
 import { useState } from "react";
 import { useTransactions } from "../../../context/TransactionContext";
 import { useEffect } from "react";
@@ -65,9 +65,7 @@ export default function TransactionsPage() {
               </Select>
             </div>
           </div>
-          <TransactionTable
-            selectedMonth={selectedMonth}
-          />
+          <TransactionTable selectedMonth={selectedMonth} />
         </div>
       </div>
     </>
