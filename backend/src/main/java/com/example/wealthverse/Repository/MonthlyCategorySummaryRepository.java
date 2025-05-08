@@ -24,7 +24,20 @@ public interface MonthlyCategorySummaryRepository extends JpaRepository<MonthlyC
     @Query("SELECT mcs FROM MonthlyCategorySummary mcs " +
             "JOIN FETCH mcs.category " +
             "WHERE mcs.userId = :userId AND mcs.yearMonth = :yearMonth")
+
     List<MonthlyCategorySummary> findByUserIdAndYearMonthWithCategory(
             @Param("userId") Long userId,
             @Param("yearMonth") YearMonth yearMonth);
+
+
+    @Query("SELECT mcs FROM MonthlyCategorySummary mcs " +
+            "JOIN FETCH mcs.category " +
+            "WHERE mcs.userId = :userId AND " +
+            "CAST(mcs.yearMonth AS string) BETWEEN CAST(:startYearMonth AS string) AND CAST(:endYearMonth AS string) " +
+            "ORDER BY mcs.yearMonth ASC")
+    List<MonthlyCategorySummary> findByUserIdAndYearMonthRangeWithCategory(
+            @Param("userId") Long userId,
+            @Param("startYearMonth") YearMonth startYearMonth,
+            @Param("endYearMonth") YearMonth endYearMonth);
+
 }

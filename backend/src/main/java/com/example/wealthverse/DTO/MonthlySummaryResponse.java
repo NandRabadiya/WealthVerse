@@ -11,8 +11,6 @@ import java.util.List;
  */
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 @Getter
 @Setter
@@ -23,8 +21,15 @@ public class MonthlySummaryResponse {
     private BigDecimal totalSpending = BigDecimal.ZERO;
     private BigDecimal totalEmission = BigDecimal.ZERO;
 
+    public MonthlySummaryResponse() {
+    }
 
-
+    public MonthlySummaryResponse(String yearMonth, List<CategorySummaryResponse> categorySummaries, BigDecimal totalSpending, BigDecimal totalEmission) {
+        this.yearMonth = yearMonth;
+        this.categorySummaries = categorySummaries;
+        this.totalSpending = totalSpending;
+        this.totalEmission = totalEmission;
+    }
 
     public void calculateTotals() {
         if (categorySummaries != null) {

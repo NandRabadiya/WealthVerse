@@ -3,6 +3,7 @@ package com.example.wealthverse.Controller;
 import com.example.wealthverse.DTO.CategorySummaryResponse;
 import com.example.wealthverse.DTO.CategorywiseAndTotalData;
 import com.example.wealthverse.DTO.MonthlySummaryResponse;
+import com.example.wealthverse.DTO.MultiMonthSummaryResponse;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
 import com.example.wealthverse.Service.MonthlyCategorySummaryService;
 import com.example.wealthverse.Service.JWTService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -32,8 +34,8 @@ public class MonthlySummaryController {
         this.jwtService = jwtService;
     }
 
-       @GetMapping("/monthly/{yearMonth}")
-       public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
+    @GetMapping("/monthly/{yearMonth}")
+    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
                @RequestHeader("Authorization") String token,
                @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
@@ -48,46 +50,19 @@ public class MonthlySummaryController {
 
            return ResponseEntity.ok(response);
        }
-    @PostMapping("/admin/reset/{userId}/{yearMonth}")
-    public ResponseEntity<Void> resetMonthlySummary(
-            @PathVariable Long userId,
+
+
+    @GetMapping("/last-five-months/{yearMonth}")
+    public ResponseEntity<MultiMonthSummaryResponse> getLast5MonthsSummary(
+            @RequestHeader("Authorization") String token,
             @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
-        summaryService.resetMonthSummaries(userId, yearMonth);
-        return ResponseEntity.ok().build();
+        Long userId = jwtService.getUserIdFromToken(token);
+
+
+        // Get 5-month summary (current month + 4 previous months)
+        MultiMonthSummaryResponse response = summaryService.getMultiMonthSummaryForUser(userId, yearMonth, 5);
+        return ResponseEntity.ok(response);
     }
 
-    private CategorySummaryResponse convertToDto(MonthlyCategorySummary summary, BigDecimal totalEmission) {
-        CategorySummaryResponse dto = new CategorySummaryResponse();
-        dto.setCategoryId(summary.getCategoryId());
-
-        // Null-safe approach: check if category exists before accessing its name
-        if (summary.getCategory() != null) {
-            dto.setCategoryName(summary.getCategory().getName());
-        } else {
-            // Set a default or placeholder value if category is null
-            dto.setCategoryName("Unknown Category");
-        }
-
-        dto.setTotalAmount(summary.getTotalAmount() != null ? summary.getTotalAmount() : BigDecimal.ZERO);
-        dto.setTotalEmission(summary.getTotalEmission() != null ? summary.getTotalEmission() : BigDecimal.ZERO);
-
-        // Calculate emission percentage with improved null safety and division by zero protection
-        if (totalEmission != null && totalEmission.compareTo(BigDecimal.ZERO) > 0 && summary.getTotalEmission() != null) {
-            try {
-                // Calculate percentage: (categoryEmission / totalEmission) * 100
-                BigDecimal percentage = summary.getTotalEmission()
-                        .multiply(new BigDecimal("100"))
-                        .divide(totalEmission, 2, BigDecimal.ROUND_HALF_UP);
-                dto.setEmissionPercentage(percentage);
-            } catch (ArithmeticException e) {
-                // Handle potential division issues
-                dto.setEmissionPercentage(BigDecimal.ZERO);
-            }
-        } else {
-            dto.setEmissionPercentage(BigDecimal.ZERO);
-        }
-
-        return dto;
-    }
 }

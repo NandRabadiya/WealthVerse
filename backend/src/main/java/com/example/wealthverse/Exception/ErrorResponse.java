@@ -2,10 +2,7 @@ package com.example.wealthverse.Exception;
 
 import java.time.LocalDateTime;
 
-/**
- * Standardized error response object for WealthVerse application.
- * Ensures consistent error structure across all API responses.
- */
+
 public class ErrorResponse {
     private int status;
     private String message;
