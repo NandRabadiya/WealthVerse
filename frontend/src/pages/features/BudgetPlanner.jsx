@@ -1,6 +1,6 @@
 // pages/features/SpendingAnalysis.jsx
 import React from "react";
-import FeatureLayout from "./FeatureLayout"; // Import FeatureLayout (which now includes FeaturesNavbar)
+import FeatureLayout from "./FeatureLayout";
 
 const SpendingAnalysis = () => {
   return (
@@ -10,7 +10,11 @@ const SpendingAnalysis = () => {
         Track and analyze your spending patterns for better financial
         management.
       </p>
-      {/* More content related to Spend Analysis */}
+
+      {/* Coming Soon with Typing Dots */}
+      <div className="text-center mt-8 text-xl font-semibold">
+        Coming Soon...
+      </div>
     </FeatureLayout>
   );
 };

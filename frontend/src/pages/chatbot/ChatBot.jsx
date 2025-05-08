@@ -107,7 +107,7 @@ const ChatBot = ({ userId }) => {
           {isLoading ? "Loading..." : "💬 Finance Assistant"}
         </button>
       ) : (
-        <div className="w-96 h-[500px] bg-gray-900 rounded-2xl shadow-xl flex flex-col overflow-hidden animate-fade-in">
+        <div className="w-[500px] h-[500px] bg-gray-900 rounded-2xl shadow-xl flex flex-col overflow-hidden animate-fade-in">
           <div className="bg-gradient-to-r from-blue-800 to-purple-800 text-white px-5 py-3 flex justify-between items-center">
             <h3 className="text-lg font-bold tracking-wide">
               💰 Finance Assistant
