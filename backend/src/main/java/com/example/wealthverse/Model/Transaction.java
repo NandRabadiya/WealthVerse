@@ -120,6 +120,17 @@ public class Transaction {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @Column(name="is_globally_mapped")
+    private boolean isGloballyMapped = false;
+
+    public boolean isGloballyMapped(boolean globalMapping) {
+        return isGloballyMapped;
+    }
+
+    public void setGloballyMapped(boolean globallyMapped) {
+        isGloballyMapped = globallyMapped;
+    }
+
     @Column(precision = 17, scale = 5)
     private BigDecimal carbonEmission;
 

@@ -34,6 +34,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -63,14 +64,15 @@ public class TransactionServiceImpl implements TransactionService {
         this.categoryRepository = categoryRepository;
     }
 
-    private void calculateCarbonEmission(Transaction transaction, MerchantCategoryMapping mapping) {
-        if (transaction.getTransactionType() == TransactionType.DEBIT && !mapping.isGlobalMapping()) {
+    private BigDecimal calculateCarbonEmission(Transaction transaction, boolean globalMapping) {
+        if (transaction.getTransactionType() == TransactionType.DEBIT && globalMapping) {
             BigDecimal emissionFactor = transaction.getCategory().getEmissionFactor();
             BigDecimal amount = transaction.getAmount();
             BigDecimal emission = amount.multiply(emissionFactor);
-            transaction.setCarbonEmission(emission);
+           return emission;
         } else {
-            transaction.setCarbonEmission(BigDecimal.ZERO);
+
+            return BigDecimal.ZERO;
         }
     }
 
@@ -146,11 +148,22 @@ public class TransactionServiceImpl implements TransactionService {
                 return null;
             }
 
-            MerchantCategoryMapping mapping = mappingRepository
-                    .findBestMapping(merchantName.toUpperCase(), user.getId())
-                    .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
-
+            MerchantCategoryMapping mapping;
             Transaction transaction = new Transaction();
+
+            Optional<MerchantCategoryMapping> mappingOpt=
+                    mappingRepository
+                    .findBestMapping(merchantName.toUpperCase(), user.getId());
+
+            Category category = categoryRepository.findById(16L)
+                    .orElseThrow(() -> new IllegalArgumentException("Categiory not found with ID "));
+            boolean gloablmapping=false;
+            if(mappingOpt.isPresent()) {
+                mapping = mappingOpt.get();
+                category = mapping.getCategory();
+                gloablmapping=mapping.isGlobalMapping();
+            }
+
             transaction.setAmount(amount);
             transaction.setPaymentMode(paymentMode);
             transaction.setMerchantId(merchantId);
@@ -158,9 +171,13 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setTransactionType(transactionType);
             transaction.setCreatedAt(createdAt);
             transaction.setUser(user);
-            transaction.setCategory(mapping.getCategory());
+            transaction.setCategory(category);
+            transaction.setGloballyMapped(gloablmapping);
 
-            calculateCarbonEmission(transaction, mapping);
+
+            BigDecimal emission =calculateCarbonEmission(transaction,gloablmapping);
+
+            transaction.setCarbonEmission(emission);
 
             return transaction;
         } catch (Exception e) {
@@ -185,10 +202,10 @@ public class TransactionServiceImpl implements TransactionService {
         Long userId = jwtService.getUserIdFromToken(token);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
-
-        MerchantCategoryMapping mapping = mappingRepository
-                .findBestMapping(request.getMerchantName(), userId)
-                .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
+//
+//        MerchantCategoryMapping mapping = mappingRepository
+//                .findBestMapping(request.getMerchantName(), userId)
+//                .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
 
         Transaction tx = new Transaction();
         tx.setAmount(request.getAmount());
@@ -198,9 +215,28 @@ public class TransactionServiceImpl implements TransactionService {
         tx.setTransactionType(request.getTransactionType());
         tx.setCreatedAt(request.getCreatedAt() != null ? request.getCreatedAt() : LocalDateTime.now());
         tx.setUser(user);
-        tx.setCategory(mapping.getCategory());
 
-        calculateCarbonEmission(tx, mapping);
+        Optional<MerchantCategoryMapping> mappingOpt=
+                mappingRepository
+                        .findBestMapping(request.getMerchantName().toUpperCase(), user.getId());
+        MerchantCategoryMapping mapping;
+
+        Category category = categoryRepository.findById(16L)
+                .orElseThrow(() -> new IllegalArgumentException("Categiory not found with ID "));
+        boolean gloablmapping=false;
+        if(mappingOpt.isPresent()) {
+            mapping = mappingOpt.get();
+            category = mapping.getCategory();
+            gloablmapping=mapping.isGlobalMapping();
+        }
+
+        tx.setCategory(category);
+        tx.setGloballyMapped(gloablmapping);
+
+        BigDecimal emission =calculateCarbonEmission(tx,gloablmapping);
+
+        tx.setCarbonEmission(emission);
+
         transactionRepository.save(tx);
     }
 
@@ -226,7 +262,7 @@ public class TransactionServiceImpl implements TransactionService {
             dto.setCategoryName(tx.getCategory().getName());
             dto.setCarbonEmitted(tx.getCarbonEmission());
             dto.setCreatedAt(tx.getCreatedAt());
-            dto.setGlobal(true);
+       //     dto.setGlobal(tx.isGloballyMapped());
             return dto;
         });
     }
@@ -234,39 +270,18 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional
     @Override
     public void overrideTransactionCategory(CategoryApplyRequest req, String authHeader) {
-        Long userId = jwtService.getUserIdFromToken(authHeader.replace("Bearer ", ""));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
         Transaction txn = transactionRepository.findById(req.getTransactionId())
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
-        if (!txn.getUser().getId().equals(userId) ||
-                !txn.getMerchantName().equalsIgnoreCase(req.getMerchantName())) {
-            throw new IllegalArgumentException("Unauthorized or merchant mismatch");
-        }
+
 
         Category cat = categoryRepository
-                .findByNameAndUserId(req.getNewCategoryName(), userId)
-                .orElseGet(() -> {
-                    Category c = new Category();
-                    c.setName(req.getNewCategoryName());
-                    c.setUser(user);
-                    c.setGlobal(false);
-                    c.setCreatedAt(LocalDateTime.now());
-                    c.setEmissionFactor(BigDecimal.ZERO);
-                    return categoryRepository.save(c);
-                });
+                .findByName(req.getNewCategoryName().toUpperCase())
+                        .orElseThrow(() -> new IllegalArgumentException("Category not found"));
 
-        Category oldCategory = txn.getCategory();
         txn.setCategory(cat);
 
-        if (txn.getTransactionType() == TransactionType.DEBIT &&
-                !oldCategory.getId().equals(cat.getId())) {
-            MerchantCategoryMapping tempMapping = new MerchantCategoryMapping();
-            tempMapping.setGlobalMapping(false);
-            tempMapping.setCategory(cat);
-            calculateCarbonEmission(txn, tempMapping);
-        }
+        txn.setGloballyMapped(false);
+        txn.setCarbonEmission(BigDecimal.ZERO);
 
         transactionRepository.save(txn);
     }
@@ -306,7 +321,8 @@ public class TransactionServiceImpl implements TransactionService {
                 userId, req.getMerchantName(), TransactionType.DEBIT);
 
         for (Transaction tx : transactions) {
-            calculateCarbonEmission(tx, mapping);
+            tx.setCarbonEmission(BigDecimal.ZERO);
+            tx.setGloballyMapped(false);
         }
 
         transactionRepository.saveAll(transactions);

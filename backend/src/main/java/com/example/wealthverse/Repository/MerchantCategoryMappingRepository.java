@@ -48,10 +48,20 @@ public interface MerchantCategoryMappingRepository extends JpaRepository<Merchan
      * Find the best mapping for a merchant name and user ID by selecting
      * the first result from the ordered list.
      */
-    default Optional<MerchantCategoryMapping> findBestMapping(String merchantName, Long userId) {
-        List<MerchantCategoryMapping> mappings = findAllMappingsOrdered(merchantName, userId);
-        return mappings.isEmpty() ? Optional.empty() : Optional.of(mappings.get(0));
-    }
+//    default Optional<MerchantCategoryMapping> findBestMapping(String merchantName, Long userId) {
+//        List<MerchantCategoryMapping> mappings = findAllMappingsOrdered(merchantName, userId);
+//        return mappings.isEmpty() ? Optional.empty() : Optional.of(mappings.get(0));
+//    }
+
+
+    @Query("SELECT m FROM MerchantCategoryMapping m " +
+            "WHERE m.merchantName = :merchantName " +
+            "AND (m.user.id = :userId OR m.isGlobalMapping = true) " +
+            "ORDER BY CASE WHEN m.user.id = :userId THEN 0 ELSE 1 END")
+    Optional<MerchantCategoryMapping> findBestMapping(
+            @Param("merchantName") String merchantName,
+            @Param("userId") Long userId);
+
 
     /**
      * Find all global mappings (for emission calculation requirements)
