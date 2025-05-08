@@ -27,19 +27,19 @@ const CarbonFootprint = () => {
           <TabsList className="grid w-full grid-cols-3 bg-gray-800 mb-8">
             <TabsTrigger
               value="overview"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="calculator"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               Calculator
             </TabsTrigger>
             <TabsTrigger
               value="offsets"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               Offsets
             </TabsTrigger>

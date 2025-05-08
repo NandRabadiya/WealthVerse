@@ -13,7 +13,8 @@ import { Link } from "react-router-dom";
 import WealthVerse from "/WealthVerse.png";
 import { User } from "lucide-react";
 import TeamPage from "./TeamPage";
-import { ThemeToggle } from "@/components/ThemeToggle"; // Import the ThemeToggle component
+import { ThemeToggle } from "@/components/ThemeToggle";
+// import { useTheme } from "../context/ThemeContext";
 import { useState } from "react";
 
 const teamMembers = [
@@ -26,6 +27,7 @@ const teamMembers = [
 const LandingPage = () => {
   const { token, logout, login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  // const { theme } = useTheme();
   console.log(token);
   const navigate = useNavigate();
 

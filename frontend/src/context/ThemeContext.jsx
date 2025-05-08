@@ -11,7 +11,13 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     // Set the theme as an attribute on the document root
-    document.documentElement.setAttribute("data-theme", theme);
+    // document.documentElement.setAttribute("data-theme", theme);
+    // Add or remove the "dark" class on the html element based on the current theme
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
     localStorage.setItem("theme", theme); // Persist the theme in localStorage
   }, [theme]);
 

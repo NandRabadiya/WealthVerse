@@ -47,7 +47,7 @@ const FeaturesNavbar = () => {
           <NavLink
             key={feature.title}
             to={`/${feature.url}`}
-            className="text-white hover:text-green-400 transition-colors hover:underline"
+            className="relative text-white transition-all duration-300 after:absolute after:left-0 after:bottom-0 after:h-[2px] after:bg-white after:w-0 hover:after:w-full after:transition-all after:duration-300"
           >
             {feature.title}
           </NavLink>
@@ -57,7 +57,7 @@ const FeaturesNavbar = () => {
         <ThemeToggle />
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2">
+            <Button className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2 cursor-pointer">
               <PlusCircle className="h-4 w-4" />
               Add Transaction
             </Button>
@@ -73,9 +73,9 @@ const FeaturesNavbar = () => {
         </Dialog>
 
         <Link to="/transactions">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center gap-2 cursor-pointer">
-            <Eye className="h-5 w-5" />
-            View All Transactions
+          <button className="min-w-[150px] h-9 bg-blue-500 hover:bg-blue-700 text-white flex items-center justify-center gap-2 rounded-md cursor-pointer">
+            <Eye className="h-4 w-4" />
+            All Transactions
           </button>
         </Link>
 
