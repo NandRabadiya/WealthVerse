@@ -8,9 +8,7 @@ import java.time.YearMonth;
 import java.util.List;
 
 public interface MonthlyCategorySummaryService {
-    List<MonthlyCategorySummary> getUserMonthlySummary(Long userId, YearMonth yearMonth);
     void resetMonthSummaries(Long userId, YearMonth yearMonth);
-    List<MonthlyCategorySummary> rebuildSummaries(Long userId, YearMonth yearMonth);
     void updateMonthlySummaries(List<Transaction> transactions);
     MonthlySummaryResponse getMonthlySummaryForUser(Long userId, YearMonth yearMonth);
 

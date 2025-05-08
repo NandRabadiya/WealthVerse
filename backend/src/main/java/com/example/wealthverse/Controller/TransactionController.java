@@ -3,6 +3,7 @@ package com.example.wealthverse.Controller;
 import com.example.wealthverse.DTO.AddTransactionRequest;
 import com.example.wealthverse.DTO.CategoryApplyRequest;
 import com.example.wealthverse.DTO.TransactionDTO;
+import com.example.wealthverse.Exception.BadRequestException;
 import com.example.wealthverse.Service.TransactionService;
 import com.example.wealthverse.Model.ApiResponse;
 import com.example.wealthverse.Model.Transaction;
@@ -30,13 +31,7 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    /**
-     * Imports transactions from a CSV file
-     *
-     * @param file CSV file containing transaction data
-     * @param authHeader Authentication header with JWT token
-     * @return ResponseEntity with success or error message
-     */
+
     @PostMapping(value = "/import",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse> importCsv(
             @RequestParam("file") MultipartFile file,
@@ -70,7 +65,7 @@ public class TransactionController {
                     .status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse(false, "Failed to parse CSV: " + e.getMessage(),null));
 
-        } catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (BadRequestException e) {
             logger.error("Validation error: {}", e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.UNPROCESSABLE_ENTITY)

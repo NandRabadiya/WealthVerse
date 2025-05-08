@@ -7,8 +7,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
 public class CategoryApplyRequest {
     private Long transactionId;           // required only if applyToAll=false
     private String merchantName;          // merchant to remap

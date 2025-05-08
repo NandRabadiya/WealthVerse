@@ -5,6 +5,7 @@ import com.example.wealthverse.DTO.CategoryApplyRequest;
 import com.example.wealthverse.DTO.TransactionDTO;
 import com.example.wealthverse.Enums.PaymentMode;
 import com.example.wealthverse.Enums.TransactionType;
+import com.example.wealthverse.Exception.ResourceNotFoundException;
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.MerchantCategoryMapping;
 import com.example.wealthverse.Model.Transaction;
@@ -18,6 +19,7 @@ import com.example.wealthverse.Service.TransactionService;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvException;
+import org.apache.coyote.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -87,7 +89,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new IllegalArgumentException("Invalid authorization header");
+            throw new BadRequestException("Invalid authorization header");
         }
 
         User user = extractUserFromToken(authHeader);
@@ -106,7 +108,7 @@ public class TransactionServiceImpl implements TransactionService {
         Long userId = jwtService.getUserIdFromToken(token);
 
         return userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with ID " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID " + userId));
     }
 
     private List<Transaction> parseTransactionsFromCsv(MultipartFile csvFile, User user) throws IOException, CsvException {
@@ -212,10 +214,6 @@ public class TransactionServiceImpl implements TransactionService {
         Long userId = jwtService.getUserIdFromToken(token);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
-//
-//        MerchantCategoryMapping mapping = mappingRepository
-//                .findBestMapping(request.getMerchantName(), userId)
-//                .orElseThrow(() -> new IllegalStateException("No mapping found, even for 'MISCELLANEOUS'"));
 
         Transaction tx = new Transaction();
         tx.setAmount(request.getAmount());

@@ -18,19 +18,14 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    // Basic queries
+
     Page<Transaction> findAllByUserId(Long userId, Pageable pageable);
-    long countByUserId(Long userId);
-    void deleteAllByUserId(Long userId);
 
     // Category & Merchant Mapping
     @Modifying
     @Transactional
     @Query("UPDATE Transaction t SET t.category = :category WHERE t.user.id = :userId AND UPPER(t.merchantName) = UPPER(:merchantName)")
     int bulkUpdateCategory(@Param("category") Category category, @Param("userId") Long userId, @Param("merchantName") String merchantName);
-
-    List<Transaction> findAllByCategory_IdAndUser_Id(Long categoryId, Long userId);
-    List<Transaction> findAllByMerchantNameIgnoreCaseAndUser_Id(String merchantName, Long userId);
     List<Transaction> findByUserIdAndMerchantNameAndTransactionType(Long userId, String merchantName, TransactionType transactionType);
 
     // Queries involving time, global categories, and payment mode

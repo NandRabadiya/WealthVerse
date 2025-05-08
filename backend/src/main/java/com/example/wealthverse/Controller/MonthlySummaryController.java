@@ -32,15 +32,6 @@ public class MonthlySummaryController {
         this.jwtService = jwtService;
     }
 
-    /**
-     * Get monthly spending and carbon emissions summary categorized by spending categories
-     * Includes percentage of total carbon emissions for each category
-     *
-     * @param token JWT token from Authorization header
-     * @param yearMonth the target month in format YYYY-MM
-     * @return Response containing summary data for the month
-     */
-
        @GetMapping("/monthly/{yearMonth}")
        public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
                @RequestHeader("Authorization") String token,
@@ -57,53 +48,6 @@ public class MonthlySummaryController {
 
            return ResponseEntity.ok(response);
        }
-//    @GetMapping("/monthly/{yearMonth}")
-//    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
-//            @RequestHeader("Authorization") String token,
-//            @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
-//
-//        Long userId = jwtService.getUserIdFromToken(token);
-//
-//        // Get the summary data with incremental aggregation
-//        List<MonthlyCategorySummary> summaries = summaryService.getUserMonthlySummary(userId, yearMonth);
-//
-//        // Calculate total amount and emissions across all categories using streams
-//        BigDecimal totalAmount = summaries.stream()
-//                .map(MonthlyCategorySummary::getTotalAmount)
-//                .filter(Objects::nonNull)
-//                .reduce(BigDecimal.ZERO, BigDecimal::add);
-//
-//        BigDecimal totalEmission = summaries.stream()
-//                .map(MonthlyCategorySummary::getTotalEmission)
-//                .filter(Objects::nonNull)
-//                .reduce(BigDecimal.ZERO, BigDecimal::add);
-//
-//        // Convert to DTOs and calculate percentages
-//        List<CategorySummaryResponse> categorySummaries = summaries.stream()
-//                .map(summary -> convertToDto(summary, totalEmission))
-//                .toList();
-//
-//        // Sort by emission percentage (highest first)
-//        List<CategorySummaryResponse> sortedSummaries = categorySummaries.stream()
-//                .sorted(Comparator.comparing(
-//                        CategorySummaryResponse::getEmissionPercentage,
-//                        Comparator.nullsLast(Comparator.reverseOrder())))
-//                .collect(Collectors.toList());
-//
-//        // Create and populate the response objects
-//        MonthlySummaryResponse monthlyResponse = new MonthlySummaryResponse();
-//        monthlyResponse.setYearMonth(yearMonth.toString());
-//        monthlyResponse.setCategorySummaries(sortedSummaries);
-//        monthlyResponse.setTotalSpending(totalAmount);
-//        monthlyResponse.setTotalEmission(totalEmission);
-//
-//
-//        return ResponseEntity.ok(monthlyResponse);
-//    }
-
-    /**
-     * Reset the summary data for a month (admin or testing only)
-     */
     @PostMapping("/admin/reset/{userId}/{yearMonth}")
     public ResponseEntity<Void> resetMonthlySummary(
             @PathVariable Long userId,
@@ -113,10 +57,6 @@ public class MonthlySummaryController {
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * Convert entity to DTO with null-safe category name retrieval
-     * and calculate emission percentage based on total emissions
-     */
     private CategorySummaryResponse convertToDto(MonthlyCategorySummary summary, BigDecimal totalEmission) {
         CategorySummaryResponse dto = new CategorySummaryResponse();
         dto.setCategoryId(summary.getCategoryId());

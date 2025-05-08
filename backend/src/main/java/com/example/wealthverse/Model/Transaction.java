@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
 @Table(name = "transactions")
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
 public class Transaction {
 
     @Id
