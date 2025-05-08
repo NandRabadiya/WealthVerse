@@ -32,7 +32,7 @@ export function TransactionProvider({ children }) {
         transaction_type: transaction.transactionType,
         amount: transaction.amount,
         carbon_emission: transaction.carbonEmitted || 0,
-        isGlobal: transaction.global,
+        isGlobal: transaction.isGlobal,
       }));
 
       setTransactions(mappedTransactions);

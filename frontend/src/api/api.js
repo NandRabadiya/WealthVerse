@@ -3,8 +3,8 @@ import axios from "axios";
 
 export const API_URL = "https://chat-bot-backend-api.onrender.com/api"; // Replace with your actual API URL
 const api = axios.create({
- //baseURL: "http://localhost:8080/api",
- baseURL:"https://wealthverse.duckdns.org/api",
+ baseURL: "http://localhost:8080/api",
+ //baseURL:"https://wealthverse.duckdns.org/api",
 });
 
 // Attach token from localStorage (or another secure place)
