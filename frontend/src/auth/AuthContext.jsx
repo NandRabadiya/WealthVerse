@@ -1,7 +1,6 @@
 // src/auth/AuthContext.jsx
-import React, { createContext, useContext, useState } from "react";
-import axios from "../api/api"; // Adjust the import path as necessary
-import { useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "../api/api";
 
 const AuthContext = createContext();
 
@@ -17,7 +16,6 @@ export const AuthProvider = ({ children }) => {
     }
     setLoading(false); // done restoring
   }, []);
-  
 
   const login = async (email, password) => {
     try {
@@ -35,11 +33,16 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
-  
+
   const signup = async (name, email, password, dob) => {
     try {
-      const res = await axios.post("/auth/register", { name, email, password, dob });
-      
+      const res = await axios.post("/auth/register", {
+        name,
+        email,
+        password,
+        dob,
+      });
+
       localStorage.setItem("token", res.data.accessToken);
       localStorage.setItem("refresh_token", res.data.refreshToken);
       localStorage.setItem("userId", res.data.id);
@@ -54,7 +57,7 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
-  
+
   const logout = async () => {
     try {
       await axios.post("/auth/logout", null, {
