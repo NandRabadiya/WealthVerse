@@ -1,6 +1,6 @@
 # **🪙 WealthVerse – Financial & Carbon Emission Tracker**
 
-**Live Demo:** [YOUR_LIVE_DEMO_LINK_HERE](#)
+**Live Demo:** [https://www.wealthverse.site](#)
 
 ---
 
@@ -32,7 +32,7 @@ WealthVerse empowers recent graduates and young professionals to manage their mo
 - **Backend:** Spring Boot, Spring Security, JWT  
 - **ORM & Data:** Mysql, AWS, Hibernate  
 - **Storage:** AWS S3 for CSV uploads & artifacts  
-- **Hosting:**  
+- **Hosting:** AWS
 
 ---
 
