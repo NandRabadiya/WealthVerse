@@ -1,7 +1,6 @@
 # **🪙 WealthVerse – Financial & Carbon Emission Tracker**
 
-**Live Demo:** [https://www.wealthverse.site](#)
-
+**Live Demo:** [https://www.wealthverse.site](https://www.wealthverse.site)
 ---
 
 ## **🚀 Overview**  
