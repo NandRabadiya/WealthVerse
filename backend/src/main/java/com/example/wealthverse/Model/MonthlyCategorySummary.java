@@ -20,7 +20,7 @@ import java.util.Objects;
 @Data
 @AllArgsConstructor
 @Builder
-
+@NoArgsConstructor
 public class MonthlyCategorySummary {
 
     @Id
@@ -55,14 +55,14 @@ public class MonthlyCategorySummary {
     @JoinColumn(name = "category_id", insertable = false, updatable = false)
     private Category category;
 
-    // Default constructor required by JPA
-    public MonthlyCategorySummary() {
-        // Initialize BigDecimal fields to prevent null pointer exceptions
-        this.totalAmount = BigDecimal.ZERO;
-        this.totalEmission = BigDecimal.ZERO;
+    public MonthlyCategorySummary(Long userId, YearMonth yearMonth, Long categoryId, BigDecimal totalAmount, BigDecimal totalEmission, LocalDateTime updatedAt) {
+        this.categoryId = categoryId;
+        this.userId = userId;
+        this.yearMonth = yearMonth;
+        this.totalAmount = totalAmount;
+        this.totalEmission = totalEmission;
+        this.lastAggregatedAt = updatedAt;
     }
-
-
 
 
     /**

@@ -345,7 +345,7 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
             MonthlyCategorySummary summary = summaryMap.get(key);
             summary.addToTotalAmount(tx.getAmount());
 
-            if (Boolean.TRUE.equals(tx.getGloballyMapped()) && tx.getCarbonEmission() != null) {
+            if (Boolean.TRUE.equals(tx.getIsGloballyMapped()) && tx.getCarbonEmission() != null) {
                 summary.addToTotalEmission(tx.getCarbonEmission());
             }
 

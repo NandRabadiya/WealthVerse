@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
         User user = userRepository.getById(jwtService.getUserIdFromToken(token));
         Category category = new Category();
         category.setName(name);
-        category.setGlobal(false);
+        category.setIsGlobal(false);
         category.setUser(user); // null if global
         category.setCreatedAt(LocalDateTime.now());
         category.setEmissionFactor(BigDecimal.ZERO);

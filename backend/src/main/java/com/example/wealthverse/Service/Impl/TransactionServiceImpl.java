@@ -166,7 +166,7 @@ public class TransactionServiceImpl implements TransactionService {
             if(mappingOpt.isPresent()) {
                 mapping = mappingOpt.get();
                 category = mapping.getCategory();
-                gloablmapping=mapping.isGlobalMapping();
+                gloablmapping=mapping.getIsGlobalMapping();
             }
 
             transaction.setAmount(amount);
@@ -177,7 +177,7 @@ public class TransactionServiceImpl implements TransactionService {
             transaction.setCreatedAt(createdAt);
             transaction.setUser(user);
             transaction.setCategory(category);
-            transaction.setGloballyMapped(gloablmapping);
+            transaction.setIsGloballyMapped(gloablmapping);
 
 
             BigDecimal emission =calculateCarbonEmission(transaction,gloablmapping);
@@ -237,11 +237,11 @@ public class TransactionServiceImpl implements TransactionService {
         if(mappingOpt.isPresent()) {
             mapping = mappingOpt.get();
             category = mapping.getCategory();
-            gloablmapping=mapping.isGlobalMapping();
+            gloablmapping=mapping.getIsGlobalMapping();
         }
 
         tx.setCategory(category);
-        tx.setGloballyMapped(gloablmapping);
+        tx.setIsGloballyMapped(gloablmapping);
 
         BigDecimal emission =calculateCarbonEmission(tx,gloablmapping);
 
@@ -308,7 +308,7 @@ public class TransactionServiceImpl implements TransactionService {
         dto.setCategoryName(tx.getCategory().getName());
         dto.setCarbonEmitted(tx.getCarbonEmission());
         dto.setCreatedAt(tx.getCreatedAt());
-        dto.setGlobal(tx.getGloballyMapped());
+        dto.setIsGlobal(tx.getIsGloballyMapped());
         return dto;
     }
     @Transactional
@@ -320,7 +320,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .findByName(req.getNewCategoryName().toUpperCase())
                 .orElseThrow(() -> new IllegalArgumentException("Category not found"));
         txn.setCategory(cat);
-        txn.setGloballyMapped(false);
+        txn.setIsGloballyMapped(false);
         txn.setCarbonEmission(BigDecimal.ZERO);
         transactionRepository.save(txn);
     }
@@ -338,7 +338,7 @@ public class TransactionServiceImpl implements TransactionService {
                     Category c = new Category();
                     c.setName(req.getNewCategoryName());
                     c.setUser(user);
-                    c.setGlobal(true);
+                    c.setIsGlobal(true);
                     c.setCreatedAt(LocalDateTime.now());
                     c.setEmissionFactor(BigDecimal.ZERO);
                     return categoryRepository.save(c);
@@ -346,7 +346,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         MerchantCategoryMapping mapping = new MerchantCategoryMapping();
         mapping.setMerchantName(req.getMerchantName());
-        mapping.setGlobalMapping(true);
+        mapping.setIsGlobalMapping(true);
         mapping.setUser(user);
         mapping.setCategory(cat);
         mapping.setCreatedAt(LocalDateTime.now());
@@ -361,7 +361,7 @@ public class TransactionServiceImpl implements TransactionService {
 
         for (Transaction tx : transactions) {
             tx.setCarbonEmission(BigDecimal.ZERO);
-            tx.setGloballyMapped(false);
+            tx.setIsGloballyMapped(false);
         }
 
         transactionRepository.saveAll(transactions);

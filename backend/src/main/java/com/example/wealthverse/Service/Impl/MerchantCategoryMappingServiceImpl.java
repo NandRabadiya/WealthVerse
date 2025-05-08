@@ -32,7 +32,7 @@ public class MerchantCategoryMappingServiceImpl implements MerchantCategoryMappi
     public MerchantCategoryMapping addCustomMapping(String merchantName,long userId, String categoryName) {
         MerchantCategoryMapping mapping = new MerchantCategoryMapping();
         mapping.setMerchantName(merchantName.toUpperCase());
-        mapping.setGlobalMapping(false);
+        mapping.setIsGlobalMapping(false);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalStateException("User not found with id: " + userId));
 

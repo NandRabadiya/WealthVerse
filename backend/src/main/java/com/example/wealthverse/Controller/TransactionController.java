@@ -46,7 +46,7 @@ public class TransactionController {
         if (file == null || file.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse(false, "Please provide a CSV file"));
+                    .body(new ApiResponse(false, "Please provide a CSV file",null));
         }
 
         // Validate file type
@@ -54,7 +54,7 @@ public class TransactionController {
         if (filename == null || !filename.toLowerCase().endsWith(".csv")) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse(false, "Only CSV files are supported"));
+                    .body(new ApiResponse(false, "Only CSV files are supported",null));
         }
 
         try {
@@ -62,31 +62,31 @@ public class TransactionController {
             transactionService.importFromCsv(file, authHeader);
             logger.info("Successfully imported CSV file: {}", filename);
 
-            return ResponseEntity.ok(new ApiResponse(true, "CSV imported successfully"));
+            return ResponseEntity.ok(new ApiResponse(true, "CSV imported successfully",null));
 
         } catch (CsvException e) {
             logger.error("CSV parsing error: {}", e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse(false, "Failed to parse CSV: " + e.getMessage()));
+                    .body(new ApiResponse(false, "Failed to parse CSV: " + e.getMessage(),null));
 
         } catch (IllegalArgumentException | IllegalStateException e) {
             logger.error("Validation error: {}", e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(new ApiResponse(false, e.getMessage()));
+                    .body(new ApiResponse(false, e.getMessage(),null));
 
         } catch (IOException e) {
             logger.error("IO error reading file: {}", e.getMessage());
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body(new ApiResponse(false, "Failed to read CSV file: " + e.getMessage()));
+                    .body(new ApiResponse(false, "Failed to read CSV file: " + e.getMessage(),null));
 
         } catch (Exception e) {
             logger.error("Unexpected error during import: {}", e.getMessage(), e);
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse(false, "An unexpected error occurred. Please try again later."));
+                    .body(new ApiResponse(false, "An unexpected error occurred. Please try again later.",null));
         }
     }
 
