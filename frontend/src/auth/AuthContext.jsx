@@ -1,32 +1,37 @@
 // src/auth/AuthContext.jsx
-import React, { createContext, useContext, useState } from "react";
-import axios from "../api/api"; // Adjust the import path as necessary
-import { useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "../api/api";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // const [user, setUser] = useState(() => JSON.parse(localStorage.getItem("user")));
   const [token, setToken] = useState(null);
+  const [userId, setUserId] = useState(null); // ✅ Add userId to state
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token");
-    if (storedToken) {
+    const storedUserId = localStorage.getItem("userId");
+    if (storedToken && storedUserId) {
       setToken(storedToken);
+      setUserId(storedUserId); // ✅ Load userId into state
     }
-    setLoading(false); // done restoring
+    setLoading(false);
   }, []);
-  
 
   const login = async (email, password) => {
     try {
       const res = await axios.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.accessToken);
-      localStorage.setItem("refresh_token", res.data.refreshToken);
-      localStorage.setItem("userId", res.data.id);
-      setToken(res.data.accessToken);
+      const { accessToken, refreshToken, id } = res.data;
+
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("refresh_token", refreshToken);
+      localStorage.setItem("userId", id);
+
+      setToken(accessToken);
+      setUserId(id); // ✅ Set userId
       setLoading(false);
+
       return { success: true };
     } catch (error) {
       return {
@@ -35,17 +40,25 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
-  
+
   const signup = async (name, email, password, dob) => {
     try {
-      const res = await axios.post("/auth/register", { name, email, password, dob });
-      
-      localStorage.setItem("token", res.data.accessToken);
-      localStorage.setItem("refresh_token", res.data.refreshToken);
-      localStorage.setItem("userId", res.data.id);
+      const res = await axios.post("/auth/register", {
+        name,
+        email,
+        password,
+        dob,
+      });
+      const { accessToken, refreshToken, id } = res.data;
 
-      setToken(res.data.accessToken);
+      localStorage.setItem("token", accessToken);
+      localStorage.setItem("refresh_token", refreshToken);
+      localStorage.setItem("userId", id);
+
+      setToken(accessToken);
+      setUserId(id); // ✅ Set userId
       setLoading(false);
+
       return { success: true };
     } catch (error) {
       return {
@@ -54,7 +67,7 @@ export const AuthProvider = ({ children }) => {
       };
     }
   };
-  
+
   const logout = async () => {
     try {
       await axios.post("/auth/logout", null, {
@@ -68,13 +81,17 @@ export const AuthProvider = ({ children }) => {
       localStorage.removeItem("token");
       localStorage.removeItem("refresh_token");
       localStorage.removeItem("userId");
+
       setToken(null);
+      setUserId(null); // ✅ Clear userId
       setLoading(false);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, signup, logout, loading }}>
+    <AuthContext.Provider
+      value={{ token, userId, login, signup, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

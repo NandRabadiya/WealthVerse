@@ -66,10 +66,10 @@ const LandingPage = () => {
     "Save 20% of your income for a secure financial future.",
     "Track your daily expenses to identify unnecessary spending.",
     "Automate bill payments to avoid late fees and improve credit score.",
-    "Invest in diverse assets to minimize risk and maximize returns.",
+    "Group online orders to reduce carbon footprint.",
     "Review your budget regularly and adjust based on changing needs.",
     "Build an emergency fund to cover at least 6 months of expenses.",
-    "Pay credit card bills in full to avoid high interest charges.",
+    "Invest early and let compound interest do its magic!",
   ];
 
   const handleCardClick = (url) => {
@@ -203,33 +203,25 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Suggestions Slider */}
-      <section className="py-16 md:py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a]">
-        {/* Dark gradient background */}
+      {/* Tips & Suggestion */}
+      <section className="py-16 md:py-20 px-6 md:px-12 lg:px-24 bg-gradient-to-r from-[#0f172a] via-[#1e293b] to-[#0f172a] overflow-hidden">
         <h2 className="text-3xl md:text-4xl font-extrabold text-center mb-12 text-[#8de9c2]">
           Financial Tips & Suggestions
         </h2>
-        <div className="relative w-full">
-          <Carousel className="w-full" opts={{ loop: true, align: "start" }}>
-            <CarouselContent>
-              {suggestions.map((suggestion, index) => (
-                <CarouselItem
-                  key={index}
-                  className="md:basis-1/2 lg:basis-1/3 p-4"
-                >
-                  <div className="p-1 transition-transform duration-500 hover:scale-105">
-                    <Card className="bg-[#1e293b] border border-[#334155] rounded-xl shadow-xl hover:shadow-2xl transform transition-all duration-300 ease-in-out hover:scale-105">
-                      <CardContent className="flex items-center justify-center p-6 h-32">
-                        <p className="text-center text-[#c0fdfb] text-lg font-semibold animate__animated animate__fadeIn animate__delay-1s">
-                          {suggestion}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-          </Carousel>
+
+        <div className="relative w-full overflow-hidden">
+          <div className="flex w-max gap-6 slider-track">
+            {[...suggestions, ...suggestions].map((suggestion, index) => (
+              <div
+                key={index}
+                className="min-w-[300px] p-4 bg-[#1e293b] border border-[#334155] rounded-xl shadow-xl hover:shadow-2xl transition-transform duration-300"
+              >
+                <p className="text-center text-[#c0fdfb] text-lg font-semibold">
+                  💡 {suggestion}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

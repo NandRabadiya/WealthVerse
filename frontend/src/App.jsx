@@ -1,4 +1,3 @@
-import { AuthProvider } from "./auth/AuthContext";
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,12 +15,13 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import Transactions from "./pages/features/transactions/Transactions";
 import ChatBot from "./pages/chatbot/ChatBot";
 import { TransactionProvider } from "./context/TransactionContext";
+import { useAuth } from "./auth/AuthContext"; // Import the useAuth hook
 
 function App() {
+  const { userId } = useAuth(); // now reactive
   return (
     <>
-      <AuthProvider>
-        <TransactionProvider>
+      <TransactionProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -37,9 +37,8 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
-        <ChatBot userId={localStorage.getItem("userId")} />
-        </TransactionProvider>
-      </AuthProvider>
+        {userId && <ChatBot userId={userId} />}
+      </TransactionProvider>
     </>
   );
 }
