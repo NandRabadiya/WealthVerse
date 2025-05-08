@@ -1,12 +1,21 @@
 package com.example.wealthverse.DTO;
 
 
+import lombok.*;
+
 import java.math.BigDecimal;
 import java.util.List;
 
 /**
  * Response object for monthly spending and carbon emission summaries
  */
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Getter
+@Setter
 public class MonthlySummaryResponse {
 
     private String yearMonth;
@@ -14,37 +23,8 @@ public class MonthlySummaryResponse {
     private BigDecimal totalSpending = BigDecimal.ZERO;
     private BigDecimal totalEmission = BigDecimal.ZERO;
 
-    public String getYearMonth() {
-        return yearMonth;
-    }
 
-    public void setYearMonth(String yearMonth) {
-        this.yearMonth = yearMonth;
-    }
 
-    public List<CategorySummaryResponse> getCategorySummaries() {
-        return categorySummaries;
-    }
-
-    public void setCategorySummaries(List<CategorySummaryResponse> categorySummaries) {
-        this.categorySummaries = categorySummaries;
-    }
-
-    public BigDecimal getTotalSpending() {
-        return totalSpending;
-    }
-
-    public void setTotalSpending(BigDecimal totalSpending) {
-        this.totalSpending = totalSpending;
-    }
-
-    public BigDecimal getTotalEmission() {
-        return totalEmission;
-    }
-
-    public void setTotalEmission(BigDecimal totalEmission) {
-        this.totalEmission = totalEmission;
-    }
 
     /**
      * Calculate total spending and emissions across all categories

@@ -111,6 +111,8 @@ public class TransactionController {
 
         if (month != null) {
             // If month parameter is provided, get transactions for that month
+
+
             dtos = transactionService.getTransactionsByMonth(authHeader, month, page, size);
         } else {
             // Otherwise get all transactions

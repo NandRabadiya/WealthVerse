@@ -72,7 +72,7 @@ public class TransactionServiceImpl implements TransactionService {
             BigDecimal emissionFactor = transaction.getCategory().getEmissionFactor();
             BigDecimal amount = transaction.getAmount();
             BigDecimal emission = amount.multiply(emissionFactor);
-           return emission;
+            return emission;
         } else {
 
             return BigDecimal.ZERO;
@@ -158,7 +158,7 @@ public class TransactionServiceImpl implements TransactionService {
 
             Optional<MerchantCategoryMapping> mappingOpt=
                     mappingRepository
-                    .findBestMapping(merchantName.toUpperCase(), user.getId());
+                            .findBestMapping(merchantName.toUpperCase(), user.getId());
 
             Category category = categoryRepository.findById(16L)
                     .orElseThrow(() -> new IllegalArgumentException("Categiory not found with ID "));
@@ -318,7 +318,7 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new IllegalArgumentException("Transaction not found"));
         Category cat = categoryRepository
                 .findByName(req.getNewCategoryName().toUpperCase())
-                        .orElseThrow(() -> new IllegalArgumentException("Category not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Category not found"));
         txn.setCategory(cat);
         txn.setGloballyMapped(false);
         txn.setCarbonEmission(BigDecimal.ZERO);
