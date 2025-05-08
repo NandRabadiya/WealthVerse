@@ -1,4 +1,3 @@
-import { AuthProvider } from "./auth/AuthContext";
 import {
   BrowserRouter as Router,
   Routes,
@@ -16,31 +15,30 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import Transactions from "./pages/features/transactions/Transactions";
 import ChatBot from "./pages/chatbot/ChatBot";
 import { TransactionProvider } from "./context/TransactionContext";
+import { useAuth } from "./auth/AuthContext"; // Import the useAuth hook
 
 function App() {
-  const userId = localStorage.getItem("userId");
+  const { userId } = useAuth(); // now reactive
   return (
     <>
-      <AuthProvider>
-        <TransactionProvider>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
+      <TransactionProvider>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="/spend-analysis" element={<SpendAnalysis />} />
-              <Route path="/transactions" element={<Transactions />} />
-              <Route path="/carbon-footprint" element={<CarbonFootPrint />} />
-              <Route path="/budget-planner" element={<BudgetPlanner />} />
-              <Route path="/cibil-scoring" element={<CibilScoring />} />
-            </Route>
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/spend-analysis" element={<SpendAnalysis />} />
+            <Route path="/transactions" element={<Transactions />} />
+            <Route path="/carbon-footprint" element={<CarbonFootPrint />} />
+            <Route path="/budget-planner" element={<BudgetPlanner />} />
+            <Route path="/cibil-scoring" element={<CibilScoring />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
 
-          {userId && <ChatBot userId={userId} />}
-        </TransactionProvider>
-      </AuthProvider>
+        {userId && <ChatBot userId={userId} />}
+      </TransactionProvider>
     </>
   );
 }
