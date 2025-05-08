@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }) => {
       const res = await axios.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.accessToken);
       localStorage.setItem("refresh_token", res.data.refreshToken);
+      localStorage.setItem("userId", res.data.id);
       setToken(res.data.accessToken);
       setLoading(false);
       return { success: true };
@@ -41,6 +42,8 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem("token", res.data.accessToken);
       localStorage.setItem("refresh_token", res.data.refreshToken);
+      localStorage.setItem("userId", res.data.id);
+
       setToken(res.data.accessToken);
       setLoading(false);
       return { success: true };
@@ -64,6 +67,7 @@ export const AuthProvider = ({ children }) => {
     } finally {
       localStorage.removeItem("token");
       localStorage.removeItem("refresh_token");
+      localStorage.removeItem("userId");
       setToken(null);
       setLoading(false);
     }

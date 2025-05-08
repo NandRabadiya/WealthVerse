@@ -13,10 +13,19 @@ public class AuthenticationResponse {
     private String accessToken;
     private String refreshToken;
     private String message;
+    private Integer id;
 
+    public Integer getId() {
+        return id;
+    }
 
-    public AuthenticationResponse(String accessToken, String refreshToken, String message) {
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public AuthenticationResponse(String accessToken, String refreshToken, String message, Integer id) {
         this.accessToken = accessToken;
+        this.id=id;
         this.refreshToken = refreshToken;
         this.message = message;
     }

@@ -48,7 +48,7 @@ public class AuthenticationController {
         // Check if user already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new AuthenticationResponse(null, null, "Email already registered"));
+                    .body(new AuthenticationResponse(null, null, "Email already registered",null));
         }
 
         // Create new user
@@ -66,13 +66,13 @@ public class AuthenticationController {
         // Generate tokens
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
-
+        Integer id = Math.toIntExact(jwtService.getUserIdFromToken(accessToken));
         // Save tokens
         jwtService.saveUserToken(accessToken, refreshToken, user);
 
         // Return response
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthenticationResponse(accessToken, refreshToken, "User registered successfully"));
+                .body(new AuthenticationResponse(accessToken, refreshToken, "User registered successfully", id));
     }
 
     @PostMapping("/login")
@@ -95,12 +95,13 @@ public class AuthenticationController {
         // Generate new tokens
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
+        Integer id = Math.toIntExact(jwtService.getUserIdFromToken(accessToken));
 
         // Save tokens
         jwtService.saveUserToken(accessToken, refreshToken, user);
 
         // Return response
-        return ResponseEntity.ok(new AuthenticationResponse(accessToken, refreshToken, "Login successful"));
+        return ResponseEntity.ok(new AuthenticationResponse(accessToken, refreshToken, "Login successful", id));
     }
 
     @PostMapping("/refresh-token")
@@ -119,18 +120,20 @@ public class AuthenticationController {
             if (jwtService.isValidRefreshToken(refreshToken, user)) {
                 // Generate new access token
                 String accessToken = jwtService.generateAccessToken(user);
+                Integer id = Math.toIntExact(jwtService.getUserIdFromToken(accessToken));
 
                 // Return new tokens
                 return ResponseEntity.ok(new AuthenticationResponse(
                         accessToken,
                         refreshToken, // Keep same refresh token
-                        "Token refreshed successfully"
+                        "Token refreshed successfully",
+                        id
                 ));
             }
         }
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(new AuthenticationResponse(null, null, "Invalid refresh token"));
+                .body(new AuthenticationResponse(null, null, "Invalid refresh token", null));
     }
 
     public TokenRepository getTokenRepository() {
