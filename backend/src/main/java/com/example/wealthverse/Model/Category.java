@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Getter
+@Setter
 public class Category {
 
     @Id
@@ -34,69 +36,7 @@ public class Category {
     @JoinColumn(name = "user_id")
     private User user; // null if global category
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Boolean isGlobal() {
-        return isGlobal;
-    }
-
-    public void setGlobal(Boolean global) {
-        isGlobal = global;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public BigDecimal getEmissionFactor() {
-        return emissionFactor;
-    }
-
-    public void setEmissionFactor(BigDecimal emissionFactor) {
-        this.emissionFactor = emissionFactor;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public List<Transaction> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(List<Transaction> transactions) {
-        this.transactions = transactions;
-    }
-
-    public List<MerchantCategoryMapping> getMerchantMappings() {
-        return merchantMappings;
-    }
-
-    public void setMerchantMappings(List<MerchantCategoryMapping> merchantMappings) {
-        this.merchantMappings = merchantMappings;
-    }
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
