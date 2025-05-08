@@ -149,3 +149,19 @@
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
 }
+
+/* Suggestions Slider */
+@keyframes slide {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.slider-track {
+  display: flex;
+  width: max-content;
+  animation: slide 50s linear infinite;
+}

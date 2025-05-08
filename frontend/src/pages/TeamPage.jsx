@@ -14,7 +14,7 @@ const teamMembers = [
   },
   {
     id: 2,
-    name: "Venu Virpariya",
+    name: "Venu Virparia",
     role: "Backend Developer",
     photoUrl: "/images/member2.jpg",
     github: "https://github.com/member2",
