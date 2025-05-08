@@ -1,5 +1,6 @@
 package com.example.wealthverse.Service.Impl;
 
+import com.example.wealthverse.Enums.TransactionType;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
 import com.example.wealthverse.Model.Transaction;
 import com.example.wealthverse.Repository.MonthlyCategorySummaryRepository;
@@ -310,4 +311,48 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
         return processTransactionsInBatches(userId, yearMonth, new ArrayList<>(), startOfMonth, LocalDateTime.now());
     }
+
+    @Override
+    @Transactional
+    public void updateMonthlySummaries(List<Transaction> transactions) {
+        Map<String, MonthlyCategorySummary> summaryMap = new HashMap<>();
+
+        for (Transaction tx : transactions) {
+            if (tx.getTransactionType() != TransactionType.DEBIT || tx.getAmount() == null) {
+                continue;
+            }
+
+            YearMonth yearMonth = YearMonth.from(tx.getCreatedAt());
+            Long userId = tx.getUser().getId();
+            Long categoryId = tx.getCategory() != null ? tx.getCategory().getId() : null;
+            if (categoryId == null) continue;
+
+            String key = userId + "_" + yearMonth + "_" + categoryId;
+
+            summaryMap.computeIfAbsent(key, k -> {
+                return summaryRepository
+                        .findByUserIdAndYearMonthAndCategoryId(userId, yearMonth, categoryId)
+                        .orElse(new MonthlyCategorySummary(
+                                userId, yearMonth, categoryId,
+                                BigDecimal.ZERO, BigDecimal.ZERO,
+                                LocalDateTime.now()
+                        ));
+            });
+
+            MonthlyCategorySummary summary = summaryMap.get(key);
+            summary.addToTotalAmount(tx.getAmount());
+
+            if (Boolean.TRUE.equals(tx.getGloballyMapped()) && tx.getCarbonEmission() != null) {
+                summary.addToTotalEmission(tx.getCarbonEmission());
+            }
+
+            summary.setLastAggregatedAt(LocalDateTime.now());
+        }
+
+        summaryRepository.saveAll(summaryMap.values());
+    }
+
+
+
+
 }
