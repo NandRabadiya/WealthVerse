@@ -17,6 +17,7 @@ export default function TransactionsPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const { fetchTransactions } = useTransactions();
   useEffect(() => {
+    console.log("Selected Month:", selectedMonth);
     fetchTransactions(0, 5, selectedMonth); // Reset to first page when changing month
   }, [selectedMonth, fetchTransactions]);
   const monthNames = [

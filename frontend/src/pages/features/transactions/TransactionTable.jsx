@@ -71,16 +71,16 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
   const {
     transactions,
     totalElements,
-    totalPages, 
+    totalPages,
     loading,
     currentPage,
     itemsPerPage,
     fetchTransactions,
     updateCategory,
     setCurrentPage,
-    setItemsPerPage
+    setItemsPerPage,
   } = useTransactions();
-  
+
   // Keep your existing state for UI management
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [userCategories, setUserCategories] = useState([]);
@@ -91,12 +91,19 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
   const [currentTransactionId, setCurrentTransactionId] = useState(null);
   const inputRef = useRef(null);
 
- useEffect(() => {
+  useEffect(() => {
     fetchTransactions(currentPage, itemsPerPage, selectedMonth);
   }, [fetchTransactions, currentPage, itemsPerPage, selectedMonth]);
 
   // Your handleAddCategory can now use the context
-  const handleAddCategory = (transactionId, merchantName, applyToAll) => {
+  const handleAddCategory = (
+    transactionId,
+    merchantName,
+    applyToAll,
+    currentPage,
+    itemsPerPage,
+    selectedMonth
+  ) => {
     if (newCategoryName.trim()) {
       // Add to user categories if it's not already there
       if (!userCategories.includes(newCategoryName)) {
@@ -104,8 +111,16 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
       }
 
       // Call the update function with all required parameters
-      updateCategory(transactionId, newCategoryName, merchantName, applyToAll);
-      
+      updateCategory(
+        transactionId,
+        newCategoryName,
+        merchantName,
+        applyToAll,
+        currentPage,
+        itemsPerPage,
+        selectedMonth
+      );
+
       // Reset UI state
       setEditingCategoryId(null);
       setIsAddingCategory(false);
@@ -194,7 +209,10 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                                     transaction.id,
                                     val,
                                     transaction.merchant_name,
-                                    false
+                                    false,
+                                    currentPage,
+                                    itemsPerPage,
+                                    selectedMonth
                                   );
                                 }
                               }}
@@ -258,7 +276,10 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                                           handleAddCategory(
                                             currentTransactionId,
                                             currentMerchantName,
-                                            applyToAllMerchants
+                                            applyToAllMerchants,
+                                            currentPage,
+                                            itemsPerPage,
+                                            selectedMonth
                                           )
                                         }
                                       >

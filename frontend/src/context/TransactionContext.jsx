@@ -12,7 +12,7 @@ export function TransactionProvider({ children }) {
   const [currentPage, setCurrentPage] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const fetchTransactions = useCallback(async (page = currentPage, size = itemsPerPage, month = null) => {
+  const fetchTransactions = useCallback(async (page = currentPage, size = itemsPerPage, month) => {
     try {
       setLoading(true);
       const response = await api.get(`/transactions/getall`, {
@@ -43,7 +43,7 @@ export function TransactionProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, itemsPerPage]);
+  }, []);
 
   const addTransaction = async (transactionData) => {
     try {
@@ -57,7 +57,7 @@ export function TransactionProvider({ children }) {
     }
   };
 
-  const updateCategory = async (transactionId, newCategory, merchantName, applyToAll = false) => {
+  const updateCategory = async (transactionId, newCategory, merchantName, applyToAll = false,currentPage, itemsPerPage, selectedMonth) => {
     try {
       await api.post("/transactions/apply-category", {
         transactionId: transactionId,
@@ -67,7 +67,8 @@ export function TransactionProvider({ children }) {
       });
       
       // Refresh transactions
-      fetchTransactions();
+      console.log("In context", selectedMonth)
+      fetchTransactions(currentPage, itemsPerPage,selectedMonth);
       return true;
     } catch (error) {
       console.error("Error updating category:", error);
