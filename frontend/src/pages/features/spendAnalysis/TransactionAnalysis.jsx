@@ -139,7 +139,7 @@ export function TransactionAnalysis() {
       return (
         <div className="bg-gray-800 p-2 border border-gray-700 rounded shadow-lg">
           <p className="text-white font-medium">{data.name}</p>
-          <p className="text-green-400">${data.value.toFixed(2)}</p>
+          <p className="text-green-400">₹{data.value.toFixed(2)}</p>
         </div>
       );
     }
