@@ -28,6 +28,8 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 import { Label } from "@/components/ui/Label";
+import { Check, Copy } from "lucide-react"; // Optional icons
+
 
 // Colors for the pie chart
 const COLORS = [
@@ -175,6 +177,20 @@ const OverviewTab = () => {
   const carbonIntensity = calculateCarbonIntensity();
   const intensityLevel = getIntensityLevel(carbonIntensity);
   const intensityProgress = getIntensityProgress(carbonIntensity);
+  const [copiedIndex, setCopiedIndex] = useState(null);
+
+  const questions = [
+    "How can I reduce my carbon footprint from transportation?",
+    "What are sustainable alternatives for my food purchases?",
+    "Give few carbon offsetting tips",
+    "What small changes would have the biggest impact?",
+  ];
+
+  const handleCopy = (text, index) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 1500); // Reset after 1.5s
+  };
 
   return (
     <div className="space-y-6">
@@ -254,150 +270,165 @@ const OverviewTab = () => {
         </div>
       )}
 
-   {/* Metrics Cards */}
-{!isLoading && monthlySummary && (
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    {/* Monthly Footprint */}
-    <Card className="bg-gray-900 border-gray-800 h-full">
-      <CardHeader className="pb-2 flex flex-col justify-center">
-        <CardDescription className="text-gray-400">
-          Monthly Footprint
-        </CardDescription>
-        <CardTitle className="text-3xl text-white">
-          {monthlySummary.totalEmission.toFixed(2)} kg CO₂e
-        </CardTitle>
-      </CardHeader>
-    </Card>
+      {/* Metrics Cards */}
+      {!isLoading && monthlySummary && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Monthly Footprint */}
+          <Card className="bg-gray-900 border-gray-800 h-full">
+            <CardHeader className="pb-2 flex flex-col justify-center">
+              <CardDescription className="text-gray-400">
+                Monthly Footprint
+              </CardDescription>
+              <CardTitle className="text-3xl text-white">
+                {monthlySummary.totalEmission.toFixed(2)} kg CO₂e
+              </CardTitle>
+            </CardHeader>
+          </Card>
 
-    {/* Carbon Intensity */}
-    <Card className="bg-gray-900 border-gray-800 h-full">
-      <CardHeader className="pb-2">
-        <CardDescription className="text-gray-400">
-          Carbon Intensity
-        </CardDescription>
-        <CardTitle className="text-3xl text-white">
-          {carbonIntensity.toFixed(2)} kg CO₂e/₹
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400">Level:</span>
-          <span className={`text-sm font-medium ${
-            intensityLevel === "Low" ? "text-green-400" : 
-            intensityLevel === "Medium" ? "text-yellow-400" : 
-            intensityLevel === "High" ? "text-red-400" : 
-            "text-gray-400"
-          }`}>
-            {intensityLevel}
-          </span>
-        </div>
-        <Progress
-          value={intensityProgress}
-          className="h-2 bg-gray-700 mt-2"
-          indicatorClassName={`${
-            intensityLevel === "Low" ? "bg-green-500" : 
-            intensityLevel === "Medium" ? "bg-yellow-500" : 
-            "bg-red-500"
-          }`}
-        />
-      </CardContent>
-    </Card>
-   
-  </div>
-)}
-
-{/* Charts */}
-{!isLoading && monthlySummary && (
-  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    {/* Pie Chart */}
-    <Card className="bg-gray-900 border-gray-800 h-full">
-      <CardHeader>
-        <CardTitle className="text-white">
-          Your Carbon Footprint Breakdown
-        </CardTitle>
-        <CardDescription className="text-gray-400">
-          Where your environmental impact comes from
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="flex justify-center">
-        <div className="w-full h-[300px]">
-          {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
+          {/* Carbon Intensity */}
+          <Card className="bg-gray-900 border-gray-800 h-full">
+            <CardHeader className="pb-2">
+              <CardDescription className="text-gray-400">
+                Carbon Intensity
+              </CardDescription>
+              <CardTitle className="text-3xl text-white">
+                {carbonIntensity.toFixed(2)} kg CO₂e/₹
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-400">Level:</span>
+                <span
+                  className={`text-sm font-medium ${
+                    intensityLevel === "Low"
+                      ? "text-green-400"
+                      : intensityLevel === "Medium"
+                      ? "text-yellow-400"
+                      : intensityLevel === "High"
+                      ? "text-red-400"
+                      : "text-gray-400"
+                  }`}
                 >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  verticalAlign="bottom"
-                  align="center"
-                  layout="horizontal"
-                  formatter={(value) => (
-                    <span className="text-white">{value}</span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-gray-400">No category data available</p>
-            </div>
-          )}
+                  {intensityLevel}
+                </span>
+              </div>
+              <Progress
+                value={intensityProgress}
+                className="h-2 bg-gray-700 mt-2"
+                indicatorClassName={`${
+                  intensityLevel === "Low"
+                    ? "bg-green-500"
+                    : intensityLevel === "Medium"
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
+                }`}
+              />
+            </CardContent>
+          </Card>
         </div>
-      </CardContent>
-    </Card>
+      )}
 
-    {/* Tips Section */}
-    <Card className="bg-gray-900 border-gray-800 h-full">
-      <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <MessageSquare className="h-5 w-5 text-blue-400" />
-          Ask Your Finance Assistant
-        </CardTitle>
-        <CardDescription className="text-gray-400">
-          Get personalized insights to reduce your carbon footprint
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <p className="text-gray-300">
-            Ask our AI assistant questions like:
-          </p>
-          <div className="space-y-2">
-            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
-              "How can I reduce my carbon footprint from transportation?"
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
-              "What are sustainable alternatives for my food purchases?"
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
-              "Compare my carbon footprint to the average person"
-            </div>
-            <div className="p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base">
-              "What small changes would have the biggest impact?"
-            </div>
-          </div>
-          <p className="text-sm text-gray-400 mt-2">
-            Click on a question or type your own in the chat to get personalized advice
-          </p>
+      {/* Charts */}
+      {!isLoading && monthlySummary && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pie Chart */}
+          <Card className="bg-gray-900 border-gray-800 h-full">
+            <CardHeader>
+              <CardTitle className="text-white">
+                Your Carbon Footprint Breakdown
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Where your environmental impact comes from
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex justify-center">
+              <div className="w-full h-[300px]">
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) =>
+                          `${name} ${(percent * 100).toFixed(0)}%`
+                        }
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend
+                        verticalAlign="bottom"
+                        align="center"
+                        layout="horizontal"
+                        formatter={(value) => (
+                          <span className="text-white">{value}</span>
+                        )}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <p className="text-gray-400">No category data available</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Tips Section */}
+          <Card className="bg-gray-900 border-gray-800 h-full">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-blue-400" />
+                Ask Your Finance Assistant
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Get personalized insights to reduce your carbon footprint
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-gray-300">
+                  Ask our AI assistant questions like:
+                </p>
+                <div className="space-y-2">
+                  {questions.map((q, index) => (
+                    <div
+                      key={index}
+                      onClick={() => handleCopy(q, index)}
+                      className="relative p-3 bg-gray-800 rounded-lg border border-gray-700 cursor-pointer hover:bg-gray-750 transition-colors text-sm sm:text-base group"
+                    >
+                      {q}
+                      <span className="absolute right-3 top-3 text-green-400 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                        {copiedIndex === index ? (
+                          <span className="flex items-center gap-1">
+                            <Check size={14} /> Copied!
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-gray-400">
+                            <Copy size={14} /> Click to copy
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm text-gray-400 mt-2">
+                  Click on a question or type your own in the chat to get
+                  personalized advice
+                </p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </CardContent>
-    </Card>
-  </div>
-)}
+      )}
     </div>
   );
 };
