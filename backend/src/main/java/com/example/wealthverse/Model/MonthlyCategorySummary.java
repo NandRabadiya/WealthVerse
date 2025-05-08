@@ -7,7 +7,11 @@ import java.time.YearMonth;
 import java.util.Objects;
 
 @Entity
-@Table(name = "monthly_category_summaries")
+@Table(name = "monthly_category_summaries",
+        indexes = {
+                @Index(name = "idx_mcs_user_yearmonth", columnList = "user_id, year_month"),
+                @Index(name = "idx_mcs_category", columnList = "category_id")
+        })
 public class MonthlyCategorySummary {
 
     @Id
@@ -17,17 +21,17 @@ public class MonthlyCategorySummary {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "`year_month`", nullable = false)
+    @Column(name = "year_month", nullable = false)
     private YearMonth yearMonth;
 
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
     @Column(name = "total_amount", nullable = false, precision = 12, scale = 2)
-    private BigDecimal totalAmount;
+    private BigDecimal totalAmount = BigDecimal.ZERO; // Default value to prevent null
 
     @Column(name = "total_emission", nullable = false, precision = 12, scale = 2)
-    private BigDecimal totalEmission;
+    private BigDecimal totalEmission = BigDecimal.ZERO; // Default value to prevent null
 
     @Column(name = "last_aggregated_at", nullable = false)
     private LocalDateTime lastAggregatedAt;
@@ -42,6 +46,9 @@ public class MonthlyCategorySummary {
 
     // Default constructor required by JPA
     public MonthlyCategorySummary() {
+        // Initialize BigDecimal fields to prevent null pointer exceptions
+        this.totalAmount = BigDecimal.ZERO;
+        this.totalEmission = BigDecimal.ZERO;
     }
 
     // Constructor with essential fields
@@ -51,12 +58,12 @@ public class MonthlyCategorySummary {
         this.userId = userId;
         this.yearMonth = yearMonth;
         this.categoryId = categoryId;
-        this.totalAmount = totalAmount;
-        this.totalEmission = totalEmission;
+        this.totalAmount = totalAmount != null ? totalAmount : BigDecimal.ZERO;
+        this.totalEmission = totalEmission != null ? totalEmission : BigDecimal.ZERO;
         this.lastAggregatedAt = lastAggregatedAt;
     }
 
-    // Getters and setters
+    // Getters and setters with null safety
     public Long getId() {
         return id;
     }
@@ -90,19 +97,19 @@ public class MonthlyCategorySummary {
     }
 
     public BigDecimal getTotalAmount() {
-        return totalAmount;
+        return totalAmount != null ? totalAmount : BigDecimal.ZERO;
     }
 
     public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
+        this.totalAmount = totalAmount != null ? totalAmount : BigDecimal.ZERO;
     }
 
     public BigDecimal getTotalEmission() {
-        return totalEmission;
+        return totalEmission != null ? totalEmission : BigDecimal.ZERO;
     }
 
     public void setTotalEmission(BigDecimal totalEmission) {
-        this.totalEmission = totalEmission;
+        this.totalEmission = totalEmission != null ? totalEmission : BigDecimal.ZERO;
     }
 
     public LocalDateTime getLastAggregatedAt() {
@@ -129,17 +136,54 @@ public class MonthlyCategorySummary {
         this.category = category;
     }
 
+    /**
+     * Safely adds the amount to the existing total amount
+     * with proper null handling
+     *
+     * @param amount Amount to add
+     */
+    public void addToTotalAmount(BigDecimal amount) {
+        if (amount == null) {
+            return;
+        }
+        if (this.totalAmount == null) {
+            this.totalAmount = amount;
+        } else {
+            this.totalAmount = this.totalAmount.add(amount);
+        }
+    }
+
+    /**
+     * Safely adds the emission to the existing total emission
+     * with proper null handling
+     *
+     * @param emission Emission to add
+     */
+    public void addToTotalEmission(BigDecimal emission) {
+        if (emission == null) {
+            return;
+        }
+        if (this.totalEmission == null) {
+            this.totalEmission = emission;
+        } else {
+            this.totalEmission = this.totalEmission.add(emission);
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MonthlyCategorySummary that = (MonthlyCategorySummary) o;
-        return Objects.equals(id, that.id);
+        // Using composite business key instead of just ID for better equality comparison
+        return Objects.equals(userId, that.userId) &&
+                Objects.equals(yearMonth, that.yearMonth) &&
+                Objects.equals(categoryId, that.categoryId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(userId, yearMonth, categoryId);
     }
 
     @Override

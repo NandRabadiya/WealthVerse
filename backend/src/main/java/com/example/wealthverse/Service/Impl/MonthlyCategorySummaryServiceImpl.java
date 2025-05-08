@@ -19,7 +19,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +40,7 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
         this.transactionRepository = transactionRepository;
     }
 
+    @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public List<MonthlyCategorySummary> getUserMonthlySummary(Long userId, YearMonth yearMonth) {
         logger.debug("Retrieving monthly summary for user {} for {}", userId, yearMonth);
@@ -45,8 +48,12 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
 
         List<MonthlyCategorySummary> existingSummaries = summaryRepository.findByUserIdAndYearMonth(userId, yearMonth);
 
-        LocalDateTime oldestAggregationTime = existingSummaries.stream()
+        // If no summaries exist, use start of month as aggregation time
+        LocalDateTime oldestAggregationTime = existingSummaries.isEmpty()
+                ? yearMonth.atDay(1).atStartOfDay()
+                : existingSummaries.stream()
                 .map(MonthlyCategorySummary::getLastAggregatedAt)
+                .filter(Objects::nonNull)
                 .min(LocalDateTime::compareTo)
                 .orElse(yearMonth.atDay(1).atStartOfDay());
 
@@ -62,23 +69,40 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
             LocalDateTime oldestAggregationTime,
             LocalDateTime updatedAt) {
 
+        // Convert list to map for efficient lookup
         Map<Long, MonthlyCategorySummary> summaryByCategory = existingSummaries.stream()
                 .collect(Collectors.toMap(
                         MonthlyCategorySummary::getCategoryId,
-                        summary -> summary
+                        Function.identity(),
+                        (existing, replacement) -> existing // Handle potential duplicates
                 ));
 
         Map<Long, TransactionAggregates> aggregatesByCategory = new ConcurrentHashMap<>();
 
-        // Process regular transactions (only DEBIT transactions)
-        processRegularTransactions(userId, yearMonth, oldestAggregationTime, aggregatesByCategory);
+        // Use parallel processing for both transaction types
+        CompletableFuture<Void> regularTransactionsFuture = CompletableFuture.runAsync(() ->
+                processRegularTransactions(userId, yearMonth, oldestAggregationTime, aggregatesByCategory)
+        );
 
-        // Process transactions with global merchant mappings for emission calculation
-        processGlobalMappedTransactions(userId, yearMonth, oldestAggregationTime, aggregatesByCategory);
+        CompletableFuture<Void> globalMappedTransactionsFuture = CompletableFuture.runAsync(() ->
+                processGlobalMappedTransactions(userId, yearMonth, oldestAggregationTime, aggregatesByCategory)
+        );
 
+        // Wait for both processes to complete
+        try {
+            CompletableFuture.allOf(regularTransactionsFuture, globalMappedTransactionsFuture).join();
+        } catch (Exception e) {
+            logger.error("Error processing transactions in parallel: {}", e.getMessage(), e);
+            // Consider adding more error handling or fallback logic here
+        }
+
+        // If no new transactions, return existing summaries as is
         if (aggregatesByCategory.isEmpty()) {
             return existingSummaries;
         }
+
+        // Prepare summaries for batch save with optimized handling
+        List<MonthlyCategorySummary> summariesToSave = new ArrayList<>(aggregatesByCategory.size());
 
         for (Map.Entry<Long, TransactionAggregates> entry : aggregatesByCategory.entrySet()) {
             Long categoryId = entry.getKey();
@@ -87,6 +111,7 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
             MonthlyCategorySummary summary = summaryByCategory.get(categoryId);
 
             if (summary == null) {
+                // Create new summary for categories we haven't seen before
                 summary = new MonthlyCategorySummary(
                         userId,
                         yearMonth,
@@ -96,20 +121,35 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
                         updatedAt
                 );
             } else {
-                summary.setTotalAmount(summary.getTotalAmount().add(aggregates.getTotalAmount()));
-                summary.setTotalEmission(summary.getTotalEmission().add(aggregates.getTotalEmission()));
+                // Update existing summary with new aggregates
+                BigDecimal newAmount = summary.getTotalAmount() != null
+                        ? summary.getTotalAmount().add(aggregates.getTotalAmount())
+                        : aggregates.getTotalAmount();
+                summary.setTotalAmount(newAmount);
+
+                BigDecimal newEmission = summary.getTotalEmission() != null
+                        ? summary.getTotalEmission().add(aggregates.getTotalEmission())
+                        : aggregates.getTotalEmission();
+                summary.setTotalEmission(newEmission);
                 summary.setLastAggregatedAt(updatedAt);
             }
 
-            try {
-                summaryRepository.save(summary);
-                summaryByCategory.put(categoryId, summary);
-            } catch (Exception e) {
-                logger.error("Error saving summary for category {}: {}", categoryId, e.getMessage());
-            }
+            summariesToSave.add(summary);
+            summaryByCategory.put(categoryId, summary);
         }
 
-        return summaryByCategory.values().stream().toList();
+        // Batch save all summaries
+        try {
+            if (!summariesToSave.isEmpty()) {
+                summaryRepository.saveAll(summariesToSave);
+                logger.debug("Saved {} updated monthly summaries", summariesToSave.size());
+            }
+        } catch (Exception e) {
+            logger.error("Error saving summaries: {}", e.getMessage(), e);
+            // Consider adding transaction retry or rollback logic here
+        }
+
+        return new ArrayList<>(summaryByCategory.values());
     }
 
     private void processRegularTransactions(
@@ -124,30 +164,43 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
         while (hasMoreData) {
             Pageable pageable = PageRequest.of(pageNumber, BATCH_SIZE);
 
-            Page<Transaction> transactionPage = transactionRepository.findTransactionsSincePaged(
-                    userId, yearMonth, oldestAggregationTime, pageable);
+            try {
+                Page<Transaction> transactionPage = transactionRepository.findTransactionsSincePaged(
+                        userId, yearMonth, oldestAggregationTime, pageable);
 
-            List<Transaction> transactions = transactionPage.getContent();
+                List<Transaction> transactions = transactionPage.getContent();
 
-            if (transactions.isEmpty()) {
+                if (transactions.isEmpty()) {
+                    hasMoreData = false;
+                    continue;
+                }
+
+                // Process transactions in parallel with improved null safety
+                transactions.parallelStream().forEach(transaction -> {
+                    if (transaction.getCategory() == null || transaction.getCategory().getId() == null) {
+                        logger.warn("Transaction {} has null category or categoryId, skipping", transaction.getId());
+                        return;
+                    }
+
+                    Long categoryId = transaction.getCategory().getId();
+
+                    aggregatesByCategory.compute(categoryId, (key, aggregates) -> {
+                        if (aggregates == null) {
+                            aggregates = new TransactionAggregates();
+                        }
+                        aggregates.addAmount(transaction.getAmount());
+                        return aggregates;
+                    });
+                });
+
+                hasMoreData = !transactionPage.isLast();
+                pageNumber++;
+
+                logger.debug("Processed regular transactions batch {} with {} transactions", pageNumber, transactions.size());
+            } catch (Exception e) {
+                logger.error("Error processing regular transactions batch {}: {}", pageNumber, e.getMessage(), e);
                 hasMoreData = false;
-                continue;
             }
-
-            for (Transaction transaction : transactions) {
-                Long categoryId = transaction.getCategory().getId();
-
-                TransactionAggregates aggregates = aggregatesByCategory.computeIfAbsent(
-                        categoryId, k -> new TransactionAggregates());
-
-                aggregates.addAmount(transaction.getAmount());
-                // Only add emission for transactions processed in the dedicated method
-            }
-
-            hasMoreData = !transactionPage.isLast();
-            pageNumber++;
-
-            logger.debug("Processed regular transactions batch {} with {} transactions", pageNumber, transactions.size());
         }
     }
 
@@ -163,69 +216,98 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
         while (hasMoreData) {
             Pageable pageable = PageRequest.of(pageNumber, BATCH_SIZE);
 
-            Page<Transaction> transactionPage = transactionRepository.findGlobalMappedTransactionsSincePaged(
-                    userId, yearMonth, oldestAggregationTime, pageable);
+            try {
+                // Using the repository method with year/month parameters
+                Page<Transaction> transactionPage = transactionRepository.findGlobalMappedTransactionsSincePaged(
+                        userId,
+                        yearMonth.getYear(),
+                        yearMonth.getMonthValue(),
+                        oldestAggregationTime,
+                        pageable);
 
-            List<Transaction> transactions = transactionPage.getContent();
+                List<Transaction> transactions = transactionPage.getContent();
 
-            if (transactions.isEmpty()) {
+                if (transactions.isEmpty()) {
+                    hasMoreData = false;
+                    continue;
+                }
+
+                // Process transactions in parallel with improved null safety
+                transactions.parallelStream().forEach(transaction -> {
+                    if (transaction.getCategory() == null || transaction.getCategory().getId() == null) {
+                        logger.warn("Global mapped transaction {} has null category or categoryId, skipping", transaction.getId());
+                        return;
+                    }
+
+                    Long categoryId = transaction.getCategory().getId();
+
+                    aggregatesByCategory.compute(categoryId, (key, aggregates) -> {
+                        if (aggregates == null) {
+                            aggregates = new TransactionAggregates();
+                        }
+                        aggregates.addEmission(transaction.getCarbonEmission());
+                        return aggregates;
+                    });
+                });
+
+                hasMoreData = !transactionPage.isLast();
+                pageNumber++;
+
+                logger.debug("Processed global mapped transactions batch {} with {} transactions", pageNumber, transactions.size());
+            } catch (Exception e) {
+                logger.error("Error processing global mapped transactions batch {}: {}", pageNumber, e.getMessage(), e);
                 hasMoreData = false;
-                continue;
             }
-
-            for (Transaction transaction : transactions) {
-                Long categoryId = transaction.getCategory().getId();
-
-                TransactionAggregates aggregates = aggregatesByCategory.computeIfAbsent(
-                        categoryId, k -> new TransactionAggregates());
-
-                // Only add emissions, amounts are already added in processRegularTransactions
-                aggregates.addEmission(transaction.getCarbonEmission());
-            }
-
-            hasMoreData = !transactionPage.isLast();
-            pageNumber++;
-
-            logger.debug("Processed global mapped transactions batch {} with {} transactions", pageNumber, transactions.size());
         }
     }
 
     private static class TransactionAggregates {
         private BigDecimal totalAmount = BigDecimal.ZERO;
         private BigDecimal totalEmission = BigDecimal.ZERO;
+        private final Object lock = new Object(); // Finer-grained lock
 
-        public synchronized void addAmount(BigDecimal amount) {
+        public void addAmount(BigDecimal amount) {
             if (amount != null) {
-                totalAmount = totalAmount.add(amount);
+                synchronized (lock) {
+                    totalAmount = totalAmount.add(amount);
+                }
             }
         }
 
-        public synchronized void addEmission(BigDecimal emission) {
+        public void addEmission(BigDecimal emission) {
             if (emission != null) {
-                totalEmission = totalEmission.add(emission);
+                synchronized (lock) {
+                    totalEmission = totalEmission.add(emission);
+                }
             }
         }
 
         public BigDecimal getTotalAmount() {
-            return totalAmount;
+            synchronized (lock) {
+                return totalAmount;
+            }
         }
 
         public BigDecimal getTotalEmission() {
-            return totalEmission;
+            synchronized (lock) {
+                return totalEmission;
+            }
         }
     }
 
+    @Override
     @Transactional
     public void resetMonthSummaries(Long userId, YearMonth yearMonth) {
         logger.info("Resetting monthly summaries for user {} for {}", userId, yearMonth);
         summaryRepository.deleteByUserIdAndYearMonth(userId, yearMonth);
     }
 
+    @Override
     @Transactional
     public List<MonthlyCategorySummary> rebuildSummaries(Long userId, YearMonth yearMonth) {
         logger.info("Rebuilding monthly summaries for user {} for {}", userId, yearMonth);
         summaryRepository.deleteByUserIdAndYearMonth(userId, yearMonth);
         LocalDateTime startOfMonth = yearMonth.atDay(1).atStartOfDay();
-        return processTransactionsInBatches(userId, yearMonth, List.of(), startOfMonth, LocalDateTime.now());
+        return processTransactionsInBatches(userId, yearMonth, new ArrayList<>(), startOfMonth, LocalDateTime.now());
     }
 }

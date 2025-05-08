@@ -35,6 +35,20 @@ public interface MonthlyCategorySummaryRepository extends JpaRepository<MonthlyC
             @Param("yearMonth") YearMonth yearMonth,
             @Param("cutoffTime") LocalDateTime cutoffTime);
 
+
+
+
+    @Query("""
+  SELECT m
+    FROM MonthlyCategorySummary m
+   WHERE m.user.id    = :userId
+     AND m.yearMonth  = :yearMonth
+""")
+    List<MonthlyCategorySummary> findByUserAndMonth(
+            @Param("userId")    Long userId,
+            @Param("yearMonth") String yearMonth);
+
+
     /**
      * Delete summaries for a specific user and month
      */
