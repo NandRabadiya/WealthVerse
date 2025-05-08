@@ -53,13 +53,6 @@ const LandingPage = () => {
       icon: <PiggyBank className="h-10 w-10 text-blue-400" />,
       url: "budget-planner",
     },
-    {
-      title: "Cibil Scoring",
-      description:
-        "Keep track of your credit health and improve your credit score.",
-      icon: <BadgeInfo className="h-10 w-10 text-blue-400" />,
-      url: "cibil-scoring",
-    },
   ];
 
   const suggestions = [
@@ -226,7 +219,10 @@ const LandingPage = () => {
       </section>
 
       {/* Team Section */}
-      <section>
+      <section className="py-8 px-6 md:px-12 lg:px-24 bg-gray-900">
+        <h2 className="text-4xl sm:text-5xl font-extrabold text-center mb-10 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-400 drop-shadow-lg pt-4">
+          Meet the Team 🌟
+        </h2>
         <TeamPage />
       </section>
 
