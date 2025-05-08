@@ -15,11 +15,13 @@ import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import Transactions from "./pages/features/transactions/Transactions";
 import ChatBot from "./pages/chatbot/ChatBot";
+import { TransactionProvider } from "./context/TransactionContext";
 
 function App() {
   return (
     <>
       <AuthProvider>
+        <TransactionProvider>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
@@ -36,6 +38,7 @@ function App() {
         </Routes>
 
         <ChatBot />
+        </TransactionProvider>
       </AuthProvider>
     </>
   );

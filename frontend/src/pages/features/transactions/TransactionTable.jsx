@@ -19,7 +19,8 @@ import {
   SelectItem,
 } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
-import api from "../../../api/api";
+import { useTransactions } from "../../../context/TransactionContext";
+import { get } from "react-hook-form";
 
 // Category color mapping
 const typeColors = {
@@ -66,109 +67,87 @@ const defaultCategories = [
   "MISCELLANEOUS",
 ];
 
-export function TransactionTable({ selectedMonth }) {
-  const [currentPage, setCurrentPage] = useState(0); // API uses 0-based pagination
-  const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [transactions, setTransactions] = useState([]);
-  const [totalElements, setTotalElements] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+export function TransactionTable({ selectedMonth, refreshTrigger }) {
+  const {
+    transactions,
+    totalElements,
+    totalPages,
+    loading,
+    currentPage,
+    itemsPerPage,
+    fetchTransactions,
+    updateCategory,
+    setCurrentPage,
+    setItemsPerPage,
+    getUsersCategory,
+  } = useTransactions();
+
+  // Keep your existing state for UI management
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [userCategories, setUserCategories] = useState([]);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [loading, setLoading] = useState(false);
-
+  const [applyToAllMerchants, setApplyToAllMerchants] = useState(false);
+  const [currentMerchantName, setCurrentMerchantName] = useState("");
+  const [currentTransactionId, setCurrentTransactionId] = useState(null);
   const inputRef = useRef(null);
 
-  // Fetch transactions from the backend
   useEffect(() => {
-    fetchTransactions();
-  }, [currentPage, itemsPerPage, selectedMonth]);
-
-  const fetchTransactions = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/transactions/getall`, {
-        params: {
-          page: currentPage,
-          size: itemsPerPage,
-          month: selectedMonth, // Pass the selected month
-        },
-      });
-
-      // Map backend response to our frontend model
-      const { content, totalElements, totalPages } = response.data;
-
-      const mappedTransactions = content.map((transaction) => ({
-        id: transaction.id,
-        date: transaction.createdAt,
-        merchant_name: transaction.merchantName,
-        merchant_id: transaction.merchantId,
-        category_id: transaction.categoryId,
-        category: transaction.categoryName,
-        payment_mode: transaction.paymentMode,
-        transaction_type: transaction.transactionType,
-        amount: transaction.amount,
-        carbon_emission: transaction.carbonEmitted || 0,
-        isGlobal: transaction.global,
-      }));
-
-      setTransactions(mappedTransactions);
-      setTotalElements(totalElements);
-      setTotalPages(totalPages);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    fetchTransactions(currentPage, itemsPerPage, selectedMonth);
+  }, [currentPage, itemsPerPage, selectedMonth, refreshTrigger]);
 
   useEffect(() => {
-    if (isAddingCategory && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isAddingCategory]);
+    const fetchUserCategories = async () => {
+      const categories = await getUsersCategory();
+      setUserCategories(categories.map((cat) => cat.name));
+    };
 
-  const updateCategory = async (id, newCategory) => {
-    const originalTransactions = [...transactions]; // Store original transactions
-    try {
-      const updated = transactions.map((t) =>
-        t.id === id ? { ...t, category: newCategory } : t
+    fetchUserCategories();
+  }, [getUsersCategory]);
+  // Your handleAddCategory can now use the context
+  const handleAddCategory = (
+    transactionId,
+    merchantName,
+    applyToAll,
+    currentPage,
+    itemsPerPage,
+    selectedMonth
+  ) => {
+    if (newCategoryName.trim()) {
+      // Add to user categories if it's not already there
+      if (!userCategories.includes(newCategoryName)) {
+        setUserCategories((prev) => [...prev, newCategoryName]);
+      }
+
+      // Call the update function with all required parameters
+      updateCategory(
+        transactionId,
+        newCategoryName,
+        merchantName,
+        applyToAll,
+        currentPage,
+        itemsPerPage,
+        selectedMonth
       );
-      setTransactions(updated);
-      setEditingCategoryId(null);
-      
-      await api.post(`/api/category-mapping/mappings/custom`, null, {
-        params: {
-          merchantName: transactions.find(t => t.id === id).merchant_name,
-          categoryName: newCategory
-        }
-      });
-      
-       await fetchTransactions();
-    } catch (error) {
-      console.error("Error updating category:", error);
-      setTransactions(originalTransactions); // Reset to original transactions on error
-    }
-  };
 
-  const handleAddCategory = (transactionId) => {
-    if (newCategoryName && !userCategories.includes(newCategoryName)) {
-      setUserCategories((prev) => [...prev, newCategoryName]);
-      updateCategory(transactionId, newCategoryName);
+      // Reset UI state
+      setEditingCategoryId(null);
       setIsAddingCategory(false);
       setNewCategoryName("");
-      // Here you would also add the category to your backend
-      // api.post('/categories/add', { name: newCategoryName });
+      setApplyToAllMerchants(false);
     }
   };
-
   const getEcoTag = (emission) => {
     return emission > 30 ? (
       <Badge className="bg-red-600 text-white">High</Badge>
     ) : (
       <Badge className="bg-green-600 text-white">Low</Badge>
     );
+  };
+  const getUniqueCategories = () => {
+    const defaultSet = new Set(defaultCategories);
+    const userCats = userCategories.filter((cat) => !defaultSet.has(cat));
+    return [...defaultCategories, ...userCats];
   };
 
   const nextPage = () => {
@@ -200,9 +179,13 @@ export function TransactionTable({ selectedMonth }) {
                 <TableRow className="border-gray-800 hover:bg-gray-900">
                   <TableHead className="text-gray-400 w-10">Date</TableHead>
                   <TableHead className="text-gray-400 w-44">Merchant</TableHead>
-                  <TableHead className="text-gray-400 w-24">Merchant ID</TableHead>
+                  <TableHead className="text-gray-400 w-24">
+                    Merchant ID
+                  </TableHead>
                   <TableHead className="text-gray-400 w-40">Category</TableHead>
-                  <TableHead className="text-gray-400 w-28">Payment Mode</TableHead>
+                  <TableHead className="text-gray-400 w-28">
+                    Payment Mode
+                  </TableHead>
                   <TableHead className="text-gray-400 w-20">Type</TableHead>
                   <TableHead className="text-gray-400 text-right w-28">
                     Amount
@@ -236,7 +219,15 @@ export function TransactionTable({ selectedMonth }) {
                                 if (val === "__add__") {
                                   setIsAddingCategory(true);
                                 } else {
-                                  updateCategory(transaction.id, val);
+                                  updateCategory(
+                                    transaction.id,
+                                    val,
+                                    transaction.merchant_name,
+                                    false,
+                                    currentPage,
+                                    itemsPerPage,
+                                    selectedMonth
+                                  );
                                 }
                               }}
                               defaultValue={transaction.category}
@@ -245,22 +236,20 @@ export function TransactionTable({ selectedMonth }) {
                                 <SelectValue placeholder="Select Category" />
                               </SelectTrigger>
                               <SelectContent className="bg-gray-800 text-white">
-                                {[...defaultCategories, ...userCategories].map(
-                                  (cat) => (
-                                    <SelectItem key={cat} value={cat}>
-                                      {cat}
-                                    </SelectItem>
-                                  )
-                                )}
                                 <SelectItem
                                   value="__add__"
-                                  className="text-green-400"
+                                  className="text-green-400 border-b border-gray-700 mb-1"
                                 >
                                   <Plus className="inline mr-1" /> Add new
                                   category
                                 </SelectItem>
+                                {getUniqueCategories().map((cat) => (
+                                  <SelectItem key={cat} value={cat}>
+                                    {cat}
+                                  </SelectItem>
+                                ))}
                                 {isAddingCategory && (
-                                  <div className="p-2 space-y-2">
+                                  <div className="p-2 space-y-2 bg-gray-800 rounded border border-gray-700 absolute z-10 w-64">
                                     <input
                                       ref={inputRef}
                                       type="text"
@@ -268,17 +257,56 @@ export function TransactionTable({ selectedMonth }) {
                                       onChange={(e) =>
                                         setNewCategoryName(e.target.value)
                                       }
-                                      className="w-full p-1 text-gray-400 border-b rounded bg-transparent"
+                                      className="w-full p-2 text-white border rounded bg-gray-900"
                                       placeholder="New category name"
                                     />
-                                    <Button
-                                      className="w-full text-sm bg-white text-black hover:bg-gray-400"
-                                      onClick={() =>
-                                        handleAddCategory(transaction.id)
-                                      }
-                                    >
-                                      Add Category
-                                    </Button>
+                                    <div className="flex items-center space-x-2 text-white">
+                                      <input
+                                        type="checkbox"
+                                        id="applyToAll"
+                                        checked={applyToAllMerchants}
+                                        onChange={(e) =>
+                                          setApplyToAllMerchants(
+                                            e.target.checked
+                                          )
+                                        }
+                                        className="h-4 w-4"
+                                      />
+                                      <label
+                                        htmlFor="applyToAll"
+                                        className="text-xs"
+                                      >
+                                        Apply to all "{currentMerchantName}"
+                                        transactions
+                                      </label>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                      <Button
+                                        className="flex-1 text-sm bg-green-600 hover:bg-green-700 text-white"
+                                        onClick={() =>
+                                          handleAddCategory(
+                                            currentTransactionId,
+                                            currentMerchantName,
+                                            applyToAllMerchants,
+                                            currentPage,
+                                            itemsPerPage,
+                                            selectedMonth
+                                          )
+                                        }
+                                      >
+                                        Add
+                                      </Button>
+                                      <Button
+                                        className="flex-1 text-sm bg-gray-700 hover:bg-gray-600 text-white"
+                                        onClick={() => {
+                                          setIsAddingCategory(false);
+                                          setNewCategoryName("");
+                                          setApplyToAllMerchants(false);
+                                        }}
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
                                   </div>
                                 )}
                               </SelectContent>
@@ -305,11 +333,15 @@ export function TransactionTable({ selectedMonth }) {
                             >
                               {transaction.category}
                             </Badge>
-                            {(transaction.category== "MISCELLANEOUS") && (
+                            {transaction.category == "MISCELLANEOUS" && (
                               <button
-                                onClick={() =>
-                                  setEditingCategoryId(transaction.id)
-                                }
+                                onClick={() => {
+                                  setEditingCategoryId(transaction.id);
+                                  setCurrentMerchantName(
+                                    transaction.merchant_name
+                                  );
+                                  setCurrentTransactionId(transaction.id);
+                                }}
                                 className="text-gray-400 hover:text-white"
                               >
                                 <Pencil className="w-4 h-4" />

@@ -1,13 +1,25 @@
 import React from "react";
 import { TransactionTable } from "./TransactionTable/";
 import FeaturesNavbar from "../FeaturesNavbar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { useTransactions } from "../../../context/TransactionContext";
+import { useEffect } from "react";
 
 export default function TransactionsPage() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
-  
+  const { fetchTransactions } = useTransactions();
+  useEffect(() => {
+    console.log("Selected Month:", selectedMonth);
+    fetchTransactions(0, 5, selectedMonth); // Reset to first page when changing month
+  }, [selectedMonth, fetchTransactions]);
   const monthNames = [
     "January",
     "February",
@@ -53,7 +65,9 @@ export default function TransactionsPage() {
               </Select>
             </div>
           </div>
-          <TransactionTable selectedMonth={selectedMonth} />
+          <TransactionTable
+            selectedMonth={selectedMonth}
+          />
         </div>
       </div>
     </>
