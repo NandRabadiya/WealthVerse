@@ -19,3 +19,4 @@ public interface TransactionService {
 
     /** Apply category to all of the user’s transactions for this merchant */
     void applyCategoryToAllTransactions(CategoryApplyRequest req, String authHeader);}
+
