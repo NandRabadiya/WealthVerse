@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-// import ChatService from "./ChatService";
+import ChatService from "./ChatService";
 import "./ChatBot.css";
 
 const ChatBot = ({ userId }) => {

@@ -37,7 +37,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
-        <ChatBot />
+        <ChatBot userId={3} />
         </TransactionProvider>
       </AuthProvider>
     </>
