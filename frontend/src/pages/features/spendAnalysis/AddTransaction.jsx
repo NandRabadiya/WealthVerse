@@ -18,8 +18,16 @@ const paymentModes = ["UPI", "CARD", "NET_BANKING"];
 const transactionTypes = ["DEBIT", "CREDIT"];
 
 export function AddTransactionForm({ onSuccess }) {
-  const { addTransaction, importTransactions, currentPage, itemsPerPage } = useTransactions();
-  const [selectedMonth, setSelectedMonth] = useState(parseInt(format(new Date(), "MM"), 10)-1);   const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    addTransaction,
+    importTransactions,
+    currentPage,
+    itemsPerPage,
+  } = useTransactions();
+  const [selectedMonth, setSelectedMonth] = useState(
+    parseInt(format(new Date(), "MM"), 10) - 1
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
     merchant_id: "",
@@ -84,7 +92,7 @@ export function AddTransactionForm({ onSuccess }) {
 
   const handleFileSelect = (e) => {
     const newFiles = Array.from(e.target.files);
-  
+
     const uniqueFiles = newFiles.filter(
       (newFile) =>
         !selectedFiles.some(
@@ -93,13 +101,12 @@ export function AddTransactionForm({ onSuccess }) {
             existingFile.size === newFile.size
         )
     );
-  
+
     setSelectedFiles((prevFiles) => [...prevFiles, ...uniqueFiles]);
-  
+
     // Reset input to allow reselecting the same file
     e.target.value = null;
   };
-  
 
   const handleUploadFiles = async () => {
     if (selectedFiles.length === 0) return;
@@ -114,7 +121,12 @@ export function AddTransactionForm({ onSuccess }) {
         formData.append("file", file); // Note: You may need to change the backend to handle multiple files
       });
 
-      const success = await importTransactions(formData, currentPage, itemsPerPage, selectedMonth);
+      const success = await importTransactions(
+        formData,
+        currentPage,
+        itemsPerPage,
+        selectedMonth
+      );
 
       if (success) {
         setUploadStatus({ inProgress: false, success: true, error: null });
@@ -234,7 +246,7 @@ export function AddTransactionForm({ onSuccess }) {
                     <SelectItem
                       key={mode}
                       value={mode}
-                      className="hover:bg-gray-700 focus:bg-white"
+                      className="cursor-pointer focus:bg-gray-300 focus:text-black "
                     >
                       {mode}
                     </SelectItem>
@@ -262,7 +274,7 @@ export function AddTransactionForm({ onSuccess }) {
                     <SelectItem
                       key={type}
                       value={type}
-                      className="hover:bg-gray-700 focus:bg-white"
+                      className="cursor-pointer focus:bg-gray-300 focus:text-black"
                     >
                       {type}
                     </SelectItem>
@@ -274,7 +286,7 @@ export function AddTransactionForm({ onSuccess }) {
 
           <Button
             type="submit"
-            className="w-full bg-green-500 hover:bg-green-600 text-white"
+            className="w-full cursor-pointer bg-green-500 hover:bg-green-600 text-white"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Adding..." : "Add Transaction"}
@@ -361,7 +373,7 @@ export function AddTransactionForm({ onSuccess }) {
               <Button
                 onClick={() => document.getElementById("csv-upload").click()}
                 variant="outline"
-                className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
+                className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700 cursor-pointer"
                 disabled={uploadStatus.inProgress}
               >
                 Select Files

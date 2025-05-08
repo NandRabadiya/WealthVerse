@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/Select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Label } from "@/components/ui/Label";
-import  api  from "../../../api/api"; // Adjust the import path as necessary
+import api from "../../../api/api"; // Adjust the import path as necessary
 
 // Colors for the pie chart
 const COLORS = [
@@ -36,29 +36,43 @@ export function TransactionAnalysis() {
   const [chartData, setChartData] = useState([]);
   const [viewType, setViewType] = useState("category"); // category or merchant
   const [selectedYearMonth, setSelectedYearMonth] = useState(
-    `${new Date().getFullYear()}-${(new Date().getMonth() + 1).toString().padStart(2, '0')}`
+    `${new Date().getFullYear()}-${(new Date().getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}`
   );
   const [isLoading, setIsLoading] = useState(false);
 
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
   // Generate year-month options for the last 12 months
   const getYearMonthOptions = () => {
     const options = [];
     const now = new Date();
-    
+
     for (let i = 0; i < 12; i++) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const yearMonth = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+      const yearMonth = `${d.getFullYear()}-${(d.getMonth() + 1)
+        .toString()
+        .padStart(2, "0")}`;
       options.push({
         value: yearMonth,
-        label: `${monthNames[d.getMonth()]} ${d.getFullYear()}`
+        label: `${monthNames[d.getMonth()]} ${d.getFullYear()}`,
       });
     }
-    
+
     return options;
   };
 
@@ -85,7 +99,7 @@ export function TransactionAnalysis() {
       return null;
     }
   };
- 
+
   // Load data when selected month changes
   useEffect(() => {
     const loadData = async () => {
@@ -143,13 +157,13 @@ export function TransactionAnalysis() {
           <TabsList className="grid w-full grid-cols-2 bg-gray-800">
             <TabsTrigger
               value="category"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               By Category
             </TabsTrigger>
             <TabsTrigger
               value="merchant"
-              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400"
+              className="data-[state=active]:bg-gray-700 data-[state=active]:text-green-400 cursor-pointer"
             >
               By Merchant
             </TabsTrigger>
@@ -166,13 +180,17 @@ export function TransactionAnalysis() {
           >
             <SelectTrigger
               id="yearMonth"
-              className="bg-gray-800 border-gray-700 text-white w-full sm:w-[180px]"
+              className="cursor-pointer bg-gray-800 border-gray-700 text-white w-full sm:w-[180px]"
             >
               <SelectValue placeholder="Select Month" />
             </SelectTrigger>
-            <SelectContent className="bg-gray-800 border-gray-700 text-white">
+            <SelectContent className="bg-gray-800 border-gray-700 text-white ">
               {yearMonthOptions.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
+                <SelectItem
+                  key={option.value}
+                  value={option.value}
+                  className="cursor-pointer focus:bg-gray-300 focus:text-black"
+                >
                   {option.label}
                 </SelectItem>
               ))}
@@ -192,8 +210,8 @@ export function TransactionAnalysis() {
       {!isLoading && (!monthlySummary || chartData.length === 0) && (
         <div className="text-center py-12">
           <p className="text-white">
-            {viewType === "merchant" 
-              ? "Merchant data is not available yet." 
+            {viewType === "merchant"
+              ? "Merchant data is not available yet."
               : "No data available for the selected month."}
           </p>
         </div>
@@ -204,7 +222,9 @@ export function TransactionAnalysis() {
         <Card className="bg-gray-900 border-gray-800">
           <CardHeader>
             <CardTitle className="text-white">
-              {viewType === "category" ? "Spending by Category" : "Spending by Merchant"}
+              {viewType === "category"
+                ? "Spending by Category"
+                : "Spending by Merchant"}
             </CardTitle>
           </CardHeader>
           <CardContent>
