@@ -274,7 +274,7 @@ export function TransactionAnalysis() {
               <div>
                 <p className="text-gray-400">Total Spending</p>
                 <p className="text-green-400 text-2xl font-bold">
-                  ${monthlySummary.totalSpending.toFixed(2)}
+                  ₹{monthlySummary.totalSpending.toFixed(2)}
                 </p>
               </div>
               <div>

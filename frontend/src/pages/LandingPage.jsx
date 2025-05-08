@@ -1,32 +1,32 @@
 import React from "react";
 import { Button } from "@/components/ui/Button";
 import { LogIn, TrendingUp, Leaf, PiggyBank, BadgeInfo } from "lucide-react";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/Carousel";
+// import {
+//   Carousel,
+//   CarouselContent,
+//   CarouselItem,
+// } from "@/components/ui/Carousel";
 import { useAuth } from "@/auth/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent } from "@/components/ui/Card";
+// import { Card, CardContent } from "@/components/ui/Card";
 import { Link } from "react-router-dom";
 import WealthVerse from "/WealthVerse.png";
-import { User } from "lucide-react";
+// import { User } from "lucide-react";
 import TeamPage from "./TeamPage";
-import { ThemeToggle } from "@/components/ThemeToggle";
+// import { ThemeToggle } from "@/components/ThemeToggle";
 // import { useTheme } from "../context/ThemeContext";
-import { useState } from "react";
+// import { useState } from "react";
 
-const teamMembers = [
-  { name: "Venu", email: "venupatel004@gmail.com", password: "Venu@123" },
-  { name: "Nand", email: "nandrabadiya2003@gmail.com", password: "Nand@123" },
-  { name: "Shaily", email: "shaily@gmail.com", password: "Shaily@123" },
-  { name: "Kunj", email: "kunjvasoya03@gmail.com", password: "Kunj@123" },
-];
+// const teamMembers = [
+//   { name: "Venu", email: "venupatel004@gmail.com", password: "Venu@123" },
+//   { name: "Nand", email: "nandrabadiya2003@gmail.com", password: "Nand@123" },
+//   { name: "Shaily", email: "shaily@gmail.com", password: "Shaily@123" },
+//   { name: "Kunj", email: "kunjvasoya03@gmail.com", password: "Kunj@123" },
+// ];
 
 const LandingPage = () => {
-  const { token, logout, login } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
+  const { token, logout } = useAuth();
+  // const [isLoading, setIsLoading] = useState(false);
   // const { theme } = useTheme();
   console.log(token);
   const navigate = useNavigate();
@@ -77,23 +77,23 @@ const LandingPage = () => {
   };
 
   // Dummy login function
-  const handleAvatarClick = async (memberIndex) => {
-    const member = teamMembers[memberIndex];
-    setIsLoading(true);
+  // const handleAvatarClick = async (memberIndex) => {
+  //   const member = teamMembers[memberIndex];
+  //   setIsLoading(true);
 
-    try {
-      const result = await login(member.email, member.password);
-      if (result.success) {
-        navigate("/");
-      } else {
-        console.error("Login failed:", result.error);
-      }
-    } catch (error) {
-      console.error("Error during login:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //   try {
+  //     const result = await login(member.email, member.password);
+  //     if (result.success) {
+  //       navigate("/");
+  //     } else {
+  //       console.error("Login failed:", result.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error during login:", error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-white">
@@ -133,7 +133,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-30 py-16 md:py-24 px-6 md:px-12 lg:px-24 ">
+      <section className="pt-32 py-16 md:py-24 px-6 md:px-12 lg:px-24 ">
         <div className="max-w-3xl mx-auto text-center animate-scale-in">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white">
             Banking Reimagined for the Digital Age
@@ -153,15 +153,14 @@ const LandingPage = () => {
             Get Started
           </Button>
 
-          {/* Dummy User Avatars */}
+          {/* Dummy User Avatars
           {!token && (
             <div className="flex justify-center gap-8 mt-8">
               {teamMembers.map((member, index) => (
-                <div>
+                <div key={index}>
                   <div
-                    key={index}
                     onClick={() => handleAvatarClick(index)}
-                    className={`flex justify-center items-center w-20 h-20 bg-blue-900 rounded-full cursor-pointer hover:opacity-90 transition-opacity ${
+                    className={`flex justify-center items-center w-20 h-20 bg-blue-900 rounded-full cursor-pointer hover:opacity-90 transition-opacity-90 ${
                       isLoading ? "opacity-50" : ""
                     }`}
                     title={`Login as ${member.name}`}
@@ -172,7 +171,7 @@ const LandingPage = () => {
                 </div>
               ))}
             </div>
-          )}
+          )} */}
         </div>
       </section>
 

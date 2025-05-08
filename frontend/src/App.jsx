@@ -14,10 +14,10 @@ import ProtectedRoute from "./auth/ProtectedRoute";
 import Transactions from "./pages/features/transactions/Transactions";
 import ChatBot from "./pages/chatbot/ChatBot";
 import { TransactionProvider } from "./context/TransactionContext";
-import { useAuth } from "./auth/AuthContext"; // Import the useAuth hook
+import { useAuth } from "./auth/AuthContext";
 
 function App() {
-  const { userId } = useAuth(); // now reactive
+  const { userId } = useAuth();
   return (
     <>
       <TransactionProvider>

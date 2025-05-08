@@ -159,7 +159,7 @@ const CalculatorTab = () => {
                 disabled={!category || !amount || isCalculating}
                 className="w-full bg-green-500 hover:bg-green-600 text-white"
               >
-                {isCalculating ? "Calculating..." : "Calculate Impact"}
+                {isCalculating ? "Calculating..." : "Calculate Footprint"}
               </Button>
               {error && (
                 <div className="text-red-400 text-sm mt-2">{error}</div>
