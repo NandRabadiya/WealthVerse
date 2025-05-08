@@ -37,7 +37,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
 
-        <ChatBot userId={3} />
+        <ChatBot userId={localStorage.getItem("userId")} />
         </TransactionProvider>
       </AuthProvider>
     </>
