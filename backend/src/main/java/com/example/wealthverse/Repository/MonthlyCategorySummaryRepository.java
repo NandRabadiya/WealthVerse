@@ -58,4 +58,10 @@ public interface MonthlyCategorySummaryRepository extends JpaRepository<MonthlyC
      * Check if a summary exists for a user, month, and category
      */
     boolean existsByUserIdAndYearMonthAndCategoryId(Long userId, YearMonth yearMonth, Long categoryId);
+    @Query("SELECT mcs FROM MonthlyCategorySummary mcs " +
+            "JOIN FETCH mcs.category " +
+            "WHERE mcs.userId = :userId AND mcs.yearMonth = :yearMonth")
+    List<MonthlyCategorySummary> findByUserIdAndYearMonthWithCategory(
+            @Param("userId") Long userId,
+            @Param("yearMonth") YearMonth yearMonth);
 }

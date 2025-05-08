@@ -8,6 +8,7 @@ import com.example.wealthverse.Service.MonthlyCategorySummaryService;
 import com.example.wealthverse.Service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,49 +40,66 @@ public class MonthlySummaryController {
      * @param yearMonth the target month in format YYYY-MM
      * @return Response containing summary data for the month
      */
-    @GetMapping("/monthly/{yearMonth}")
-    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
-            @RequestHeader("Authorization") String token,
-            @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
-        Long userId = jwtService.getUserIdFromToken(token);
+       @GetMapping("/monthly/{yearMonth}")
+       public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
+               @RequestHeader("Authorization") String token,
+               @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
 
-        // Get the summary data with incremental aggregation
-        List<MonthlyCategorySummary> summaries = summaryService.getUserMonthlySummary(userId, yearMonth);
+           // Extract user ID from token
+           Long userId = jwtService.getUserIdFromToken(token);
+           if (userId == null) {
+               return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+           }
 
-        // Calculate total amount and emissions across all categories using streams
-        BigDecimal totalAmount = summaries.stream()
-                .map(MonthlyCategorySummary::getTotalAmount)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+           // Get monthly summary from service
+           MonthlySummaryResponse response = summaryService.getMonthlySummaryForUser(userId, yearMonth);
 
-        BigDecimal totalEmission = summaries.stream()
-                .map(MonthlyCategorySummary::getTotalEmission)
-                .filter(Objects::nonNull)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Convert to DTOs and calculate percentages
-        List<CategorySummaryResponse> categorySummaries = summaries.stream()
-                .map(summary -> convertToDto(summary, totalEmission))
-                .toList();
-
-        // Sort by emission percentage (highest first)
-        List<CategorySummaryResponse> sortedSummaries = categorySummaries.stream()
-                .sorted(Comparator.comparing(
-                        CategorySummaryResponse::getEmissionPercentage,
-                        Comparator.nullsLast(Comparator.reverseOrder())))
-                .collect(Collectors.toList());
-
-        // Create and populate the response objects
-        MonthlySummaryResponse monthlyResponse = new MonthlySummaryResponse();
-        monthlyResponse.setYearMonth(yearMonth.toString());
-        monthlyResponse.setCategorySummaries(sortedSummaries);
-        monthlyResponse.setTotalSpending(totalAmount);
-        monthlyResponse.setTotalEmission(totalEmission);
-
-
-        return ResponseEntity.ok(monthlyResponse);
-    }
+           return ResponseEntity.ok(response);
+       }
+//    @GetMapping("/monthly/{yearMonth}")
+//    public ResponseEntity<MonthlySummaryResponse> getMonthlySummary(
+//            @RequestHeader("Authorization") String token,
+//            @PathVariable @DateTimeFormat(pattern = "yyyy-MM") YearMonth yearMonth) {
+//
+//        Long userId = jwtService.getUserIdFromToken(token);
+//
+//        // Get the summary data with incremental aggregation
+//        List<MonthlyCategorySummary> summaries = summaryService.getUserMonthlySummary(userId, yearMonth);
+//
+//        // Calculate total amount and emissions across all categories using streams
+//        BigDecimal totalAmount = summaries.stream()
+//                .map(MonthlyCategorySummary::getTotalAmount)
+//                .filter(Objects::nonNull)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//        BigDecimal totalEmission = summaries.stream()
+//                .map(MonthlyCategorySummary::getTotalEmission)
+//                .filter(Objects::nonNull)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//        // Convert to DTOs and calculate percentages
+//        List<CategorySummaryResponse> categorySummaries = summaries.stream()
+//                .map(summary -> convertToDto(summary, totalEmission))
+//                .toList();
+//
+//        // Sort by emission percentage (highest first)
+//        List<CategorySummaryResponse> sortedSummaries = categorySummaries.stream()
+//                .sorted(Comparator.comparing(
+//                        CategorySummaryResponse::getEmissionPercentage,
+//                        Comparator.nullsLast(Comparator.reverseOrder())))
+//                .collect(Collectors.toList());
+//
+//        // Create and populate the response objects
+//        MonthlySummaryResponse monthlyResponse = new MonthlySummaryResponse();
+//        monthlyResponse.setYearMonth(yearMonth.toString());
+//        monthlyResponse.setCategorySummaries(sortedSummaries);
+//        monthlyResponse.setTotalSpending(totalAmount);
+//        monthlyResponse.setTotalEmission(totalEmission);
+//
+//
+//        return ResponseEntity.ok(monthlyResponse);
+//    }
 
     /**
      * Reset the summary data for a month (admin or testing only)

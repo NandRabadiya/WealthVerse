@@ -1,5 +1,7 @@
 package com.example.wealthverse.Service.Impl;
 
+import com.example.wealthverse.DTO.CategorySummaryResponse;
+import com.example.wealthverse.DTO.MonthlySummaryResponse;
 import com.example.wealthverse.Enums.TransactionType;
 import com.example.wealthverse.Model.MonthlyCategorySummary;
 import com.example.wealthverse.Model.Transaction;
@@ -32,6 +34,7 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
 
     private final MonthlyCategorySummaryRepository summaryRepository;
     private final TransactionRepository transactionRepository;
+
 
     @Autowired
     public MonthlyCategorySummaryServiceImpl(
@@ -353,6 +356,47 @@ public class MonthlyCategorySummaryServiceImpl implements MonthlyCategorySummary
     }
 
 
+    @Override
+    public MonthlySummaryResponse getMonthlySummaryForUser(Long userId, YearMonth yearMonth) {
+        // Fetch data from repository
+        List<MonthlyCategorySummary> monthlySummaries =
+                summaryRepository.findByUserIdAndYearMonthWithCategory(userId, yearMonth);
 
+        // Create response DTO
+        MonthlySummaryResponse response = new MonthlySummaryResponse();
+        response.setYearMonth(yearMonth.toString()); // Using YearMonth's default toString()
 
+        // Map entity data to DTOs
+        List<CategorySummaryResponse> categorySummaries = monthlySummaries.stream()
+                .map(this::mapToCategorySummaryResponse)
+                .collect(Collectors.toList());
+
+        response.setCategorySummaries(categorySummaries);
+
+        // Calculate totals and percentages
+        response.calculateTotals();
+
+        return response;
+    }
+
+    /**
+     * Maps MonthlyCategorySummary entity to CategorySummaryResponse DTO
+     */
+    private CategorySummaryResponse mapToCategorySummaryResponse(MonthlyCategorySummary summary) {
+        CategorySummaryResponse dto = new CategorySummaryResponse();
+
+        dto.setCategoryId(summary.getCategoryId());
+
+        // Safely access category name (in case category is null)
+        if (summary.getCategory() != null) {
+            dto.setCategoryName(summary.getCategory().getName());
+        } else {
+            dto.setCategoryName("Unknown Category");
+        }
+
+        dto.setTotalAmount(summary.getTotalAmount());
+        dto.setTotalEmission(summary.getTotalEmission());
+
+        return dto;
+    }
 }
