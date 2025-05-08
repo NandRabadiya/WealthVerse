@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -51,18 +52,18 @@ public class MonthlySummaryController {
         // Calculate total amount and emissions across all categories using streams
         BigDecimal totalAmount = summaries.stream()
                 .map(MonthlyCategorySummary::getTotalAmount)
-                .filter(amount -> amount != null)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         BigDecimal totalEmission = summaries.stream()
                 .map(MonthlyCategorySummary::getTotalEmission)
-                .filter(emission -> emission != null)
+                .filter(Objects::nonNull)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Convert to DTOs and calculate percentages
         List<CategorySummaryResponse> categorySummaries = summaries.stream()
                 .map(summary -> convertToDto(summary, totalEmission))
-                .collect(Collectors.toList());
+                .toList();
 
         // Sort by emission percentage (highest first)
         List<CategorySummaryResponse> sortedSummaries = categorySummaries.stream()
