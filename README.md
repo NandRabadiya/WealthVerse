@@ -37,4 +37,4 @@ WealthVerse empowers recent graduates and young professionals to manage their mo
 ---
 
 ## **🎯 Vision**  
-WealthVerse aspires to be the go‑to companion for financial literacy and eco‑awareness, helping users optimize budgets while making greener choices. Next steps include predictive budgeting, personalized saving goals, and community‑driven carbon‑saving challenges.
+WealthVerse aspires to be the go‑to companion for financial literacy and eco‑awareness.  
