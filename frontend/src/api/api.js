@@ -1,9 +1,10 @@
 // src/api/api.js
 import axios from "axios";
 
-//export const API_URL = "https://wealthverse.onrender.com/api"; // Replace with your actual API URL
+export const API_URL = "https://wealthverse-production.up.railway.app/api"; // Replace with your actual API URL
 
-export const API_URL = "https://chat-bot-backend-api-production.up.railway.app/api";
+//export const API_URL = "https://chat-bot-backend-api-production.up.railway.app/api";
+
 
 const api = axios.create({
  //baseURL: "http://localhost:8080/api",
