@@ -14,6 +14,7 @@ import {
 import { AddTransactionForm } from "./spendAnalysis/AddTransaction";
 import WealthVerse from "/WealthVerse.png"; // Adjust the path as necessary
 import { useTransactions } from "../../context/TransactionContext"; // Import the TransactionContext
+import { ThemeToggle } from "@/components/ThemeToggle"; // Import the ThemeToggle component
 
 // Define the feature links you want in the navbar
 const features = [
@@ -36,7 +37,7 @@ const FeaturesNavbar = () => {
       {/* <div className="font-bold text-2xl text-green-400">WealthVerse</div> */}
       <Link to="/">
         <img
-          src={WealthVerse} // Make sure your logo file is in the public folder
+          src={WealthVerse}
           alt="WealthVerse Logo"
           className="h-40 object-contain w-auto cursor-pointer"
         />
@@ -53,6 +54,7 @@ const FeaturesNavbar = () => {
         ))}
       </div>
       <div className="flex items-center gap-4">
+        <ThemeToggle />
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-green-500 hover:bg-green-600 text-white flex items-center gap-2">
@@ -67,7 +69,7 @@ const FeaturesNavbar = () => {
               </DialogTitle>
             </DialogHeader>
             <AddTransactionForm onSuccess={handleTransactionSuccess} />
-            </DialogContent>
+          </DialogContent>
         </Dialog>
 
         <Link to="/transactions">

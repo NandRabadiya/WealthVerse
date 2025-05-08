@@ -13,7 +13,7 @@ import { Link } from "react-router-dom";
 import WealthVerse from "/WealthVerse.png";
 import { User } from "lucide-react";
 import TeamPage from "./TeamPage";
-
+import { ThemeToggle } from "@/components/ThemeToggle"; // Import the ThemeToggle component
 import { useState } from "react";
 
 const teamMembers = [
@@ -111,33 +111,30 @@ const LandingPage = () => {
             className="h-40 object-contain w-auto cursor-pointer"
           />
         </Link>
-        {/* <Button
-          onClick={() => navigate("/chatbot")}
-          className="bg-blue-500 hover:bg-blue-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
-        >
-          <User className="mr-2 h-4 w-4" /> Chat with AI
-        </Button> */}
-        {token ? (
-          // Display Logout Button when user is logged in
-          <Button
-            onClick={async () => {
-              await logout();
-              navigate("/");
-            }}
-            className="bg-red-500 hover:bg-red-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
-          >
-            Logout
-          </Button>
-        ) : (
-          // Display Login Button if user is not logged in
-          <Button
-            onClick={() => navigate("/login")}
-            className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900"
-          >
-            <LogIn className="mr-2 h-4 w-4" /> Login
-          </Button>
-        )}
-       
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+
+          {token ? (
+            // Display Logout Button when user is logged in
+            <Button
+              onClick={async () => {
+                await logout();
+                navigate("/");
+              }}
+              className="bg-red-500 hover:bg-red-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
+            >
+              Logout
+            </Button>
+          ) : (
+            // Display Login Button if user is not logged in
+            <Button
+              onClick={() => navigate("/login")}
+              className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900"
+            >
+              <LogIn className="mr-2 h-4 w-4" /> Login
+            </Button>
+          )}
+        </div>
       </nav>
 
       {/* Hero Section */}
@@ -234,7 +231,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Team Page */}
+      {/* Team Section */}
       <section>
         <TeamPage />
       </section>
