@@ -1,16 +1,21 @@
-🪙 WealthVerse – Financial & Carbon Emission Tracker  
-Live Demo: [YOUR_LIVE_DEMO_LINK_HERE](#)
+# **🪙 WealthVerse – Financial & Carbon Emission Tracker**
 
-🚀 Overview  
+**Live Demo:** [YOUR_LIVE_DEMO_LINK_HERE](#)
+
+---
+
+## **🚀 Overview**  
 WealthVerse empowers recent graduates and young professionals to manage their money — and their carbon footprint — in one intuitive web app. Import bank-statement CSVs or add transactions manually, categorize spending with global or custom merchant mappings, and instantly see both monetary and environmental impacts.
 
-✨ Features  
+---
+
+## **✨ Features**  
 - **Transaction Management**  
   - Bulk import via CSV & manual entry  
   - Auto‑categorization using global merchant mappings  
   - Custom categories & merchant‑to‑category mappings  
 - **Carbon Emission Insights**  
-  - Calculates CO₂ emission with different category 
+  - Calculates CO₂ emission with different category  
 - **Monthly Dashboard**  
   - Category‑wise breakdown of spending vs. emissions  
   - Totals, percentages, and sort by highest impact  
@@ -20,9 +25,16 @@ WealthVerse empowers recent graduates and young professionals to manage their mo
   - Paged APIs for large transaction sets  
   - Batched summary calculations  
 
-🛠️ Tech Stack  
+---
+
+## **🛠️ Tech Stack**  
 - **Frontend:** React.js, Tailwind CSS, Vite, Context API  
 - **Backend:** Spring Boot, Spring Security, JWT  
-- **ORM & Data:** Mysql,AWS,Hibernate 
+- **ORM & Data:** Mysql, AWS, Hibernate  
 - **Storage:** AWS S3 for CSV uploads & artifacts  
 - **Hosting:**  
+
+---
+
+## **🎯 Vision**  
+WealthVerse aspires to be the go‑to companion for financial literacy and eco‑awareness, helping users optimize budgets while making greener choices. Next steps include predictive budgeting, personalized saving goals, and community‑driven carbon‑saving challenges.
