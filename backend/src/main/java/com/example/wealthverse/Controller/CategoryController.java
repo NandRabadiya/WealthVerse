@@ -1,6 +1,7 @@
 package com.example.wealthverse.Controller;
 
 import com.example.wealthverse.DTO.CategoryApplyRequest;
+import com.example.wealthverse.DTO.CategoryResponseDTO;
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.DTO.EmissionCalculationRequest;
 import com.example.wealthverse.Service.CategoryService;
@@ -39,7 +40,7 @@ public class CategoryController {
     }
 
     @GetMapping("/user")
-    public List<Category> getCategoriesByUserId(@RequestHeader("Authorization") String token) {
+    public List<CategoryResponseDTO> getCategoriesByUserId(@RequestHeader("Authorization") String token) {
 
         Long userId= jwtService.getUserIdFromToken(token);
 

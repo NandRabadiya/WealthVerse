@@ -19,8 +19,8 @@ import {
   SelectItem,
 } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
-import api from "../../../api/api";
 import { useTransactions } from "../../../context/TransactionContext";
+import { get } from "react-hook-form";
 
 // Category color mapping
 const typeColors = {
@@ -79,6 +79,7 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
     updateCategory,
     setCurrentPage,
     setItemsPerPage,
+    getUsersCategory,
   } = useTransactions();
 
   // Keep your existing state for UI management
@@ -93,8 +94,16 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
 
   useEffect(() => {
     fetchTransactions(currentPage, itemsPerPage, selectedMonth);
-  }, [fetchTransactions, currentPage, itemsPerPage, selectedMonth]);
+  }, [currentPage, itemsPerPage, selectedMonth, refreshTrigger]);
 
+  useEffect(() => {
+    const fetchUserCategories = async () => {
+      const categories = await getUsersCategory();
+      setUserCategories(categories.map((cat) => cat.name));
+    };
+
+    fetchUserCategories();
+  }, [getUsersCategory]);
   // Your handleAddCategory can now use the context
   const handleAddCategory = (
     transactionId,
@@ -134,6 +143,11 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
     ) : (
       <Badge className="bg-green-600 text-white">Low</Badge>
     );
+  };
+  const getUniqueCategories = () => {
+    const defaultSet = new Set(defaultCategories);
+    const userCats = userCategories.filter((cat) => !defaultSet.has(cat));
+    return [...defaultCategories, ...userCats];
   };
 
   const nextPage = () => {
@@ -229,14 +243,11 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                                   <Plus className="inline mr-1" /> Add new
                                   category
                                 </SelectItem>
-                                {[...defaultCategories, ...userCategories].map(
-                                  (cat) => (
-                                    <SelectItem key={cat} value={cat}>
-                                      {cat}
-                                    </SelectItem>
-                                  )
-                                )}
-
+                                {getUniqueCategories().map((cat) => (
+                                  <SelectItem key={cat} value={cat}>
+                                    {cat}
+                                  </SelectItem>
+                                ))}
                                 {isAddingCategory && (
                                   <div className="p-2 space-y-2 bg-gray-800 rounded border border-gray-700 absolute z-10 w-64">
                                     <input

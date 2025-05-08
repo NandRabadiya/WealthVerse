@@ -1,5 +1,6 @@
 package com.example.wealthverse.Service.Impl;
 
+import com.example.wealthverse.DTO.CategoryResponseDTO;
 import com.example.wealthverse.DTO.EmissionCalculationRequest;
 import com.example.wealthverse.Model.Category;
 import com.example.wealthverse.Model.User;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -64,7 +66,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public List<Category> getAllCategoriesByUserId(Long userId) {
-        return categoryRepository.findByUserId(userId);
+    public List<CategoryResponseDTO> getAllCategoriesByUserId(Long userId) {
+        List<Category> categories = categoryRepository.findByUserId(userId);
+        return categories.stream()
+                .map(category -> {
+                    CategoryResponseDTO dto = new CategoryResponseDTO();
+                    dto.setId(category.getId());
+                    dto.setName(category.getName());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

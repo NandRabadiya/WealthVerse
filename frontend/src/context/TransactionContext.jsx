@@ -76,6 +76,17 @@ export function TransactionProvider({ children }) {
     }
   };
 
+// Fix getUsersCategory function to properly return a promise
+const getUsersCategory = useCallback(async () => {
+    try {
+      const response = await api.get(`/category/user`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching user categories:", error);
+      return [];
+    }
+  }, []);
+
   return (
     <TransactionContext.Provider
       value={{
@@ -88,6 +99,7 @@ export function TransactionProvider({ children }) {
         fetchTransactions,
         addTransaction,
         updateCategory,
+        getUsersCategory,
         setCurrentPage,
         setItemsPerPage,
       }}
