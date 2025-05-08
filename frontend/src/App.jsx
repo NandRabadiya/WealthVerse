@@ -8,7 +8,6 @@ import LandingPage from "./pages/LandingPage";
 import SpendAnalysis from "./pages/features/spendAnalysis/SpendAnalysis";
 import CarbonFootPrint from "./pages/features/carbonFootprint/CarbonFootprint";
 import BudgetPlanner from "./pages/features/BudgetPlanner";
-import CibilScoring from "./pages/features/CibilScoring";
 import LoginPage from "./pages/authentication/LoginPage";
 import SignupPage from "./pages/authentication/SignupPage";
 import ProtectedRoute from "./auth/ProtectedRoute";
@@ -32,7 +31,6 @@ function App() {
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/carbon-footprint" element={<CarbonFootPrint />} />
             <Route path="/budget-planner" element={<BudgetPlanner />} />
-            <Route path="/cibil-scoring" element={<CibilScoring />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
