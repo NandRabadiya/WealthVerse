@@ -104,7 +104,7 @@ const ChatBot = ({ userId }) => {
           disabled={isLoading}
           className="bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700 text-white font-bold px-6 py-3 rounded-full shadow-lg transition-all duration-300 cursor-pointer"
         >
-          {isLoading ? "Loading..." : "💬 Chat with AI"}
+          {isLoading ? "Loading..." : "💬 Finance Assistant"}
         </button>
       ) : (
         <div className="w-96 h-[500px] bg-gray-900 rounded-2xl shadow-xl flex flex-col overflow-hidden animate-fade-in">
