@@ -24,7 +24,6 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/chatbot" element={<ChatBot/>}/>
 
           <Route element={<ProtectedRoute />}>
             <Route path="/spend-analysis" element={<SpendAnalysis />} />
@@ -35,6 +34,8 @@ function App() {
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
+
+        <ChatBot />
       </AuthProvider>
     </>
   );

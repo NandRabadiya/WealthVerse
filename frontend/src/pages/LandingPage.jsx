@@ -23,7 +23,6 @@ const teamMembers = [
   { name: "Kunj", email: "kunjvasoya03@gmail.com", password: "Kunj@123" },
 ];
 
-
 const LandingPage = () => {
   const { token, logout, login } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -112,12 +111,12 @@ const LandingPage = () => {
             className="h-40 object-contain w-auto cursor-pointer"
           />
         </Link>
-        <Button
+        {/* <Button
           onClick={() => navigate("/chatbot")}
           className="bg-blue-500 hover:bg-blue-600 cursor-pointer hover:opacity-90 transition-opacity text-white"
         >
           <User className="mr-2 h-4 w-4" /> Chat with AI
-        </Button>
+        </Button> */}
         {token ? (
           // Display Logout Button when user is logged in
           <Button

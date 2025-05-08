@@ -1,45 +1,43 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ChatService from './ChatService';
-import './ChatBot.css';
-
+import React, { useState, useEffect, useRef } from "react";
+import ChatService from "./ChatService";
+import "./ChatBot.css";
 
 const ChatBot = ({ userId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [chatId, setChatId] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Scroll to bottom of chat when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
 
-  // Open a new chat session
   const startNewChat = async () => {
     try {
       setIsLoading(true);
       const response = await ChatService.startChat(userId);
       setChatId(response.data.chat_id);
-      setMessages([{
-        id: 'system-welcome',
-        content: response.data.message,
-        isUser: false,
-        timestamp: new Date()
-      }]);
+      setMessages([
+        {
+          id: "system-welcome",
+          content: response.data.message,
+          isUser: false,
+          timestamp: new Date(),
+        },
+      ]);
       setIsOpen(true);
     } catch (error) {
-      console.error('Error starting chat:', error);
-      alert('Failed to start chat. Please try again.');
+      console.error("Error starting chat:", error);
+      alert("Failed to start chat. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Close and end current chat session
   const endChat = async () => {
     if (chatId) {
       try {
@@ -48,89 +46,70 @@ const ChatBot = ({ userId }) => {
         setMessages([]);
         setIsOpen(false);
       } catch (error) {
-        console.error('Error ending chat:', error);
+        console.error("Error ending chat:", error);
       }
     } else {
       setIsOpen(false);
     }
   };
 
-  // Send message to chatbot
   const sendMessage = async (e) => {
     e.preventDefault();
-    
+
     if (!inputMessage.trim() || !chatId) return;
-    
+
     const userMessage = {
       id: `user-${Date.now()}`,
       content: inputMessage,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
     setIsLoading(true);
-    
+
     try {
-      const response = await ChatService.sendMessage(chatId, userId, inputMessage);
-      
-      setMessages(prev => [
-        ...prev, 
+      const response = await ChatService.sendMessage(
+        chatId,
+        userId,
+        inputMessage
+      );
+
+      setMessages((prev) => [
+        ...prev,
         {
           id: response.data.message_id,
           content: response.data.content,
           isUser: false,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ]);
     } catch (error) {
-      console.error('Error sending message:', error);
-      setMessages(prev => [
-        ...prev, 
+      console.error("Error sending message:", error);
+      setMessages((prev) => [
+        ...prev,
         {
           id: `error-${Date.now()}`,
           content: "Sorry, I couldn't process your request. Please try again.",
           isUser: false,
-          timestamp: new Date()
-        }
+          timestamp: new Date(),
+        },
       ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Load existing chat if chatId is provided
-  const loadExistingChat = async (chatId) => {
-    try {
-      setIsLoading(true);
-      const response = await ChatService.getChatMessages(chatId, userId);
-      
-      setChatId(response.data.chat_id);
-      setMessages(response.data.messages.map(msg => ({
-        id: msg.message_id,
-        content: msg.content,
-        isUser: msg.is_user_message === 1,
-        timestamp: new Date(msg.created_at)
-      })));
-      
-      setIsOpen(true);
-    } catch (error) {
-      console.error('Error loading chat:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="chatbot-container">
+    <div className={`chatbot-container ${isOpen ? "open" : ""}`}>
       {!isOpen ? (
-        <button 
-          className="chat-button" 
+        <button
+          className="chat-button"
           onClick={startNewChat}
           disabled={isLoading}
         >
-          {isLoading ? "Loading..." : "Chat with Finance AI"}
+          {isLoading ? "Loading..." : "Chat with AI"}
         </button>
       ) : (
         <div className="chat-window">
@@ -140,16 +119,21 @@ const ChatBot = ({ userId }) => {
               End Chat
             </button>
           </div>
-          
+
           <div className="messages-container">
-            {messages.map(msg => (
-              <div 
-                key={msg.id} 
-                className={`message ${msg.isUser ? 'user-message' : 'bot-message'}`}
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`message ${
+                  msg.isUser ? "user-message" : "bot-message"
+                }`}
               >
                 <div className="message-content">{msg.content}</div>
                 <div className="message-timestamp">
-                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.timestamp.toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             ))}
@@ -164,7 +148,7 @@ const ChatBot = ({ userId }) => {
             )}
             <div ref={messagesEndRef} />
           </div>
-          
+
           <form onSubmit={sendMessage} className="message-input-form">
             <input
               type="text"
@@ -174,9 +158,9 @@ const ChatBot = ({ userId }) => {
               disabled={isLoading}
               className="message-input"
             />
-            <button 
-              type="submit" 
-              disabled={isLoading || !inputMessage.trim()} 
+            <button
+              type="submit"
+              disabled={isLoading || !inputMessage.trim()}
               className="send-button"
             >
               Send
