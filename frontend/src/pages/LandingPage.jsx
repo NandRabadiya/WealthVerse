@@ -133,7 +133,7 @@ const LandingPage = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 py-16 md:py-24 px-6 md:px-12 lg:px-24 ">
+      <section className="pt-30 py-16 md:py-20 px-6 md:px-12 lg:px-24 lg:pt-30 ">
         <div className="max-w-3xl mx-auto text-center animate-scale-in">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white">
             Banking Reimagined for the Digital Age
@@ -176,7 +176,7 @@ const LandingPage = () => {
       </section>
 
       {/* Features Grid */}
-      <section className="py-16 md:py-20 px-6 md:px-12 lg:px-24 bg-gray-900">
+      <section className="py-16 md:py-20 px-6 md:px-12 lg:px-24 bg-gray-900 mt-[-60px]">
         <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-green-400">
           Powerful Features for Your Financial Journey
         </h2>
