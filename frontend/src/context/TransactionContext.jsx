@@ -56,7 +56,21 @@ export function TransactionProvider({ children }) {
       return false;
     }
   };
-
+  const importTransactions = async (fileData, currentPage, itemsPerPage, selectedMonth ) => {
+    try {
+      await api.post("/transactions/import", fileData, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+      // Refresh transactions after importing
+      fetchTransactions(currentPage, itemsPerPage, selectedMonth);
+      return true;
+    } catch (error) {
+      console.error("Error importing transactions:", error);
+      return false;
+    }
+  };
   const updateCategory = async (transactionId, newCategory, merchantName, applyToAll = false,currentPage, itemsPerPage, selectedMonth) => {
     try {
       await api.post("/transactions/apply-category", {
@@ -97,6 +111,7 @@ const getUsersCategory = useCallback(async () => {
         currentPage,
         itemsPerPage,
         fetchTransactions,
+        importTransactions,
         addTransaction,
         updateCategory,
         getUsersCategory,

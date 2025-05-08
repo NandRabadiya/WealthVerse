@@ -18,8 +18,8 @@ const paymentModes = ["UPI", "CARD", "NET_BANKING"];
 const transactionTypes = ["DEBIT", "CREDIT"];
 
 export function AddTransactionForm({ onSuccess }) {
-  const { addTransaction } = useTransactions();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addTransaction, importTransactions, currentPage, itemsPerPage } = useTransactions();
+  const [selectedMonth, setSelectedMonth] = useState(parseInt(format(new Date(), "MM"), 10)-1);   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
     merchant_id: "",
@@ -27,6 +27,12 @@ export function AddTransactionForm({ onSuccess }) {
     payment_mode: "",
     transaction_type: "",
   });
+  const [uploadStatus, setUploadStatus] = useState({
+    inProgress: false,
+    success: false,
+    error: null,
+  });
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +50,7 @@ export function AddTransactionForm({ onSuccess }) {
     try {
       // Get current date and time in the required format
       const currentDateTime = format(new Date(), "yyyy-MM-dd'T'HH:mm:ss");
-      
+
       const transactionData = {
         amount: Number.parseFloat(formData.amount),
         merchantId: formData.merchant_id,
@@ -75,25 +81,63 @@ export function AddTransactionForm({ onSuccess }) {
       setIsSubmitting(false);
     }
   };
-  const handleFileUpload = async (e) => {
-    console.log("File upload triggered");
-    // const file = e.target.files[0];
-    // if (!file) return;
 
-    // const formData = new FormData();
-    // formData.append("file", file);
+  const handleFileSelect = (e) => {
+    const newFiles = Array.from(e.target.files);
+  
+    const uniqueFiles = newFiles.filter(
+      (newFile) =>
+        !selectedFiles.some(
+          (existingFile) =>
+            existingFile.name === newFile.name &&
+            existingFile.size === newFile.size
+        )
+    );
+  
+    setSelectedFiles((prevFiles) => [...prevFiles, ...uniqueFiles]);
+  
+    // Reset input to allow reselecting the same file
+    e.target.value = null;
+  };
+  
 
-    // setIsSubmitting(true);
+  const handleUploadFiles = async () => {
+    if (selectedFiles.length === 0) return;
 
-    // try {
-    //   console.log("Uploading file:", file.name);
-    //   await new Promise((resolve) => setTimeout(resolve, 1500));
-    //   if (onSuccess) onSuccess();
-    // } catch (error) {
-    //   console.error("Error uploading transactions:", error);
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
+    setIsSubmitting(true);
+    setUploadStatus({ inProgress: true, success: false, error: null });
+
+    try {
+      // Create a form data object for all files
+      const formData = new FormData();
+      selectedFiles.forEach((file) => {
+        formData.append("file", file); // Note: You may need to change the backend to handle multiple files
+      });
+
+      const success = await importTransactions(formData, currentPage, itemsPerPage, selectedMonth);
+
+      if (success) {
+        setUploadStatus({ inProgress: false, success: true, error: null });
+        setSelectedFiles([]); // Clear selected files after successful upload
+        if (onSuccess) onSuccess();
+      } else {
+        setUploadStatus({
+          inProgress: false,
+          success: false,
+          error: "Failed to import transactions",
+        });
+      }
+    } catch (error) {
+      console.error("Error uploading transactions:", error);
+      setUploadStatus({
+        inProgress: false,
+        success: false,
+        error:
+          error.response?.data?.message || "An error occurred during upload",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -134,9 +178,7 @@ export function AddTransactionForm({ onSuccess }) {
             </div>
 
             <div className="space-y-2">
-              <Label className="text-white">
-                Transaction Date
-              </Label>
+              <Label className="text-white">Transaction Date</Label>
               <div className="text-gray-400 text-sm py-2 px-3 bg-gray-800 rounded-md border border-gray-700">
                 {format(new Date(), "PPPpp")}
               </div>
@@ -242,26 +284,114 @@ export function AddTransactionForm({ onSuccess }) {
 
       <TabsContent value="upload">
         <div className="space-y-4 pt-4">
-          <div className="border-2 border-dashed border-gray-700 rounded-lg p-6 text-center">
-            <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-            <h3 className="text-white font-medium mb-1">Upload CSV File</h3>
-            <p className="text-gray-400 text-sm mb-4">
-              Upload a CSV file with your transaction data
-            </p>
+          <div
+            className={`border-2 border-dashed ${
+              uploadStatus.inProgress
+                ? "border-blue-500"
+                : uploadStatus.success
+                ? "border-green-500"
+                : uploadStatus.error
+                ? "border-red-500"
+                : "border-gray-700"
+            } rounded-lg p-6 text-center`}
+          >
+            <Upload
+              className={`mx-auto h-8 w-8 ${
+                uploadStatus.inProgress
+                  ? "text-blue-400"
+                  : uploadStatus.success
+                  ? "text-green-400"
+                  : uploadStatus.error
+                  ? "text-red-400"
+                  : "text-gray-400"
+              } mb-2`}
+            />
+            {!uploadStatus.inProgress &&
+              !uploadStatus.success &&
+              !uploadStatus.error && (
+                <>
+                  <h3 className="text-white font-medium mb-1">
+                    Upload CSV Files
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-4">
+                    Select one or more CSV files with your transaction data
+                  </p>
+                </>
+              )}
+            {uploadStatus.inProgress && (
+              <>
+                <h3 className="text-white font-medium mb-1">Uploading...</h3>
+                <p className="text-blue-400 text-sm mb-4">
+                  Please wait while your files are being processed
+                </p>
+              </>
+            )}
+
+            {uploadStatus.success && (
+              <>
+                <h3 className="text-white font-medium mb-1">
+                  Upload Successful!
+                </h3>
+                <p className="text-green-400 text-sm mb-4">
+                  Your transactions have been imported
+                </p>
+              </>
+            )}
+
+            {uploadStatus.error && (
+              <>
+                <h3 className="text-white font-medium mb-1">Upload Failed</h3>
+                <p className="text-red-400 text-sm mb-4">
+                  {uploadStatus.error}
+                </p>
+              </>
+            )}
+
             <Input
               id="csv-upload"
               type="file"
               accept=".csv"
-              onChange={handleFileUpload}
+              multiple // Allow multiple file selection
+              onChange={handleFileSelect} // Use the new handleFileSelect function
               className="hidden"
+              disabled={uploadStatus.inProgress}
             />
-            <Button
-              onClick={() => document.getElementById("csv-upload").click()}
-              variant="outline"
-              className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
-            >
-              Select File
-            </Button>
+
+            <div className="flex flex-col space-y-4">
+              <Button
+                onClick={() => document.getElementById("csv-upload").click()}
+                variant="outline"
+                className="bg-gray-800 border-gray-700 text-white hover:bg-gray-700"
+                disabled={uploadStatus.inProgress}
+              >
+                Select Files
+              </Button>
+
+              {/* Show selected files */}
+              {selectedFiles.length > 0 && (
+                <div className="mt-4 text-left">
+                  <p className="text-white mb-2">
+                    Selected files ({selectedFiles.length}):
+                  </p>
+                  <ul className="text-gray-400 text-sm list-disc list-inside">
+                    {selectedFiles.map((file, index) => (
+                      <li key={index}>{file.name}</li>
+                    ))}
+                  </ul>
+
+                  {/* Add upload button */}
+                  <Button
+                    onClick={handleUploadFiles}
+                    className="mt-4 w-full bg-green-500 hover:bg-green-600 text-white"
+                    disabled={uploadStatus.inProgress}
+                  >
+                    {uploadStatus.inProgress
+                      ? "Uploading..."
+                      : "Upload Selected Files"}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="bg-gray-800 p-4 rounded-lg">
@@ -269,7 +399,7 @@ export function AddTransactionForm({ onSuccess }) {
               CSV Format Requirements
             </h4>
             <p className="text-gray-400 text-sm mb-2">
-              Your CSV file should have the following columns:
+              Your CSV files should have the following columns:
             </p>
             <ul className="text-gray-400 text-sm list-disc list-inside space-y-1">
               <li>amount (numeric)</li>
