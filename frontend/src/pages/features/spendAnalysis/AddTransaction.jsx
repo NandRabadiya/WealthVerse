@@ -12,13 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/Select";
-import { cn } from "@/lib/utils";
-import axios from "../../../api/api";
+import { useTransactions } from "../../../context/TransactionContext";
 
 const paymentModes = ["UPI", "CARD", "NET_BANKING"];
 const transactionTypes = ["DEBIT", "CREDIT"];
 
 export function AddTransactionForm({ onSuccess }) {
+  const { addTransaction } = useTransactions();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     amount: "",
@@ -54,26 +54,27 @@ export function AddTransactionForm({ onSuccess }) {
         createdAt: currentDateTime, // Using current date and time
       };
 
-      const response = await axios.post("/transactions/add", transactionData);
-      console.log("Transaction data:", transactionData);
+      // Use the context function
+      const success = await addTransaction(transactionData);
 
       // Reset form
-      setFormData({
-        amount: "",
-        merchant_id: "",
-        merchant_name: "",
-        payment_mode: "",
-        transaction_type: "",
-      });
+      if (success) {
+        setFormData({
+          amount: "",
+          merchant_id: "",
+          merchant_name: "",
+          payment_mode: "",
+          transaction_type: "",
+        });
 
-      if (onSuccess) onSuccess();
+        if (onSuccess) onSuccess();
+      }
     } catch (error) {
       console.error("Error adding transaction:", error);
     } finally {
       setIsSubmitting(false);
     }
   };
-
   const handleFileUpload = async (e) => {
     console.log("File upload triggered");
     // const file = e.target.files[0];

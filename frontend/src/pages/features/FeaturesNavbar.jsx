@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "../../auth/AuthContext"; // Import the useAuth hook
-//import { useNavigate } from "react-router-dom";
 import { PlusCircle, Eye } from "lucide-react";
 import {
   Dialog,
@@ -14,6 +13,7 @@ import {
 } from "@/components/ui/Dialog";
 import { AddTransactionForm } from "./spendAnalysis/AddTransaction";
 import WealthVerse from "/WealthVerse.png"; // Adjust the path as necessary
+import { useTransactions } from "../../context/TransactionContext"; // Import the TransactionContext
 
 // Define the feature links you want in the navbar
 const features = [
@@ -25,9 +25,12 @@ const features = [
 
 const FeaturesNavbar = () => {
   const { logout } = useAuth();
-  //const navigate = useNavigate();
+  const { fetchTransactions } = useTransactions();
   const [open, setOpen] = useState(false);
-
+  const handleTransactionSuccess = () => {
+    fetchTransactions(); // Refresh transactions
+    setOpen(false);
+  };
   return (
     <nav className="fixed top-0 left-0 w-full z-50 flex justify-between items-center h-20  px-6 md:px-12 lg:px-24 bg-transparent backdrop-blur-md text-white">
       {/* <div className="font-bold text-2xl text-green-400">WealthVerse</div> */}
@@ -63,8 +66,8 @@ const FeaturesNavbar = () => {
                 Add New Transaction
               </DialogTitle>
             </DialogHeader>
-            <AddTransactionForm onSuccess={() => setOpen(false)} />
-          </DialogContent>
+            <AddTransactionForm onSuccess={handleTransactionSuccess} />
+            </DialogContent>
         </Dialog>
 
         <Link to="/transactions">
