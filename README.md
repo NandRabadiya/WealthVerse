@@ -28,9 +28,8 @@ WealthVerse empowers recent graduates and young professionals to manage their mo
 
 ## **🛠️ Tech Stack**  
 - **Frontend:** React.js, Tailwind CSS, Vite, Context API  
-- **Backend:** Spring Boot, Spring Security, JWT  
-- **ORM & Data:** Mysql, AWS, Hibernate  
-- **Storage:** AWS S3 for CSV uploads & artifacts  
+- **Backend:** Spring Boot, Spring Securit, Python  
+- **ORM & Data:** Mysql, AWS, Hibernate   
 - **Hosting:** AWS
 
 ---
