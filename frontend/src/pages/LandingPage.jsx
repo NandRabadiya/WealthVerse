@@ -144,11 +144,16 @@ const LandingPage = () => {
           </p>
           <Button
             onClick={() => {
+              console.log("Get Started clicked");
               const isAuthenticated =
                 !!token || !!localStorage.getItem("token");
-              navigate(isAuthenticated ? "/spend-analysis" : "/login");
+              if (isAuthenticated) {
+                navigate("/transactions");
+              } else {
+                navigate("/login");
+              }
             }}
-            className="bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900 px-8 py-6 text-lg rounded-lg animate-float"
+            className="relative z-10 bg-green-400 hover:bg-green-600 cursor-pointer hover:opacity-90 transition-opacity text-gray-900 px-8 py-6 text-lg rounded-lg animate-float"
           >
             Get Started
           </Button>
@@ -185,11 +190,17 @@ const LandingPage = () => {
             <div
               key={feature.title}
               onClick={() => handleCardClick(feature.url)}
-              className="bg-gray-700 rounded-xl p-6 shadow-lg hover:shadow-xl cursor-pointer duration-300 transform hover:-translate-y-1 hover:scale-105 transition-transform"
+              className="relative group bg-gray-700 rounded-xl p-6 shadow-lg cursor-pointer h-full w-full"
             >
-              <div className="mb-4">{feature.icon}</div>
-              <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-              <p className="text-gray-300">{feature.description}</p>
+              <div
+                className="absolute inset-0 w-full h-full"
+                aria-hidden="true"
+              ></div>
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                <p className="text-gray-300">{feature.description}</p>
+              </div>
             </div>
           ))}
         </div>
