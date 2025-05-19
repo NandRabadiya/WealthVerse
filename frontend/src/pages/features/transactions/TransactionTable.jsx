@@ -20,7 +20,8 @@ import {
 } from "@/components/ui/Select";
 import { Badge } from "@/components/ui/Badge";
 import { useTransactions } from "../../../context/TransactionContext";
-import { get } from "react-hook-form";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/Dialog";
+import { Input } from "@/components/ui/Input";
 
 // Category color mapping
 const typeColors = {
@@ -77,19 +78,21 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
     itemsPerPage,
     fetchTransactions,
     updateCategory,
+    addCustomCategory,
+    getUsersCategory,
     setCurrentPage,
     setItemsPerPage,
-    getUsersCategory,
   } = useTransactions();
 
-  // Keep your existing state for UI management
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [userCategories, setUserCategories] = useState([]);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
-  const [applyToAllMerchants, setApplyToAllMerchants] = useState(false);
   const [currentMerchantName, setCurrentMerchantName] = useState("");
   const [currentTransactionId, setCurrentTransactionId] = useState(null);
+  const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -104,39 +107,77 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
 
     fetchUserCategories();
   }, [getUsersCategory]);
-  // Your handleAddCategory can now use the context
-  const handleAddCategory = (
-    transactionId,
-    merchantName,
-    applyToAll,
-    currentPage,
-    itemsPerPage,
-    selectedMonth
-  ) => {
-    if (newCategoryName.trim()) {
-      // Add to user categories if it's not already there
-      if (!userCategories.includes(newCategoryName)) {
-        setUserCategories((prev) => [...prev, newCategoryName]);
-      }
 
-      // Call the update function with all required parameters
-      updateCategory(
-        transactionId,
-        newCategoryName,
-        merchantName,
+  // Focus input when adding new category dialog opens
+  useEffect(() => {
+    if (isAddingCategory && inputRef.current) {
+      setTimeout(() => {
+        inputRef.current.focus();
+      }, 100);
+    }
+  }, [isAddingCategory]);
+
+  const handleAddCategory = async () => {
+    if (newCategoryName.trim()) {
+      try {
+        // Call API to add new category
+        const success = await addCustomCategory(newCategoryName);
+        
+        if (success) {
+          // Add to user categories if it's not already there
+          if (!userCategories.includes(newCategoryName)) {
+            setUserCategories((prev) => [...prev, newCategoryName]);
+          }
+
+          // Show success dialog with apply options
+          setShowSuccessDialog(true);
+        }
+      } catch (error) {
+        console.error("Failed to add category:", error);
+      }
+    }
+  };
+
+  const handleApplyCategory = async (applyToAll) => {
+    try {
+      await updateCategory(
+        currentTransactionId,
+        selectedCategory,
+        currentMerchantName,
         applyToAll,
         currentPage,
         itemsPerPage,
         selectedMonth
       );
-
-      // Reset UI state
+      
+      setShowApplyDialog(false);
       setEditingCategoryId(null);
-      setIsAddingCategory(false);
-      setNewCategoryName("");
-      setApplyToAllMerchants(false);
+    } catch (error) {
+      console.error("Failed to apply category:", error);
     }
   };
+
+  const handleApplyNewCategory = async (applyToAll) => {
+    try {
+      await updateCategory(
+        currentTransactionId,
+        newCategoryName,
+        currentMerchantName,
+        applyToAll,
+        currentPage,
+        itemsPerPage,
+        selectedMonth
+      );
+      
+      setShowSuccessDialog(false);
+      setIsAddingCategory(false);
+      setNewCategoryName("");
+      setEditingCategoryId(null);
+    } catch (error) {
+      console.error("Failed to apply new category:", error);
+    }
+  };
+
   const getEcoTag = (emission) => {
     return emission > 30 ? (
       <Badge className="bg-red-600 text-white">High</Badge>
@@ -144,6 +185,7 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
       <Badge className="bg-green-600 text-white">Low</Badge>
     );
   };
+
   const getUniqueCategories = () => {
     const defaultSet = new Set(defaultCategories);
     const userCats = userCategories.filter((cat) => !defaultSet.has(cat));
@@ -219,15 +261,8 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                                 if (val === "__add__") {
                                   setIsAddingCategory(true);
                                 } else {
-                                  updateCategory(
-                                    transaction.id,
-                                    val,
-                                    transaction.merchant_name,
-                                    false,
-                                    currentPage,
-                                    itemsPerPage,
-                                    selectedMonth
-                                  );
+                                  setSelectedCategory(val);
+                                  setShowApplyDialog(true);
                                 }
                               }}
                               defaultValue={transaction.category}
@@ -248,67 +283,6 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                                     {cat}
                                   </SelectItem>
                                 ))}
-                                {isAddingCategory && (
-                                  <div className="p-2 space-y-2 bg-gray-800 rounded border border-gray-700 absolute z-10 w-64">
-                                    <input
-                                      ref={inputRef}
-                                      type="text"
-                                      value={newCategoryName}
-                                      onChange={(e) =>
-                                        setNewCategoryName(e.target.value)
-                                      }
-                                      className="w-full p-2 text-white border rounded bg-gray-900"
-                                      placeholder="New category name"
-                                    />
-                                    <div className="flex items-center space-x-2 text-white">
-                                      <input
-                                        type="checkbox"
-                                        id="applyToAll"
-                                        checked={applyToAllMerchants}
-                                        onChange={(e) =>
-                                          setApplyToAllMerchants(
-                                            e.target.checked
-                                          )
-                                        }
-                                        className="h-4 w-4"
-                                      />
-                                      <label
-                                        htmlFor="applyToAll"
-                                        className="text-xs"
-                                      >
-                                        Apply to all "{currentMerchantName}"
-                                        transactions
-                                      </label>
-                                    </div>
-                                    <div className="flex space-x-2">
-                                      <Button
-                                        className="flex-1 text-sm bg-green-600 hover:bg-green-700 text-white"
-                                        onClick={() =>
-                                          handleAddCategory(
-                                            currentTransactionId,
-                                            currentMerchantName,
-                                            applyToAllMerchants,
-                                            currentPage,
-                                            itemsPerPage,
-                                            selectedMonth
-                                          )
-                                        }
-                                      >
-                                        Add
-                                      </Button>
-                                      <Button
-                                        className="flex-1 text-sm bg-gray-700 hover:bg-gray-600 text-white"
-                                        onClick={() => {
-                                          setIsAddingCategory(false);
-                                          setNewCategoryName("");
-                                          setApplyToAllMerchants(false);
-                                        }}
-                                      >
-                                        Cancel
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
                               </SelectContent>
                             </Select>
                             <button
@@ -377,6 +351,105 @@ export function TransactionTable({ selectedMonth, refreshTrigger }) {
                 )}
               </TableBody>
             </Table>
+
+            {/* Category Add Dialog */}
+            <Dialog open={isAddingCategory} onOpenChange={setIsAddingCategory}>
+              <DialogContent className="bg-gray-800 text-white">
+                <DialogHeader>
+                  <DialogTitle>Add New Category</DialogTitle>
+                  <DialogDescription>
+                    Enter a name for your new category
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <Input
+                    ref={inputRef}
+                    type="text"
+                    value={newCategoryName}
+                    onChange={(e) => setNewCategoryName(e.target.value)}
+                    className="w-full p-2 text-white border rounded bg-gray-900"
+                    placeholder="New category name"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsAddingCategory(false);
+                      setNewCategoryName("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleAddCategory}
+                    disabled={!newCategoryName.trim()}
+                  >
+                    Add Category
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* Apply Category Dialog */}
+            <Dialog open={showApplyDialog} onOpenChange={setShowApplyDialog}>
+              <DialogContent className="bg-gray-800 text-white">
+                <DialogHeader>
+                  <DialogTitle>Apply Category</DialogTitle>
+                  <DialogDescription>
+                    How would you like to apply this category?
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="mb-4">Apply "{selectedCategory}" to:</p>
+                  <div className="space-y-4">
+                    <Button
+                      className="w-full"
+                      onClick={() => handleApplyCategory(true)}
+                    >
+                      All transactions from {currentMerchantName}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleApplyCategory(false)}
+                    >
+                      Only this transaction
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Success Dialog for New Category */}
+            <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+              <DialogContent className="bg-gray-800 text-white">
+                <DialogHeader>
+                  <DialogTitle>Category Added Successfully!</DialogTitle>
+                  <DialogDescription>
+                    How would you like to apply the new category?
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <p className="mb-4">Apply "{newCategoryName}" to:</p>
+                  <div className="space-y-4">
+                    <Button
+                      className="w-full"
+                      onClick={() => handleApplyNewCategory(true)}
+                    >
+                      All transactions from {currentMerchantName}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => handleApplyNewCategory(false)}
+                    >
+                      Only this transaction
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             {/* Pagination */}
             <div className="flex items-center justify-between mt-4">

@@ -1,10 +1,11 @@
 // contexts/TransactionContext.jsx
 import { createContext, useContext, useState, useCallback } from 'react';
 import api from '../api/api';
+import { add } from 'date-fns';
 
 const TransactionContext = createContext();
 
-export function TransactionProvider({ children }) {
+export function TransactionProvider({ children }) { 
   const [transactions, setTransactions] = useState([]);
   const [totalElements, setTotalElements] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -100,7 +101,20 @@ const getUsersCategory = useCallback(async () => {
       return [];
     }
   }, []);
-
+ // Function to add a new custom category
+  const addCustomCategory = async (categoryName) => {
+    try {
+      await api.post(`/category/custom`, null, {
+        params: {
+          category: categoryName
+        }
+      });
+      return true;
+    } catch (error) {
+      console.error("Error adding custom category:", error);
+      return false;
+    }
+  };
   return (
     <TransactionContext.Provider
       value={{
@@ -117,6 +131,7 @@ const getUsersCategory = useCallback(async () => {
         getUsersCategory,
         setCurrentPage,
         setItemsPerPage,
+        addCustomCategory,
       }}
     >
       {children}
